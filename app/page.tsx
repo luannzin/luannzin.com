@@ -96,9 +96,14 @@ export default function Home() {
                   <a href={item.url} target="_blank" rel="noopener noreferrer">
                     <div className="flex gap-4 font-bold items-center">
                       <span className="underline text-xl">{item.name}</span>
-                      <span className="dark:text-black text-white dark:bg-white bg-black rounded-[8px] px-4 py-1 text-sm">
-                        {item.label}
-                      </span>
+                      {item.label.map((lb) => (
+                        <span
+                          key={lb}
+                          className="dark:text-black text-white dark:bg-white bg-black rounded-[8px] px-4 py-1 text-sm"
+                        >
+                          {lb}
+                        </span>
+                      ))}
                     </div>
                   </a>
                   <span className="dark:text-gray-300 gray-800">

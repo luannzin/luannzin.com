@@ -1,6 +1,6 @@
 type Project = {
   name: string;
-  label: string;
+  label: string[];
   description: string;
   url: string;
 };
@@ -8,7 +8,7 @@ type Project = {
 const projects: Project[] = [
   {
     name: "fulepi",
-    label: "beta",
+    label: ["beta"],
     description: "a complete system using most of my everyday technologies",
     url: "https://github.com/luannzin/fulepi",
   },
