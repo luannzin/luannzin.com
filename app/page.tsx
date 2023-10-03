@@ -63,7 +63,7 @@ export default function Home() {
               </svg>
             </a>
             <DropdownMenu>
-              <DropdownMenuTrigger className="cursor-pointer">
+              <DropdownMenuTrigger name="theme" className="cursor-pointer">
                 {theme === "dark" ? (
                   <Moon
                     className="max-[1024px]:w-6 max-[1024px]:h-6 w-8 h-8 fill-current dark:text-white text-black fade-in"
