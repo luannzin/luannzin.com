@@ -22,12 +22,12 @@ export default function Home() {
 
   return (
     <div className="dark:text-white text-black min-h-screen h-full bg-white dark:bg-black flex justify-center py-16">
-      <div className="h-fit max-w-laptop w-full flex flex-col gap-16">
-        <div className="flex w-full justify-between items-center">
+      <div className="h-fit max-w-laptop max-[1024px]:px-8 w-full flex flex-col gap-16">
+        <div className="flex max-[500px]:flex-col max-[500px]:gap-4 max-[500px]:items-start w-full justify-between items-center">
           <div className="text-2xl flex flex-col gap-2">
             <span className="font-bold">luannzin</span>
             <div className="flex items-center gap-4">
-              <span>web developer</span>
+              <span className="max-[1024px]:text-xl">web developer</span>
               <Crown weight="fill" />
             </div>
           </div>
@@ -38,7 +38,7 @@ export default function Home() {
               rel="noopener noreferrer"
             >
               <svg
-                className="w-8 h-8 fill-current dark:text-white text-black"
+                className="max-[1024px]:w-6 max-[1024px]:h-6 w-8 h-8 fill-current dark:text-white text-black"
                 role="img"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
@@ -53,7 +53,7 @@ export default function Home() {
               rel="noopener noreferrer"
             >
               <svg
-                className="w-8 h-8 fill-current dark:text-white text-black"
+                className="max-[1024px]:w-6 max-[1024px]:h-6 w-8 h-8 fill-current dark:text-white text-black"
                 role="img"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
@@ -66,12 +66,12 @@ export default function Home() {
               <DropdownMenuTrigger className="cursor-pointer">
                 {theme === "dark" ? (
                   <Moon
-                    className="w-8 h-8 fill-current dark:text-white text-black fade-in"
+                    className="max-[1024px]:w-6 max-[1024px]:h-6 w-8 h-8 fill-current dark:text-white text-black fade-in"
                     weight="fill"
                   />
                 ) : (
                   <Sun
-                    className="w-8 h-8 fill-current dark:text-white text-black fade-in"
+                    className="max-[1024px]:w-6 max-[1024px]:h-6 w-8 h-8 fill-current dark:text-white text-black fade-in"
                     weight="fill"
                   />
                 )}
