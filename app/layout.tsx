@@ -26,6 +26,7 @@ export default function RootLayout({
           name="keywords"
           content="luannzin, desenvolvedor web, web developer, reactjs, typescript, nextjs, Luan Fabri, luan, Fabri, desenvolvedor, front-end, front end"
         />
+        <title>luannzin, a web developer</title>
         <meta name="subject" content="luannzin - desenvolvedor web." />
         <meta name="copyright" content="Luan Fabri" />
         <meta name="language" content="PT" />
