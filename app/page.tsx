@@ -22,7 +22,7 @@ export default function Home() {
 
   return (
     <div className="dark:text-white text-black min-h-screen h-full flex justify-center py-16">
-      <div className="h-fit max-w-laptop max-[900px]:px-8 w-full flex flex-col gap-16">
+      <div className="h-fit max-w-laptop max-[1200px]:px-8 w-full flex flex-col gap-16">
         <div className="flex max-[500px]:flex-col max-[500px]:gap-4 max-[500px]:items-start w-full justify-between items-center">
           <div className="text-2xl flex flex-col gap-2">
             <span className="font-bold">luannzin</span>
