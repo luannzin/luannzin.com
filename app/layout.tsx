@@ -32,8 +32,8 @@ export default function RootLayout({
         <meta property="twitter:url" content={"https://luannzin.com/"} key="twitter:url" />
         <meta property="article:author" content={"luannzin"} />
         <meta property="article:section" content="tecnologia" />
-        <meta property="article:published_time" content={new Date()} />
-        <meta property="article:modified_time" content={new Date()} />
+        <meta property="article:published_time" content={new Date().toISOString()} />
+        <meta property="article:modified_time" content={new Date().toISOString()} />
         <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
