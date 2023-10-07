@@ -16,32 +16,32 @@ const Logo = ({ theme }: LogoProps) => {
           <path
             d="M6 91.6667L70 27.6667"
             stroke="#FAFAFA"
-            stroke-width="12"
-            stroke-linecap="round"
+            strokeWidth="12"
+            strokeLinecap="round"
           />
           <path
             d="M6 91.6667H48.6667"
             stroke="#FAFAFA"
-            stroke-width="12"
-            stroke-linecap="round"
+            strokeWidth="12"
+            strokeLinecap="round"
           />
           <path
             d="M6 6.33334V91.6667"
             stroke="#FAFAFA"
-            stroke-width="12"
-            stroke-linecap="round"
+            strokeWidth="12"
+            strokeLinecap="round"
           />
           <path
             d="M70 27.6667H27.3333"
             stroke="#FAFAFA"
-            stroke-width="12"
-            stroke-linecap="round"
+            strokeWidth="12"
+            strokeLinecap="round"
           />
           <path
             d="M70 113V27.6667"
             stroke="#FAFAFA"
-            stroke-width="12"
-            stroke-linecap="round"
+            strokeWidth="12"
+            strokeLinecap="round"
           />
         </svg>
       );
@@ -58,32 +58,32 @@ const Logo = ({ theme }: LogoProps) => {
           <path
             d="M6 91.6667L70 27.6667"
             stroke="#000000"
-            stroke-width="12"
-            stroke-linecap="round"
+            strokeWidth="12"
+            strokeLinecap="round"
           />
           <path
             d="M6 91.6667H48.6667"
             stroke="#000000"
-            stroke-width="12"
-            stroke-linecap="round"
+            strokeWidth="12"
+            strokeLinecap="round"
           />
           <path
             d="M6 6.33334V91.6667"
             stroke="#000000"
-            stroke-width="12"
-            stroke-linecap="round"
+            strokeWidth="12"
+            strokeLinecap="round"
           />
           <path
             d="M70 27.6667H27.3333"
             stroke="#000000"
-            stroke-width="12"
-            stroke-linecap="round"
+            strokeWidth="12"
+            strokeLinecap="round"
           />
           <path
             d="M70 113V27.6667"
             stroke="#000000"
-            stroke-width="12"
-            stroke-linecap="round"
+            strokeWidth="12"
+            strokeLinecap="round"
           />
         </svg>
       );

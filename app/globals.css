@@ -78,3 +78,33 @@
 /* body * {
   @apply transition-colors;
 } */
+
+.fade-right {
+  animation: fade-right 0.5s ease-in-out;
+}
+
+@keyframes fade-right {
+  0% {
+    opacity: 0;
+    transform: translateX(-10%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-left {
+  animation: fade-left 0.5s ease-in-out;
+}
+
+@keyframes fade-left {
+  0% {
+    opacity: 0;
+    transform: translateX(10%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

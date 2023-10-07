@@ -13,13 +13,15 @@ export default function Home() {
   }, [theme]);
 
   return (
-    <div className="dark:text-white-400 text-black-400 min-h-screen h-full flex justify-center py-12">
+    <div className="dark:text-white-400 text-black-400 min-h-screen max-mobile:min-h-[100dvh] h-full flex justify-center py-12">
       <div className="max-w-laptop max-[1200px]:px-8 w-full flex flex-col">
         <div className="h-full flex items-end justify-center">
           <div className="flex max-mobile:gap-6 gap-12 max-mobile:flex-col max-mobile:items-center">
-            <Logo theme={theme} />
+            <div className="flex justify-center items-center w-fit h-fit fade-left">
+              <Logo theme={theme} />
+            </div>
             <div className="rounded-lg min-h-full max-mobile:hidden max-mobile:min-w-full max-mobile:min-h-[2px] max-mobile:h-[2px] max-mobile:max-h-[2px] min-w-[2px] max-w-[2px] w-[2px] max-mobile:bg-gradient-to-r bg-gradient-to-b from-gray-800 via-gray-800 to-white-500 dark:from-gray-500 dark:via-gray-500 dark:to-black-500" />
-            <div className="flex max-mobile:hidden flex-col justify-center max-mobile:text-2xl text-4xl gap-4 font-medium max-mobile:text-center">
+            <div className="fade-right flex max-mobile:hidden flex-col justify-center max-mobile:text-2xl text-4xl gap-4 font-medium max-mobile:text-center">
               <h1>luannzin</h1>
               <h2>Software Engineer</h2>
             </div>
