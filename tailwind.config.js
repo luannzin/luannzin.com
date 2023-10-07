@@ -78,9 +78,19 @@ module.exports = {
       maxWidth: {
         laptop: "1024px",
       },
+      screens: {
+        mobile: "768px",
+      },
       colors: {
-        white: "#fafafa",
-        black: "#000009",
+        "white-500": "#ffffff",
+        "white-400": "#fafafa",
+        "white-300": "#eeeeee",
+
+        "black-500": "#000000",
+        "black-400": "#121214",
+
+        "gray-500": "#969696",
+        "gray-800": "#3a3a3a",
       },
     },
   },

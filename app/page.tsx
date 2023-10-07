@@ -1,19 +1,11 @@
 "use client";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Crown, Moon, Sun } from "@phosphor-icons/react";
+import { Moon, Sun } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
-import projects from "./utils/projects";
-import { Separator } from "@/components/ui/separator";
-import roles from "./utils/roles";
+import Logo from "./components/Logo";
 
 export default function Home() {
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
     document.documentElement.classList.remove("dark", "light");
@@ -21,24 +13,40 @@ export default function Home() {
   }, [theme]);
 
   return (
-    <div className="dark:text-white text-black min-h-screen h-full flex justify-center py-16">
-      <div className="h-fit max-w-laptop max-[1200px]:px-8 w-full flex flex-col gap-16">
-        <div className="flex max-[500px]:flex-col max-[500px]:gap-4 max-[500px]:items-start w-full justify-between items-center">
-          <div className="text-2xl flex flex-col gap-2">
-            <span className="font-bold">luannzin</span>
-            <div className="flex items-center gap-4">
-              <span className="max-[1024px]:text-xl">web developer</span>
-              <Crown weight="fill" />
+    <div className="dark:text-white-400 text-black-400 min-h-screen h-full flex justify-center py-12">
+      <div className="max-w-laptop max-[1200px]:px-8 w-full flex flex-col">
+        <div className="h-full flex items-end justify-center">
+          <div className="flex max-mobile:gap-6 gap-12 max-mobile:flex-col max-mobile:items-center">
+            <Logo theme={theme} />
+            <div className="rounded-lg min-h-full max-mobile:hidden max-mobile:min-w-full max-mobile:min-h-[2px] max-mobile:h-[2px] max-mobile:max-h-[2px] min-w-[2px] max-w-[2px] w-[2px] max-mobile:bg-gradient-to-r bg-gradient-to-b from-gray-800 via-gray-800 to-white-500 dark:from-gray-500 dark:via-gray-500 dark:to-black-500" />
+            <div className="flex max-mobile:hidden flex-col justify-center max-mobile:text-2xl text-4xl gap-4 font-medium max-mobile:text-center">
+              <h1>luannzin</h1>
+              <h2>Software Engineer</h2>
             </div>
           </div>
-          <div className="flex gap-4">
+        </div>
+        <div className="h-full flex items-end justify-between max-mobile:gap-8 max-mobile:justify-center">
+          <div className="p-2 hover:bg-gray-300 hover:dark:bg-gray-800 rounded-lg transition-all">
+            {theme === "light" ? (
+              <Moon
+                className="w-8 h-8 cursor-pointer "
+                onClick={() => setTheme("dark")}
+              />
+            ) : (
+              <Sun
+                className="w-8 h-8 cursor-pointer"
+                onClick={() => setTheme("light")}
+              />
+            )}
+          </div>
+          <div className="flex gap-8">
             <a
+              className="dark:fill-white-400 fill-black-400 p-2 hover:bg-gray-300 hover:dark:bg-gray-800 rounded-lg transition-all"
               href="https://github.com/luannzin"
               target="_blank"
-              rel="noopener noreferrer"
             >
               <svg
-                className="max-[1024px]:w-6 max-[1024px]:h-6 w-8 h-8 fill-current dark:text-white text-black"
+                className="w-8 h-8 cursor-pointer"
                 role="img"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
@@ -48,12 +56,12 @@ export default function Home() {
               </svg>
             </a>
             <a
+              className="dark:fill-white-400 fill-black-400 p-2 hover:bg-gray-300 hover:dark:bg-gray-800 rounded-lg transition-all"
               href="https://www.linkedin.com/in/luannzin/"
               target="_blank"
-              rel="noopener noreferrer"
             >
               <svg
-                className="max-[1024px]:w-6 max-[1024px]:h-6 w-8 h-8 fill-current dark:text-white text-black"
+                className="w-8 h-8 cursor-pointer"
                 role="img"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
@@ -62,80 +70,21 @@ export default function Home() {
                 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
               </svg>
             </a>
-            <DropdownMenu>
-              <DropdownMenuTrigger name="theme" className="cursor-pointer">
-                {theme === "dark" ? (
-                  <Moon
-                    className="max-[1024px]:w-6 max-[1024px]:h-6 w-8 h-8 fill-current dark:text-white text-black fade-in"
-                    weight="fill"
-                  />
-                ) : (
-                  <Sun
-                    className="max-[1024px]:w-6 max-[1024px]:h-6 w-8 h-8 fill-current dark:text-white text-black fade-in"
-                    weight="fill"
-                  />
-                )}
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="dark:text-white text-black ">
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
-                  Dark
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("light")}>
-                  Light
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-        <div>
-          <span className="font-bold text-2xl">projects</span>
-          <div className="flex flex-col gap-8 pt-8">
-            {projects.map((item) => {
-              return (
-                <div key={item.name} className="flex flex-col gap-4">
-                  <a href={item.url} target="_blank" rel="noopener noreferrer">
-                    <div className="flex gap-4 font-bold items-center">
-                      <span className="underline text-xl">{item.name}</span>
-                      {item.label.map((lb) => (
-                        <span
-                          key={lb}
-                          className="dark:text-black text-white dark:bg-white bg-black rounded-[8px] px-4 py-1 text-sm"
-                        >
-                          {lb}
-                        </span>
-                      ))}
-                    </div>
-                  </a>
-                  <span className="dark:text-gray-300 gray-800">
-                    {item.description}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        <Separator
-          className="bg-gray-800 dark:bg-gray-300"
-          orientation="horizontal"
-        />
-        <div>
-          <span className="font-bold text-2xl">roles</span>
-          <div className="flex flex-col gap-8 py-8">
-            {roles.map((item) => {
-              return (
-                <div key={item.name} className="flex flex-col gap-4">
-                  <div className="flex gap-4 font-bold items-center">
-                    <span className="underline text-xl">{item.name}</span>
-                    <span className="dark:text-black text-white dark:bg-white bg-black rounded-[8px] px-4 py-1 text-sm">
-                      {item.label}
-                    </span>
-                  </div>
-                  <span className="dark:text-gray-300 gray-800">
-                    {item.description}
-                  </span>
-                </div>
-              );
-            })}
+            <a
+              className="dark:fill-white-400 fill-black-400 p-2 hover:bg-gray-300 hover:dark:bg-gray-800 rounded-lg transition-all"
+              href="https://twitter.com/__luannzin"
+              target="_blank"
+            >
+              <svg
+                className="w-8 h-8 cursor-pointer"
+                role="img"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <title>__luannzin</title>
+                <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+              </svg>
+            </a>
           </div>
         </div>
       </div>

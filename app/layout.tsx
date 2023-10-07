@@ -10,7 +10,7 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "luannzin · Web engineer and UI/UX Designer",
+  title: "luannzin · Software Engineer and UX Designer",
 };
 
 export default function RootLayout({
@@ -21,26 +21,67 @@ export default function RootLayout({
   return (
     <html className="dark" lang="pt-BR">
       <head>
-        <meta name="title" content={"luannzin · Web engineer and UI/UX Designer"} key="title" />
-        <meta property="og:title" content={"luannzin · Web engineer and UI/UX Designer"} key="og:title" />
-        <meta property="twitter:title" content={"luannzin · Web engineer and UI/UX Designer"} key="twitter:title" />
-        <meta name="description" content={"luannzin é um desenvolvedor web que se dedica a entregar eficiência, usabilidade e velocidade em suas aplicações."} key="description" />
-        <meta property="og:description" content={"luannzin é um desenvolvedor web que se dedica a entregar eficiência, usabilidade e velocidade em suas aplicações."} key="og:description" />
-        <meta property="twitter:description" content={"luannzin é um desenvolvedor web que se dedica a entregar eficiência, usabilidade e velocidade em suas aplicações."} key="twitter:description" />
+        <meta
+          name="title"
+          content={"luannzin · Software Engineer and UX Designer"}
+          key="title"
+        />
+        <meta
+          property="og:title"
+          content={"luannzin · Software Engineer and UX Designer"}
+          key="og:title"
+        />
+        <meta
+          property="twitter:title"
+          content={"luannzin · Software Engineer and UX Designer"}
+          key="twitter:title"
+        />
+        <meta
+          name="description"
+          content={"Software Engineer and UX Designer"}
+          key="description"
+        />
+        <meta
+          property="og:description"
+          content={"Software Engineer and UX Designer"}
+          key="og:description"
+        />
+        <meta
+          property="twitter:description"
+          content={"Software Engineer and UX Designer"}
+          key="twitter:description"
+        />
         <link rel="canonical" href={"https://luannzin.com/"} key="canonical" />
-        <meta property="og:url" content={"https://luannzin.com/"} key="og:url" />
-        <meta property="twitter:url" content={"https://luannzin.com/"} key="twitter:url" />
+        <meta
+          property="og:url"
+          content={"https://luannzin.com/"}
+          key="og:url"
+        />
+        <meta
+          property="twitter:url"
+          content={"https://luannzin.com/"}
+          key="twitter:url"
+        />
         <meta property="article:author" content={"luannzin"} />
         <meta property="article:section" content="tecnologia" />
-        <meta property="article:published_time" content={new Date().toISOString()} />
-        <meta property="article:modified_time" content={new Date().toISOString()} />
-        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+        <meta
+          property="article:published_time"
+          content={new Date().toISOString()}
+        />
+        <meta
+          property="article:modified_time"
+          content={new Date().toISOString()}
+        />
+        <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
           name="keywords"
-          content="luannzin, desenvolvedor web, web developer, reactjs, typescript, nextjs, Luan Fabri, desenvolvedor, front-end, front end"
+          content="luannzin, desenvolvedor web, web developer, software engineer, typescript, nextjs, reactjs, Luan Fabri, desenvolvedor, front-end, front end"
         />
-        <meta name="subject" content="luannzin - desenvolvedor web." />
+        <meta
+          name="subject"
+          content="luannzin · Software Engineer and UX Designer"
+        />
         <meta name="copyright" content="Luan Fabri" />
         <meta name="language" content="PT" />
         <meta name="robots" content="index, follow" />
@@ -48,16 +89,13 @@ export default function RootLayout({
           name="googlebot"
           content="index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
         />
-        <meta name="revised" content="Sexta-feira, 6 de Outubro de 2023" />
+        <meta name="revised" content="Sábado, 7 de Outubro de 2023" />
+        <meta name="abstract" content="Software Engineer and UX Designer" />
         <meta
-          name="abstract"
-          content="Luan Fabri é um desenvolvedor web que se dedica a entregar eficiência, usabilidade e velocidade em suas aplicações."
+          name="topic"
+          content="luannzin · Software Engineer and UX Designer"
         />
-        <meta name="topic" content="luannzin · Web engineer and UI/UX Designer" />
-        <meta
-          name="summary"
-          content="Luan Fabri é um desenvolvedor web que se dedica a entregar eficiência, usabilidade e velocidade em suas aplicações."
-        />
+        <meta name="summary" content="Software Engineer and UX Designer" />
 
         <meta name="classification" content="Developer" />
 
@@ -65,15 +103,15 @@ export default function RootLayout({
 
         <meta name="reply-to" content="luandaniel966@gmail.com" />
 
-        <meta name="owner" content="Luan Fabri" />
+        <meta name="owner" content="luannzin" />
 
         <meta name="url" content="http://www.luannzin.com" />
 
         <meta name="identifier-URL" content="https://luannzin.com/" />
 
-        <meta name="directory" content="Developer, Web Developer" />
+        <meta name="directory" content="Software, Software Engineer" />
 
-        <meta name="category" content="Developer, Web Developer" />
+        <meta name="category" content="Software, Software Engineer" />
 
         <meta name="coverage" content="Brasil" />
 
@@ -91,21 +129,21 @@ export default function RootLayout({
 
         <meta content="yes" name="apple-mobile-web-app-capable" />
 
-        <meta name="theme-color" content="#000009" />
+        <meta name="theme-color" content="#121214" />
 
-        <meta name="theme-color" content="#000009" />
+        <meta name="theme-color" content="#121214" />
 
-        <meta name="msapplication-navbutton-color" content="#000009" />
+        <meta name="msapplication-navbutton-color" content="#121214" />
 
-        <meta name="msapplication-TileColor" content="#000009" />
+        <meta name="msapplication-TileColor" content="#121214" />
 
-        <meta name="apple-mobile-web-app-status-bar-style" content="#000009" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="#121214" />
 
         <meta name="color-scheme" content="light" />
 
         <meta
           name="theme-color"
-          content="#000009"
+          content="#fafafa"
           media="(prefers-color-scheme: light)"
         />
 
@@ -115,7 +153,9 @@ export default function RootLayout({
           media="(prefers-color-scheme: dark)"
         />
       </head>
-      <body className={`${roboto.className} bg-white dark:bg-black`}>
+      <body
+        className={`${roboto.className} bg-gradient-to-b from-white-300 to-white-500 dark:from-black-400 dark:to-black-500`}
+      >
         {children}
         <Analytics />
       </body>
