@@ -72,7 +72,12 @@ export default function RootLayout({
           property="article:modified_time"
           content={new Date().toISOString()}
         />
-        <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
+        <link
+          rel="shortcut icon"
+          sizes="16x16 32x32 64x64 96x96 180x180 512x512"
+          href="/favicon.svg"
+          type="image/svg+xml"
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
           name="keywords"
