@@ -7,86 +7,75 @@ const Logo = ({ theme }: LogoProps) => {
     case "dark":
       return (
         <svg
-          width="76"
-          height="119"
-          viewBox="0 0 76 119"
+          width="75"
+          height="75"
+          viewBox="0 0 75 75"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            d="M6 91.6667L70 27.6667"
+            d="M5 5V69.9275"
             stroke="#FAFAFA"
-            strokeWidth="12"
-            strokeLinecap="round"
+            stroke-width="10"
+            stroke-linecap="round"
           />
           <path
-            d="M6 91.6667H48.6667"
+            d="M53.6956 26.3044L21.2319 69.8897"
             stroke="#FAFAFA"
-            strokeWidth="12"
-            strokeLinecap="round"
+            stroke-width="10"
+            stroke-linecap="round"
           />
           <path
-            d="M6 6.33334V91.6667"
+            d="M21.2319 26.3044L53.6957 26.3044"
             stroke="#FAFAFA"
-            strokeWidth="12"
-            strokeLinecap="round"
+            stroke-width="10"
+            stroke-linecap="round"
           />
           <path
-            d="M70 27.6667H27.3333"
+            d="M21.2319 69.9276H53.6957"
             stroke="#FAFAFA"
-            strokeWidth="12"
-            strokeLinecap="round"
+            stroke-width="10"
+            stroke-linecap="round"
           />
-          <path
-            d="M70 113V27.6667"
-            stroke="#FAFAFA"
-            strokeWidth="12"
-            strokeLinecap="round"
-          />
+          <circle cx="69.9275" cy="69.9275" r="5.07246" fill="#FAFAFA" />
         </svg>
       );
 
     case "light":
-      return (
-        <svg
-          width="76"
-          height="119"
-          viewBox="0 0 76 119"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M6 91.6667L70 27.6667"
-            stroke="#000000"
-            strokeWidth="12"
-            strokeLinecap="round"
-          />
-          <path
-            d="M6 91.6667H48.6667"
-            stroke="#000000"
-            strokeWidth="12"
-            strokeLinecap="round"
-          />
-          <path
-            d="M6 6.33334V91.6667"
-            stroke="#000000"
-            strokeWidth="12"
-            strokeLinecap="round"
-          />
-          <path
-            d="M70 27.6667H27.3333"
-            stroke="#000000"
-            strokeWidth="12"
-            strokeLinecap="round"
-          />
-          <path
-            d="M70 113V27.6667"
-            stroke="#000000"
-            strokeWidth="12"
-            strokeLinecap="round"
-          />
-        </svg>
-      );
+      return;
+      <svg
+        width="75"
+        height="75"
+        viewBox="0 0 75 75"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M5 5V69.9275"
+          stroke="black"
+          stroke-width="10"
+          stroke-linecap="round"
+        />
+        <path
+          d="M53.6956 26.3043L21.2319 69.8896"
+          stroke="black"
+          stroke-width="10"
+          stroke-linecap="round"
+        />
+        <path
+          d="M21.2319 26.3043L53.6957 26.3043"
+          stroke="black"
+          stroke-width="10"
+          stroke-linecap="round"
+        />
+        <path
+          d="M21.2319 69.9275H53.6957"
+          stroke="black"
+          stroke-width="10"
+          stroke-linecap="round"
+        />
+        <circle cx="69.9275" cy="69.9276" r="5.07246" fill="black" />
+      </svg>;
   }
 };
 
