@@ -24,7 +24,12 @@ const Projects = () => {
       {projects.map((item) => {
         return (
           <div key={item.name} className="flex flex-col">
-            <Link href={item.url} target={"_blank"} rel="noopener noreferrer">
+            <Link
+              href={item.url}
+              target={"_blank"}
+              rel="noopener noreferrer"
+              className="max-w-fit"
+            >
               <motion.span
                 initial={{
                   opacity: 0,

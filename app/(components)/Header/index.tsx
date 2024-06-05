@@ -23,7 +23,7 @@ const Header = () => {
               type: "spring",
             }}
             key={item.name}
-            className="flex gap-2"
+            className="flex gap-2 max-w-fit"
           >
             <Link
               href={item.url}
