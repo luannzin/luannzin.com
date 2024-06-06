@@ -57,7 +57,7 @@ const Projects = () => {
                     x: 0,
                   }}
                   transition={{
-                    delay: 0.5,
+                    delay: 1,
                     type: "spring",
                   }}
                 >
