@@ -19,7 +19,7 @@ const Header = () => {
               x: 0,
             }}
             transition={{
-              delay: 0.5 + index * 0.15,
+              delay: index * 0.15,
               type: "spring",
             }}
             key={item.name}
