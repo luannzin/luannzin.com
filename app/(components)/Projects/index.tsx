@@ -28,7 +28,7 @@ const Projects = () => {
               href={item.url}
               target={"_blank"}
               rel="noopener noreferrer"
-              className="max-w-fit"
+              className="max-w-fit flex items-start gap-2"
             >
               <motion.span
                 initial={{
@@ -48,7 +48,7 @@ const Projects = () => {
               {item.status && (
                 <motion.span
                   initial={{
-                    position: "absolute",
+                    // position: "absolute",
                     opacity: 0,
                     x: -10,
                   }}
@@ -61,8 +61,8 @@ const Projects = () => {
                     type: "spring",
                   }}
                 >
-                  {" "}
-                  - <span className="text-sm underline">{item.status}</span>
+                  <span className="mr-2">-</span>
+                  <span className="text-sm underline">{item.status}</span>
                 </motion.span>
               )}
             </Link>
