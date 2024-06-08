@@ -30,11 +30,16 @@ const Header = () => {
               target={item.target}
               rel="noopener noreferrer"
             >
-              <span className="text-blue-700 font-bold underline">
+              <span className="text-blue-700 dark:text-sky-400 font-bold underline">
                 {item.name}
               </span>
+              {item.alert && (
+                <span className="animate-ping absolute inline-flex h-1 w-1 rounded-full bg-sky-400 opacity-75"></span>
+              )}
             </Link>
-            {index !== nav.length - 1 && <span className="font-bold">/</span>}
+            {index !== nav.length - 1 && (
+              <span className="font-bold text-black dark:text-sky-50">/</span>
+            )}
           </motion.div>
         );
       })}

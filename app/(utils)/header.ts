@@ -2,6 +2,7 @@ export type NavItemType = {
   name: string;
   url: string;
   target: string;
+  alert?: boolean;
 };
 
 export type NavType = NavItemType[];
@@ -21,5 +22,6 @@ export const nav: NavType = [
     name: "terminal",
     url: "/terminal",
     target: "_self",
+    // alert: true,
   },
 ];
