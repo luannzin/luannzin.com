@@ -81,7 +81,7 @@ export default function Home() {
     set(ref(FirebaseDatabase, "mouse/" + uuid), {
       x: mouse.x,
       y: mouse.y,
-      username: username,
+      ...(mouse.x && mouse.y ? { username } : {}),
     });
 
     // return () => clearTimeout(timeout);
