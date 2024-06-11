@@ -17,7 +17,7 @@ const cursors: {
   8: "http://www.rw-designer.com/cursor-view/1292.png",
 };
 
-const Playground = ({ uuid }) => {
+const Playground = ({ uuid }: { uuid: string }) => {
   const allMousesRef = ref(FirebaseDatabase, "mouse/");
 
   const [allMouses, setAllMouses] = useState([]);

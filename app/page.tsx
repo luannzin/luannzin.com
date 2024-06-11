@@ -12,7 +12,7 @@ import { FirebaseDatabase } from "./(utils)/firebase";
 import { v4 as uuidv4 } from "uuid";
 
 export default function Home() {
-  const [uuid, setUuid] = useState(localStorage.getItem("uuid") || "");
+  const [uuid, setUuid] = useState("");
 
   useEffect(() => {
     if (!uuid) {
@@ -21,6 +21,10 @@ export default function Home() {
       localStorage.setItem("uuid", newUuid);
     }
   }, [uuid]);
+
+  useEffect(() => {
+    setUuid(localStorage.getItem("uuid") || "");
+  }, []);
 
   const divRef = useRef(null);
   const mouse = useMouse(divRef, {
