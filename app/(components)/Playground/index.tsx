@@ -53,7 +53,7 @@ const Playground = ({ uuid }: { uuid: string }) => {
         zIndex: -1,
         backgroundColor: "rgb(4 4 4)",
         scale: 1,
-        opacity: 0.15,
+        opacity: 0.25,
       }}
       transition={{
         delay: 0.1,
