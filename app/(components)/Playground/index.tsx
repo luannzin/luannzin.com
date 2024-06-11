@@ -1,22 +1,9 @@
+import { cursors } from "@/app/(utils)/cursors";
 import { FirebaseDatabase } from "@/app/(utils)/firebase";
-import { onValue, ref, set } from "firebase/database";
+import { onValue, ref } from "firebase/database";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { use, useEffect, useState } from "react";
-
-const cursors: {
-  [key: number]: string;
-} = {
-  0: "http://www.rw-designer.com/cursor-view/1293.png",
-  1: "http://www.rw-designer.com/cursor-view/1285.png",
-  2: "http://www.rw-designer.com/cursor-view/1286.png",
-  3: "http://www.rw-designer.com/cursor-view/1287.png",
-  4: "http://www.rw-designer.com/cursor-view/1288.png",
-  5: "http://www.rw-designer.com/cursor-view/1289.png",
-  6: "http://www.rw-designer.com/cursor-view/1290.png",
-  7: "http://www.rw-designer.com/cursor-view/1291.png",
-  8: "http://www.rw-designer.com/cursor-view/1292.png",
-};
+import { useEffect, useState } from "react";
 
 const Playground = ({ uuid }: { uuid: string }) => {
   const allMousesRef = ref(FirebaseDatabase, "mouse/");
@@ -50,13 +37,11 @@ const Playground = ({ uuid }: { uuid: string }) => {
     <motion.div
       initial={{
         zIndex: 100,
-        backgroundColor: "#000",
         opacity: 1,
         scale: 3,
       }}
       animate={{
         zIndex: -1,
-        backgroundColor: "rgb(4 4 4)",
         scale: 1,
         opacity: 0.5,
       }}
@@ -65,24 +50,8 @@ const Playground = ({ uuid }: { uuid: string }) => {
         duration: 0.45,
         type: "tween",
       }}
-      className="w-screen h-screen bg-black fixed top-0 left-0 flex items-center justify-center"
+      className="w-screen h-screen bg-sky-50 dark:bg-black fixed top-0 left-0 flex items-center justify-center"
     >
-      <motion.div
-        initial={{
-          opacity: 1,
-        }}
-        animate={{
-          opacity: 0,
-        }}
-        transition={{
-          delay: 0.1,
-          duration: 0.5,
-          type: "tween",
-        }}
-        className="text-sky-50 text-bold text-xs"
-      >
-        luannzin.com
-      </motion.div>
       {Object.values(allMouses).length > 0 &&
         Object.values(allMouses).map(
           (
