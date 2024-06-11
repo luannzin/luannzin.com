@@ -1,6 +1,7 @@
 import { FirebaseDatabase } from "@/app/(utils)/firebase";
 import { onValue, ref, set } from "firebase/database";
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 import { use, useEffect, useState } from "react";
 
 const cursors: {
@@ -112,10 +113,12 @@ const Playground = ({ uuid }: { uuid: string }) => {
                 }}
                 className="fixed top-0 left-0 w-8 h-8 rounded-full flex items-center justify-center"
               >
-                <img
+                <Image
                   src={cursors[index % Object.keys(cursors).length]}
-                  alt=""
+                  alt="Mouse"
                   className="w-full h-full object-cover"
+                  width={32}
+                  height={32}
                 />
               </motion.div>
             </AnimatePresence>
