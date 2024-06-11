@@ -15,10 +15,8 @@ export default function Home() {
   const [uuid, setUuid] = useState("");
 
   useEffect(() => {
+    if (localStorage.getItem("uuid")) return;
     if (!uuid) {
-      if (localStorage.getItem("uuid")) {
-        return setUuid(localStorage.getItem("uuid")!);
-      }
       const newUuid = uuidv4();
       setUuid(newUuid);
       localStorage.setItem("uuid", newUuid);
@@ -26,8 +24,8 @@ export default function Home() {
   }, [uuid]);
 
   useEffect(() => {
-    setUuid(localStorage.getItem("uuid") || "");
-  }, []);
+    setUuid(localStorage.getItem("uuid") ?? "");
+  }, [localStorage]);
 
   const divRef = useRef(null);
   const mouse = useMouse(divRef, {
@@ -65,7 +63,7 @@ export default function Home() {
           <Projects />
         </div>
       </motion.div>
-      <Playground uuid={uuid} />
+      <Playground uuid={localStorage.getItem("uuid") ?? uuid} />
     </>
   );
 }

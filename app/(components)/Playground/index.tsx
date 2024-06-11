@@ -35,7 +35,9 @@ const Playground = ({ uuid }: { uuid: string }) => {
       });
     };
 
-    const timeout = setTimeout(() => {}, 200);
+    const timeout = setTimeout(() => {
+      renderMouses();
+    }, 20);
 
     return () => clearTimeout(timeout);
   }, []);
