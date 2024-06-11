@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Header from "./(components)/Header";
 import Projects from "./(components)/Projects";
 import Playground from "./(components)/Playground";
@@ -29,6 +29,7 @@ import MoonIcon from "./(icons)/Moon";
 export default function Home() {
   const { toast } = useToast();
   const [uuid, setUuid] = useState("");
+  const document = typeof window !== "undefined" ? window.document : null;
 
   const [username, setUsername] = useState("");
 
@@ -88,7 +89,7 @@ export default function Home() {
             <Projects />
           </div>
           <Dialog>
-            <DialogTrigger>
+            <DialogTrigger className="max-w-fit">
               <motion.div
                 whileHover={{
                   cursor: "pointer",
@@ -139,21 +140,53 @@ export default function Home() {
                 <label className="flex flex-col gap-2">
                   <span>Tema</span>
                   <div className="flex items-center gap-2">
-                    <SunIcon className="w-6 h-6 stroke-black dark:stroke-white" />
+                    <AnimatePresence>
+                      {document &&
+                      document.documentElement.classList.contains("dark") ? (
+                        <motion.div
+                          key={"sun"}
+                          initial={{
+                            y: -10,
+                            opacity: 0,
+                          }}
+                          animate={{
+                            y: 0,
+                            opacity: 1,
+                          }}
+                        >
+                          <SunIcon className="w-6 h-6 stroke-black dark:stroke-white" />
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key={"moon"}
+                          initial={{
+                            y: -10,
+                            opacity: 0,
+                          }}
+                          animate={{
+                            y: 0,
+                            opacity: 1,
+                          }}
+                        >
+                          <MoonIcon className="w-6 h-6 fill-black dark:fill-white" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                     <Switch
                       className="h-6"
-                      checked={document.documentElement.classList.contains(
-                        "dark"
-                      )}
+                      checked={
+                        document
+                          ? document.documentElement.classList.contains("dark")
+                          : false
+                      }
                       onCheckedChange={(value) => {
                         if (value) {
-                          document.documentElement.classList.add("dark");
+                          document!.documentElement.classList.add("dark");
                         } else {
-                          document.documentElement.classList.remove("dark");
+                          document!.documentElement.classList.remove("dark");
                         }
                       }}
                     />
-                    <MoonIcon className="w-6 h-6 fill-black dark:fill-white" />
                   </div>
                 </label>
               </div>
