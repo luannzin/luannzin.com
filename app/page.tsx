@@ -31,18 +31,17 @@ export default function Home() {
 
   const divRef = useRef(null);
   const mouse = useMouse(divRef, {
-    fps: 1,
+    fps: 60,
   });
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      set(ref(FirebaseDatabase, "mouse/" + uuid), {
-        x: mouse.x,
-        y: mouse.y,
-      });
-    }, 500);
+    if (!mouse) return;
+    set(ref(FirebaseDatabase, "mouse/" + uuid), {
+      x: mouse.x,
+      y: mouse.y,
+    });
 
-    return () => clearTimeout(timeout);
+    // return () => clearTimeout(timeout);
   }, [mouse, uuid]);
 
   return (

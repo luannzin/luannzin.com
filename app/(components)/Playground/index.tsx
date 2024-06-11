@@ -27,19 +27,18 @@ const Playground = ({ uuid }: { uuid: string }) => {
     const renderMouses = () => {
       onValue(allMousesRef, (snapshot) => {
         const data = snapshot.val();
-
-        if (data?.[uuid]) delete data[uuid];
         if (!data) return setAllMouses([]);
-        setAllMouses(Object.values(data));
+
+        delete data[uuid];
+
+        setAllMouses(data);
       });
     };
 
-    const timeout = setTimeout(() => {
-      renderMouses();
-    }, 500);
+    const timeout = setTimeout(() => {}, 200);
 
     return () => clearTimeout(timeout);
-  });
+  }, []);
 
   return (
     <motion.div
@@ -78,9 +77,8 @@ const Playground = ({ uuid }: { uuid: string }) => {
       >
         luannzin.com
       </motion.div>
-      {Object.values(allMouses).some((mouse) => mouse !== null) &&
-        allMouses.length > 0 &&
-        allMouses.map(
+      {Object.values(allMouses).length > 0 &&
+        Object.values(allMouses).map(
           (
             mouse: {
               x: number;
@@ -91,25 +89,10 @@ const Playground = ({ uuid }: { uuid: string }) => {
             <AnimatePresence key={index}>
               <motion.div
                 key={index}
-                initial={{
-                  x: mouse.x,
-                  y: mouse.y,
-                }}
-                animate={{
-                  x: mouse.x,
-                  y: mouse.y,
-                }}
-                exit={{
-                  filter: "blur(6px)",
-                  opacity: 0,
-                }}
-                transition={{
-                  type: "spring",
-                  mass: 0.05,
-                  stiffness: 0.05,
-                  damping: 0.05,
-                  restDelta: 0.5,
-                  restSpeed: 0.1,
+                style={{
+                  x: mouse?.x ?? 0,
+                  y: mouse?.y ?? 0,
+                  transition: "all 0.1s ease",
                 }}
                 className="fixed top-0 left-0 w-8 h-8 rounded-full flex items-center justify-center"
               >
