@@ -16,6 +16,9 @@ export default function Home() {
 
   useEffect(() => {
     if (!uuid) {
+      if (localStorage.getItem("uuid")) {
+        return setUuid(localStorage.getItem("uuid"));
+      }
       const newUuid = uuidv4();
       setUuid(newUuid);
       localStorage.setItem("uuid", newUuid);
