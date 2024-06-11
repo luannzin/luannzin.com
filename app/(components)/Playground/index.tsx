@@ -29,7 +29,11 @@ const Playground = ({ uuid }: { uuid: string }) => {
         const data = snapshot.val();
         if (!data) return setAllMouses([]);
 
-        delete data[uuid];
+        if (localStorage.getItem("uuid")) {
+          delete data[localStorage.getItem("uuid")!];
+        } else {
+          delete data[uuid];
+        }
 
         setAllMouses(data);
       });
