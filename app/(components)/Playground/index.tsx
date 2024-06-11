@@ -58,27 +58,35 @@ const Playground = ({ uuid }: { uuid: string }) => {
             mouse: {
               x: number;
               y: number;
+              username: string;
             },
             index
           ) => (
             <AnimatePresence key={index}>
-              <motion.div
-                key={index}
-                style={{
-                  x: mouse?.x ?? 0,
-                  y: mouse?.y ?? 0,
-                  transition: "all 0.1s ease",
-                }}
-                className="fixed top-0 left-0 w-8 h-8 rounded-full flex items-center justify-center"
-              >
-                <Image
-                  src={cursors[index % Object.keys(cursors).length]}
-                  alt="Mouse"
-                  className="w-full h-full object-cover"
-                  width={32}
-                  height={32}
-                />
-              </motion.div>
+              <div>
+                <motion.div
+                  key={index}
+                  style={{
+                    x: mouse?.x ?? 0,
+                    y: mouse?.y ?? 0,
+                    transition: "all 0.1s ease",
+                  }}
+                  className="fixed top-0 left-0 w-8 h-8 rounded-full flex flex-col items-center justify-center"
+                >
+                  <div>
+                    <span className="text-[10px] text-nowrap">
+                      {mouse?.username || "Anonymous"}
+                    </span>
+                  </div>
+                  <Image
+                    src={cursors[index % Object.keys(cursors).length]}
+                    alt="Mouse"
+                    className="w-full h-full object-cover"
+                    width={32}
+                    height={32}
+                  />
+                </motion.div>
+              </div>
             </AnimatePresence>
           )
         )}

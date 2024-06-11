@@ -32,11 +32,30 @@ export default function Home() {
   const document = typeof window !== "undefined" ? window.document : null;
 
   const [username, setUsername] = useState("");
+  const [theme, setTheme] = useState("light");
 
   useEffect(() => {
     if (!localStorage.getItem("username")) return;
 
     setUsername(localStorage.getItem("username") ?? "");
+  }, []);
+
+  useEffect(() => {
+    if (!localStorage.getItem("theme")) {
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        localStorage.setItem("theme", "dark");
+      } else {
+        localStorage.setItem("theme", "light");
+      }
+    }
+    setTheme(localStorage.getItem("theme") ?? "");
+    if (document) {
+      if (localStorage.getItem("theme") === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -62,10 +81,11 @@ export default function Home() {
     set(ref(FirebaseDatabase, "mouse/" + uuid), {
       x: mouse.x,
       y: mouse.y,
+      username: username,
     });
 
     // return () => clearTimeout(timeout);
-  }, [mouse, uuid]);
+  }, [mouse, uuid, username]);
 
   return (
     <>
@@ -141,8 +161,7 @@ export default function Home() {
                   <span>Tema</span>
                   <div className="flex items-center gap-2">
                     <AnimatePresence>
-                      {document &&
-                      document.documentElement.classList.contains("dark") ? (
+                      {theme === "light" ? (
                         <motion.div
                           key={"sun"}
                           initial={{
@@ -174,17 +193,11 @@ export default function Home() {
                     </AnimatePresence>
                     <Switch
                       className="h-6"
-                      checked={
-                        document
-                          ? document.documentElement.classList.contains("dark")
-                          : false
-                      }
+                      checked={theme === "dark"}
                       onCheckedChange={(value) => {
-                        if (value) {
-                          document!.documentElement.classList.add("dark");
-                        } else {
-                          document!.documentElement.classList.remove("dark");
-                        }
+                        setTheme(value ? "dark" : "light");
+                        localStorage.setItem("theme", value ? "dark" : "light");
+                        document!.documentElement.classList.toggle("dark");
                       }}
                     />
                   </div>
