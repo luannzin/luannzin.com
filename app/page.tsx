@@ -63,7 +63,7 @@ export default function Home() {
           <Projects />
         </div>
       </motion.div>
-      <Playground uuid={localStorage.getItem("uuid") ?? uuid} />
+      <Playground uuid={uuid} />
     </>
   );
 }
