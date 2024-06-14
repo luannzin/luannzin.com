@@ -18,10 +18,10 @@ export const nav: NavType = [
     url: "https://github.com/luannzin",
     target: "_blank",
   },
-  {
-    name: "terminal",
-    url: "/terminal",
-    target: "_self",
-    // alert: true,
-  },
+  // {
+  //   name: "terminal",
+  //   url: "/terminal",
+  //   target: "_self",
+  //   // alert: true,
+  // },
 ];
