@@ -19,7 +19,8 @@ export default function Home() {
                   I'm Luan Fabri,
                 </span>
                 <span className="text-muted-foreground">
-                  a brazillian, gifted and handsome frontend developer.
+                  a Brazilian — gifted, handsome, and dangerously good at
+                  frontend.
                 </span>
               </div>
               <Link
