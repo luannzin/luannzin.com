@@ -1,11 +1,6 @@
+import { GeistSans as Geist } from "geist/font/sans";
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
 import "./globals.css";
-
-const geist = Geist({
-  variable: "--font-geist",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Next.js",
@@ -20,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="dark">
       <body
-        className={`${geist.className} antialiased flex items-center justify-center w-screen h-screen`}
+        className={`${Geist.className} antialiased flex items-center justify-center w-screen h-screen`}
       >
         {children}
       </body>
