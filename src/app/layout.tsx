@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Outfit } from "next/font/google";
+import { Figtree } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Header } from "./(routes)/_components/header";
 
-const outfit = Outfit({
+const figtree = Figtree({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-figtree",
 });
 
 export const metadata: Metadata = {
@@ -20,10 +20,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning className={outfit.className}>
-      <body className="flex justify-center min-h-screen overflow-x-hidden">
+    <html lang="pt-BR" suppressHydrationWarning className={figtree.className}>
+      <body className="flex flex-col items-center min-h-screen overflow-x-hidden">
+        <Header />
         <main className="w-full max-w-2xl py-24">
-          <Header />
           <ThemeProvider storageKey="@luannzin/theme" defaultTheme="system">
             {children}
           </ThemeProvider>
