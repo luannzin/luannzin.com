@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Figtree } from "next/font/google";
-import { ThemeProvider } from "next-themes";
+
+import { Providers } from "@/components/client/providers";
 import { Header } from "./(routes)/_components/header";
 
 const figtree = Figtree({
@@ -22,12 +23,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning className={figtree.className}>
       <body className="flex flex-col items-center min-h-screen overflow-x-hidden">
-        <Header />
-        <main className="w-full max-w-2xl py-24">
-          <ThemeProvider storageKey="@luannzin/theme" defaultTheme="system">
-            {children}
-          </ThemeProvider>
-        </main>
+        <Providers>
+          <Header /> <main className="w-full max-w-2xl py-24">{children}</main>
+        </Providers>
       </body>
     </html>
   );
