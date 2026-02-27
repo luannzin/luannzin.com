@@ -14,21 +14,15 @@ const Header = () => {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="w-full p-4 flex items-center justify-between">
-      <span className="text-2xl font-bold">
-        l<span className="text-primary">.</span>
-      </span>
+    <header className="w-full p-4 flex items-center justify-end">
       <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              variant={"ghost"}
-              size={"icon"}
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            />
-          }
-        >
-          {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+        <TooltipTrigger>
+          <Button
+            size={"icon"}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+          </Button>
         </TooltipTrigger>
         <TooltipContent>
           <div className="flex items-center gap-2">
