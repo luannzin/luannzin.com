@@ -12,10 +12,13 @@
   --animate-skeleton: skeleton 2s -1s infinite linear;
   --font-heading: var(--font-heading, ui-sans-serif, system-ui, sans-serif);
   --animate-caret-blink: 1s ease-out infinite caret-blink;
-  --animate-toast-success-odd: toast-success-odd 0.32s cubic-bezier(0.5, 1, 0.89, 1);
-  --animate-toast-success-even: toast-success-even 0.32s cubic-bezier(0.5, 1, 0.89, 1);
+  --animate-toast-success-odd: toast-success-odd 0.32s
+    cubic-bezier(0.5, 1, 0.89, 1);
+  --animate-toast-success-even: toast-success-even 0.32s
+    cubic-bezier(0.5, 1, 0.89, 1);
   --animate-toast-error-odd: toast-error-odd 0.28s cubic-bezier(0.5, 1, 0.89, 1);
-  --animate-toast-error-even: toast-error-even 0.28s cubic-bezier(0.5, 1, 0.89, 1);
+  --animate-toast-error-even: toast-error-even 0.28s
+    cubic-bezier(0.5, 1, 0.89, 1);
   --color-code-highlight: var(--code-highlight);
   --code-foreground: var(--code-foreground);
   --color-code: var(--code);
@@ -63,78 +66,81 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
   @keyframes skeleton {
-  to {
-    background-position: -200% 0;
+    to {
+      background-position: -200% 0;
     }
   }
   @keyframes caret-blink {
-  0%, 70%, to {
-    opacity: 1;
+    0%,
+    70%,
+    to {
+      opacity: 1;
     }
-  20%, 50% {
-    opacity: 0;
+    20%,
+    50% {
+      opacity: 0;
     }
   }
   @keyframes toast-success-odd {
-  0% {
-    scale: 1;
+    0% {
+      scale: 1;
     }
-  30% {
-    scale: 1.025;
+    30% {
+      scale: 1.025;
     }
-  60% {
-    scale: 0.99;
+    60% {
+      scale: 0.99;
     }
-  100% {
-    scale: 1;
+    100% {
+      scale: 1;
     }
   }
   @keyframes toast-error-odd {
-  0% {
-    translate: 0 0;
+    0% {
+      translate: 0 0;
     }
-  25% {
-    translate: -3px 0;
+    25% {
+      translate: -3px 0;
     }
-  50% {
-    translate: 3px 0;
+    50% {
+      translate: 3px 0;
     }
-  75% {
-    translate: -3px 0;
+    75% {
+      translate: -3px 0;
     }
-  100% {
-    translate: 0 0;
+    100% {
+      translate: 0 0;
     }
   }
   @keyframes toast-success-even {
-  0% {
-    scale: 1;
+    0% {
+      scale: 1;
     }
-  30% {
-    scale: 1.025;
+    30% {
+      scale: 1.025;
     }
-  60% {
-    scale: 0.99;
+    60% {
+      scale: 0.99;
     }
-  100% {
-    scale: 1;
+    100% {
+      scale: 1;
     }
   }
   @keyframes toast-error-even {
-  0% {
-    translate: 0 0;
+    0% {
+      translate: 0 0;
     }
-  25% {
-    translate: -3px 0;
+    25% {
+      translate: -3px 0;
     }
-  50% {
-    translate: 3px 0;
+    50% {
+      translate: 3px 0;
     }
-  75% {
-    translate: -3px 0;
+    75% {
+      translate: -3px 0;
     }
-  100% {
-    translate: 0 0;
+    100% {
+      translate: 0 0;
     }
   }
 }
@@ -153,12 +159,16 @@
   --card-foreground: var(--color-neutral-800);
   --popover: var(--color-white);
   --popover-foreground: var(--color-neutral-800);
-  --primary: var(--color-neutral-800);
-  --primary-foreground: var(--color-neutral-50);
+  --primary: var(--color-cyan-500);
+  --primary-foreground: var(--color-cyan-50);
   --secondary: --alpha(var(--color-black) / 4%);
   --secondary-foreground: var(--color-neutral-800);
   --muted: --alpha(var(--color-black) / 4%);
-  --muted-foreground: color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-black));
+  --muted-foreground: color-mix(
+    in srgb,
+    var(--color-neutral-500) 90%,
+    var(--color-black)
+  );
   --accent: --alpha(var(--color-black) / 4%);
   --accent-foreground: var(--color-neutral-800);
   --destructive: var(--color-red-500);
@@ -172,7 +182,11 @@
   --chart-5: var(--color-amber-500);
   --radius: 0.625rem;
   --sidebar: var(--color-neutral-50);
-  --sidebar-foreground: color-mix(in srgb, var(--color-neutral-800) 64%, var(--sidebar));
+  --sidebar-foreground: color-mix(
+    in srgb,
+    var(--color-neutral-800) 64%,
+    var(--sidebar)
+  );
   --sidebar-primary: var(--color-neutral-800);
   --sidebar-primary-foreground: var(--color-neutral-50);
   --sidebar-accent: --alpha(var(--color-black) / 4%);
@@ -192,21 +206,33 @@
   --success-foreground: var(--color-emerald-400);
   --warning: var(--color-amber-500);
   --warning-foreground: var(--color-amber-400);
-  --background: color-mix(in srgb, var(--color-neutral-950) 95%, var(--color-white));
+  --background: color-mix(
+    in srgb,
+    var(--color-neutral-950) 95%,
+    var(--color-white)
+  );
   --foreground: var(--color-neutral-100);
   --card: color-mix(in srgb, var(--background) 98%, var(--color-white));
   --card-foreground: var(--color-neutral-100);
   --popover: color-mix(in srgb, var(--background) 98%, var(--color-white));
   --popover-foreground: var(--color-neutral-100);
-  --primary: var(--color-neutral-100);
-  --primary-foreground: var(--color-neutral-800);
+  --primary: var(--color-cyan-500);
+  --primary-foreground: var(--color-cyan-50);
   --secondary: --alpha(var(--color-white) / 4%);
   --secondary-foreground: var(--color-neutral-100);
   --muted: --alpha(var(--color-white) / 4%);
-  --muted-foreground: color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-white));
+  --muted-foreground: color-mix(
+    in srgb,
+    var(--color-neutral-500) 90%,
+    var(--color-white)
+  );
   --accent: --alpha(var(--color-white) / 4%);
   --accent-foreground: var(--color-neutral-100);
-  --destructive: color-mix(in srgb, var(--color-red-500) 90%, var(--color-white));
+  --destructive: color-mix(
+    in srgb,
+    var(--color-red-500) 90%,
+    var(--color-white)
+  );
   --border: --alpha(var(--color-white) / 6%);
   --input: --alpha(var(--color-white) / 8%);
   --ring: var(--color-neutral-500);
@@ -215,8 +241,16 @@
   --chart-3: var(--color-amber-500);
   --chart-4: var(--color-purple-500);
   --chart-5: var(--color-rose-500);
-  --sidebar: color-mix(in srgb, var(--color-neutral-950) 97%, var(--color-white));
-  --sidebar-foreground: color-mix(in srgb, var(--color-neutral-100) 64%, var(--sidebar));
+  --sidebar: color-mix(
+    in srgb,
+    var(--color-neutral-950) 97%,
+    var(--color-white)
+  );
+  --sidebar-foreground: color-mix(
+    in srgb,
+    var(--color-neutral-100) 64%,
+    var(--sidebar)
+  );
   --sidebar-primary: var(--color-neutral-100);
   --sidebar-primary-foreground: var(--color-neutral-800);
   --sidebar-accent: --alpha(var(--color-white) / 4%);
@@ -235,7 +269,10 @@
   body {
     @apply bg-background text-foreground;
   }
-  code, kbd, samp, pre {
+  code,
+  kbd,
+  samp,
+  pre {
     font-family: var(--font-mono);
   }
   html {

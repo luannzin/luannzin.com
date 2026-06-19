@@ -2,6 +2,7 @@
 
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import type React from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export const TooltipCreateHandle: typeof TooltipPrimitive.createHandle =
@@ -10,13 +11,31 @@ export const TooltipCreateHandle: typeof TooltipPrimitive.createHandle =
 export const TooltipProvider: typeof TooltipPrimitive.Provider =
   TooltipPrimitive.Provider;
 
-export const Tooltip: typeof TooltipPrimitive.Root = TooltipPrimitive.Root;
+export const DefaultTooltip: typeof TooltipPrimitive.Root =
+  TooltipPrimitive.Root;
 
 export function TooltipTrigger(
   props: TooltipPrimitive.Trigger.Props,
 ): React.ReactElement {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
+
+export type TooltipProps = Pick<
+  ComponentProps<typeof TooltipTrigger>,
+  "children"
+> &
+  Pick<ComponentProps<typeof TooltipPopup>, "side"> & {
+    title?: ReactNode | null;
+  };
+
+export const Tooltip = ({ children, title, side, ...props }: TooltipProps) => {
+  return (
+    <DefaultTooltip>
+      <TooltipTrigger {...props}>{children}</TooltipTrigger>
+      <TooltipPopup side={side}>{title}</TooltipPopup>
+    </DefaultTooltip>
+  );
+};
 
 export function TooltipPopup({
   className,

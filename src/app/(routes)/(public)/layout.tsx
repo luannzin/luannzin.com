@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
+import { Providers } from "@/components/client/providers";
 import { cn } from "@/lib/utils";
+import { PublicHeader } from "./_components/public-header";
+import { PublicSidebar } from "./_components/public-sidebar";
 
 const interHeading = Inter({ subsets: ["latin"], variable: "--font-heading" });
 
@@ -18,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "luannzin - a really good frontend developer",
+  title: "@luannzin - a really good frontend developer",
   description: "luannzin is a really good frontend developer",
 };
 
@@ -40,7 +43,15 @@ export default function RootLayout({
         interHeading.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col items-center">
+        <Providers>
+          <div className="max-w-5xl w-full">
+            <PublicHeader />
+            <PublicSidebar />
+            {children}
+          </div>
+        </Providers>
+      </body>
     </html>
   );
 }
