@@ -23,6 +23,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "@luannzin - a really good frontend developer",
   description: "luannzin is a really good frontend developer",
+
+  icons: {
+    icon: "https://github.com/luannzin.png",
+  },
 };
 
 export default function RootLayout({

@@ -1,7 +1,7 @@
 export const LEVEL_COLORS = {
-  0: "bg-primary/10",
-  1: "bg-primary/25",
-  2: "bg-primary/50",
-  3: "bg-primary/75",
+  0: "bg-muted",
+  1: "bg-primary/20",
+  2: "bg-primary/40",
+  3: "bg-primary/60",
   4: "bg-primary",
 };
