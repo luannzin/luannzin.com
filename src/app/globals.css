@@ -19,6 +19,7 @@
   --animate-toast-error-odd: toast-error-odd 0.28s cubic-bezier(0.5, 1, 0.89, 1);
   --animate-toast-error-even: toast-error-even 0.28s
     cubic-bezier(0.5, 1, 0.89, 1);
+  --animate-contribution-fade-in: contribution-fade-in 200ms ease-in forwards;
   --color-code-highlight: var(--code-highlight);
   --code-foreground: var(--code-foreground);
   --color-code: var(--code);
@@ -65,6 +66,18 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  @keyframes contribution-fade-in {
+    from {
+      scale: 1.15;
+      opacity: 0;
+      filter: blur(4px);
+    }
+    to {
+      scale: 1;
+      opacity: 1;
+      filter: blur(0px);
+    }
+  }
   @keyframes skeleton {
     to {
       background-position: -200% 0;

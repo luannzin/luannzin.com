@@ -3,7 +3,6 @@
 import type { ComponentType } from "react";
 import {
   DefaultTooltip,
-  Tooltip,
   TooltipCreateHandle,
   TooltipPopup,
   TooltipTrigger,
@@ -18,6 +17,9 @@ type ContributionsHeatmapProps = {
 };
 
 const tooltipHandle = TooltipCreateHandle<ComponentType>();
+
+const HEATMAP_ROWS = 7;
+const HEATMAP_STAGGER_MS = 14;
 
 const ContributionsHeatmap = ({ contributions }: ContributionsHeatmapProps) => {
   const total = contributions.reduce((acc, c) => acc + c.count, 0);
@@ -38,37 +40,45 @@ const ContributionsHeatmap = ({ contributions }: ContributionsHeatmapProps) => {
       </span>
 
       <div className="grid grid-flow-col grid-rows-7">
-        {contributions.map((c) => (
-          <TooltipTrigger
-            key={c.date}
-            handle={tooltipHandle}
-            payload={() => (
-              <span>
-                {c.count} contributions on{" "}
-                {new Date(c.date).toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                })}
-              </span>
-            )}
-            render={
-              <a
-                href={`https://github.com/${username}?tab=overview&from=${c.date}&to=${c.date}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <div
-                  key={c.date}
-                  title={`${c.count} contributions`}
-                  className={cn(
-                    "size-2.5 rounded-[2px] m-0.5",
-                    LEVEL_COLORS[c.level],
-                  )}
-                />
-              </a>
-            }
-          />
-        ))}
+        {contributions.map((c, index) => {
+          const row = index % HEATMAP_ROWS;
+          const col = Math.floor(index / HEATMAP_ROWS);
+          const delay = (row + col) * HEATMAP_STAGGER_MS;
+
+          return (
+            <TooltipTrigger
+              key={c.date}
+              handle={tooltipHandle}
+              payload={() => (
+                <span>
+                  {c.count} contributions on{" "}
+                  {new Date(c.date).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+              )}
+              render={
+                <a
+                  href={`https://github.com/${username}?tab=overview&from=${c.date}&to=${c.date}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div
+                    title={`${c.count} contributions`}
+                    style={{
+                      animationDelay: `${delay}ms`,
+                    }}
+                    className={cn(
+                      "size-2.5 rounded-[2px] m-0.5 opacity-0 animate-contribution-fade-in",
+                      LEVEL_COLORS[c.level],
+                    )}
+                  />
+                </a>
+              }
+            />
+          );
+        })}
       </div>
       <div className="flex items-center gap-2 justify-end">
         <span className="text-xs text-muted-foreground">Less</span>
