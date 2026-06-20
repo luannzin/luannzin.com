@@ -1,9 +1,32 @@
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { SOCIAL_LINKS } from "@/lib/config/social-links";
 
 const PublicSidebar = () => {
   return (
-    <nav className="flex flex-col gap-4">
-      <Link href="/">123</Link>
+    <nav className="flex flex-col gap-1">
+      {SOCIAL_LINKS.map((link) => {
+        const Icon = link.icon;
+
+        return (
+          <Button
+            key={link.name}
+            render={
+              // biome-ignore lint/a11y/useAnchorContent: we don't need to add content to the anchor tag
+              <a href={link.url} target="_blank" rel="noopener noreferrer" />
+            }
+            variant="ghost"
+            className="justify-between w-48"
+            size="sm"
+          >
+            <Icon
+              className="size-3 fill-muted-foreground"
+              width={12}
+              height={12}
+            />
+            <span className="text-sm text-muted-foreground">{link.label}</span>
+          </Button>
+        );
+      })}
     </nav>
   );
 };

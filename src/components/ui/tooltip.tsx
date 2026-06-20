@@ -20,10 +20,7 @@ export function TooltipTrigger(
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
-export type TooltipProps = Pick<
-  ComponentProps<typeof TooltipTrigger>,
-  "children"
-> &
+export type TooltipProps = ComponentProps<typeof TooltipTrigger> &
   Pick<ComponentProps<typeof TooltipPopup>, "side"> & {
     title?: ReactNode | null;
   };

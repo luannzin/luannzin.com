@@ -45,10 +45,12 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col items-center">
         <Providers>
-          <div className="max-w-5xl w-full">
+          <div className="max-w-5xl w-full flex flex-col gap-8">
             <PublicHeader />
-            <PublicSidebar />
-            {children}
+            <div className="flex justify-between gap-4">
+              <PublicSidebar />
+              {children}
+            </div>
           </div>
         </Providers>
       </body>
