@@ -1,3 +1,4 @@
+import { ArrowRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SOCIAL_LINKS } from "@/lib/config/social-links";
 
@@ -15,7 +16,7 @@ const PublicSidebar = () => {
               <a href={link.url} target="_blank" rel="noopener noreferrer" />
             }
             variant="ghost"
-            className="justify-between w-48"
+            className="justify-between w-48 group"
             size="sm"
           >
             <Icon
@@ -23,7 +24,12 @@ const PublicSidebar = () => {
               width={12}
               height={12}
             />
-            <span className="text-sm text-muted-foreground">{link.label}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {link.label}
+              </span>
+              <ArrowRightIcon className="-rotate-45 size-0 group-hover:size-3 transition-all duration-150 ease-in" />
+            </div>
           </Button>
         );
       })}
