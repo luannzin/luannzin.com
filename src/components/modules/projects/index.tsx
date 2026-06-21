@@ -4,11 +4,11 @@ import { ProjectCard } from "./project-card";
 const Projects = () => {
   return (
     <div className="flex flex-col gap-4">
-      <span>Notable Projects</span>
+      <div className="flex items-center justify-between gap-2">
+        <span>Notable Projects</span>
+      </div>
       <div className="grid grid-cols-1 gap-4">
-        {PROJECTS.map((project) => (
-          <ProjectCard key={project.name} project={project} />
-        ))}
+        <ProjectCard project={PROJECTS[0]} />
       </div>
     </div>
   );

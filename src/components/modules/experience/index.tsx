@@ -1,3 +1,4 @@
+import { TechItem } from "@/components/client/technologies/tech-item";
 import { EXPERIENCES } from "@/lib/config/experiences";
 
 const Experience = () => {
@@ -29,12 +30,7 @@ const Experience = () => {
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     {role.technologies.map((tech) => (
-                      <span
-                        key={tech}
-                        className="rounded-md border px-2 py-1 text-xs"
-                      >
-                        {tech}
-                      </span>
+                      <TechItem key={tech} technology={tech} />
                     ))}
                   </div>
                 </div>

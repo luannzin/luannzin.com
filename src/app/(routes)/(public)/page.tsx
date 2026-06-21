@@ -1,7 +1,7 @@
 import Image from "next/image";
+import { Experience } from "@/components/modules/experience";
 import { ContributionsHeatmap } from "@/components/modules/github/contributions/contributions-heatmap";
-import { Experience } from "@/components/modules/homepage/experience";
-import { Projects } from "@/components/modules/homepage/projects";
+import { Projects } from "@/components/modules/projects";
 import { GITHUB_USERNAME as username } from "@/lib/config/constants";
 import { github } from "@/lib/data/github";
 

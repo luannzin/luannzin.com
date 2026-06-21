@@ -12,8 +12,8 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "@luannzin - a really good frontend developer",
-  description: "luannzin is a really good frontend developer",
+  title: "@luannzin - frontend developer crafting calm, intuitive interfaces.",
+  description: "frontend developer crafting calm, intuitive interfaces.",
 
   icons: {
     icon: "https://github.com/luannzin.png",
