@@ -68,7 +68,7 @@
   --radius-4xl: calc(var(--radius) * 2.6);
   @keyframes contribution-fade-in {
     from {
-      scale: 1.15;
+      scale: 1.75;
       opacity: 0;
       filter: blur(4px);
     }

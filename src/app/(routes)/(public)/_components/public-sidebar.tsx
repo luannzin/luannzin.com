@@ -1,4 +1,4 @@
-import { ArrowRightIcon, DownloadIcon, FileIcon } from "lucide-react";
+import { ArrowRightIcon, FileIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SOCIAL_LINKS } from "@/lib/config/social-links";
 

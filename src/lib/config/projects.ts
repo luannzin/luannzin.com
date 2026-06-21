@@ -1,15 +1,26 @@
 export const PROJECTS = [
   {
-    name: "Duolingo Worth",
-    description: "know your duolingo account worth in seconds",
-    url: "https://duolingo-worth.vercel.app/",
-    image: "https://api.dicebear.com/10.x/icons/svg?seed=project-1",
+    name: "Multi-Tenant Communication ERP",
+    description:
+      "Architected and developed the frontend of a multi-tenant ERP platform, implementing tenant isolation, caching strategies, and scalable architecture for multiple clients.",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS"],
   },
   {
-    name: "The fastest url shortener",
+    name: "Church Management ERP",
     description:
-      "this is the fastest oss url shortener made with Next.js 16 + Cache Components.",
-    url: "https://the-fastest-url-shortener.vercel.app/",
-    image: "https://api.dicebear.com/10.x/icons/svg?seed=project-1",
+      "Led frontend development of a large-scale ERP platform, delivering and maintaining over 300,000 lines of code across multiple modules and complex business workflows.",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui"],
+  },
+  {
+    name: "Academic ERP — Unoeste University",
+    description:
+      "Developed a full-stack academic ERP, implementing end-to-end business processes with a focus on domain rules, data integrity, and user experience.",
+    technologies: [
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "Drizzle ORM",
+      "PostgreSQL",
+    ],
   },
 ];
