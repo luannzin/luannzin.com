@@ -3,7 +3,7 @@ import { PAID_PROJECTS, PROJECTS } from "@/lib/config/projects";
 
 export default async function ProjectsPage() {
   return (
-    <main className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <span>Own Projects</span>
       <div className="grid grid-cols-1 gap-4">
         {PROJECTS.map((project) => (
@@ -16,6 +16,6 @@ export default async function ProjectsPage() {
           <ProjectCard key={project.name} project={project} paid />
         ))}
       </div>
-    </main>
+    </div>
   );
 }

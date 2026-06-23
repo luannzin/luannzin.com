@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Blog } from "@/components/modules/blog";
 import { Experience } from "@/components/modules/experience";
 import { ContributionsHeatmap } from "@/components/modules/github/contributions/contributions-heatmap";
 import { Projects } from "@/components/modules/projects";
@@ -9,7 +10,7 @@ export default async function HomePage() {
   const contributions = await github.contributions();
 
   return (
-    <main className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 w-full">
       <div className="flex items-center gap-4">
         <div className="size-14 rounded-xl overflow-hidden border-2 border-border">
           <Image
@@ -27,7 +28,8 @@ export default async function HomePage() {
       </div>
       <ContributionsHeatmap contributions={contributions} />
       <Projects />
+      <Blog />
       <Experience />
-    </main>
+    </div>
   );
 }

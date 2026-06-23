@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { GITHUB_USERNAME as username } from "@/lib/config/constants";
+import { formatToLocalDate } from "@/lib/helpers/formatters/format-to-local-date";
 import { cn } from "@/lib/utils";
 import type { ContributionDayType } from "@/types/github/contributions";
 import { LEVEL_COLORS } from "./level-colors";
@@ -45,6 +46,8 @@ const ContributionsHeatmap = ({ contributions }: ContributionsHeatmapProps) => {
           const col = Math.floor(index / HEATMAP_ROWS);
           const delay = (row + col) * HEATMAP_STAGGER_MS;
 
+          const date = formatToLocalDate(c.date);
+
           return (
             <TooltipTrigger
               key={c.date}
@@ -52,10 +55,10 @@ const ContributionsHeatmap = ({ contributions }: ContributionsHeatmapProps) => {
               payload={() => (
                 <span>
                   {c.count} contributions on{" "}
-                  {new Date(c.date).toLocaleDateString("en-US", {
+                  {new Intl.DateTimeFormat(undefined, {
                     month: "long",
                     day: "numeric",
-                  })}
+                  }).format(date)}
                 </span>
               )}
               render={

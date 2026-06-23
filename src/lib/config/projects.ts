@@ -2,7 +2,7 @@ export const PROJECTS = [
   {
     name: "developing something",
     description:
-      "i don't have own projects yet, but you can see my freelance projects in the projects tab",
+      "i don't have own projects yet, but you can see my freelance projects details",
   },
 ];
 

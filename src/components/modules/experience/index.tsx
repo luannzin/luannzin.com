@@ -1,20 +1,45 @@
-import { TechItem } from "@/components/client/technologies/tech-item";
 import { EXPERIENCES } from "@/lib/config/experiences";
+import { formatToLocalDate } from "@/lib/helpers/formatters/format-to-local-date";
 
 const Experience = () => {
   return (
     <div className="flex flex-col gap-4">
-      <span>Experience</span>
+      <span>Professional</span>
 
-      {EXPERIENCES.map((experience) => (
-        <div key={experience.company} className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground">2026</span>
-            <span>•</span>
-            <h3>{experience.company}</h3>
-          </div>
+      {EXPERIENCES.map((experience) => {
+        const role = {
+          first: experience.roles[0],
+          last: experience.roles[experience.roles.length - 1],
+        };
 
-          <div className="flex flex-col gap-4">
+        const from = formatToLocalDate(role.last.from);
+        const to = role.first.to ? formatToLocalDate(role.first.to) : undefined;
+
+        return (
+          <div key={experience.company} className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">
+                {new Intl.DateTimeFormat(undefined, {
+                  month: "short",
+                  year: "numeric",
+                }).format(from)}{" "}
+                -{" "}
+                {to
+                  ? new Intl.DateTimeFormat(undefined, {
+                      month: "short",
+                      year: "numeric",
+                    }).format(to)
+                  : "Present"}
+              </span>
+              <span>•</span>
+              <h3>{experience.company}</h3>
+            </div>
+            <span className="text-sm text-muted-foreground">
+              from <span className="font-medium">{role.last.role}</span> to{" "}
+              <span className="font-medium">{role.first.role}</span>
+            </span>
+
+            {/* <div className="flex flex-col gap-4">
             {experience.roles.map((role) => (
               <div key={`${role.role}-${role.from}`}>
                 <div>
@@ -36,9 +61,10 @@ const Experience = () => {
                 </div>
               </div>
             ))}
+          </div> */}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

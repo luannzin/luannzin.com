@@ -35,7 +35,7 @@ export default function RootLayout({
         <Providers>
           <div className="max-w-5xl w-full flex flex-col gap-8">
             <PublicHeader />
-            <div className="flex justify-between gap-8">
+            <div className="flex gap-12">
               <PublicSidebar />
               {children}
             </div>
