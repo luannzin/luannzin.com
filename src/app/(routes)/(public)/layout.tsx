@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "@/app/globals.css";
+import { Suspense } from "react";
 import { Providers } from "@/components/client/providers";
+import { setLocale } from "@/i18n/generated";
 import { cn } from "@/lib/utils";
 import { PublicHeader } from "./_components/public-header";
 import { PublicSidebar } from "./_components/public-sidebar";
@@ -20,7 +22,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+const Localized = async ({ children }: { children: React.ReactNode }) => {
+  await setLocale();
+  return children;
+};
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -37,7 +44,9 @@ export default function RootLayout({
             <PublicHeader />
             <div className="flex gap-12">
               <PublicSidebar />
-              {children}
+              <Suspense fallback={null}>
+                <Localized>{children}</Localized>
+              </Suspense>
             </div>
           </div>
         </Providers>

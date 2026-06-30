@@ -39,6 +39,23 @@ export const translations = {
 			},
 		},
 	},
+	es: {
+		components: {
+			modules: {
+				github: {
+					contributions: {
+						title: (v: { total: string }) => `${v.total} contribuciones en el último año para`,
+						tooltip: (v: { count: string; date: string }) => `${v.count} contribuciones en ${v.date}`,
+						less: "Menos",
+						more: "Más",
+					},
+				},
+				projects: {
+					title: "Proyectos en los que he trabajado",
+				},
+			},
+		},
+	},
 } as const;
 
 export type Locale = keyof typeof translations;
@@ -48,7 +65,8 @@ export const intlConfig = {
 	"defaultLocale": "en",
 	"locales": [
 		"en",
-		"pt"
+		"pt",
+		"es"
 	],
 	"storage": {
 		"type": "cookie",
