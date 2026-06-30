@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "@/app/globals.css";
 
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { Providers } from "@/components/client/providers";
 import { setLocale } from "@/i18n/generated";
@@ -25,6 +26,7 @@ export const metadata: Metadata = {
 };
 
 const Localized = async ({ children }: { children: React.ReactNode }) => {
+  await connection();
   await setLocale();
   return children;
 };
