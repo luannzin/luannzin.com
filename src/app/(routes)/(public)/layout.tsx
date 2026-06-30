@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "@/app/globals.css";
+
 import { Suspense } from "react";
 import { Providers } from "@/components/client/providers";
 import { setLocale } from "@/i18n/generated";
 import { cn } from "@/lib/utils";
+import { PageSkeleton } from "./_components/page-skeleton";
 import { PublicHeader } from "./_components/public-header";
 import { PublicSidebar } from "./_components/public-sidebar";
 
@@ -44,7 +46,7 @@ export default async function RootLayout({
             <PublicHeader />
             <div className="flex gap-12">
               <PublicSidebar />
-              <Suspense fallback={null}>
+              <Suspense fallback={<PageSkeleton />}>
                 <Localized>{children}</Localized>
               </Suspense>
             </div>

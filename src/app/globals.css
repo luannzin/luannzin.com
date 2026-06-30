@@ -20,6 +20,8 @@
   --animate-toast-error-even: toast-error-even 0.28s
     cubic-bezier(0.5, 1, 0.89, 1);
   --animate-contribution-fade-in: contribution-fade-in 200ms ease-in forwards;
+  --animate-page-skeleton: page-skeleton 2.6s cubic-bezier(0.23, 1, 0.32, 1)
+    infinite;
   --color-code-highlight: var(--code-highlight);
   --code-foreground: var(--code-foreground);
   --color-code: var(--code);
@@ -81,6 +83,32 @@
   @keyframes skeleton {
     to {
       background-position: -200% 0;
+    }
+  }
+  @keyframes page-skeleton {
+    0% {
+      opacity: 0;
+      scale: 1.25;
+      filter: blur(6px);
+      translate: 0 0;
+    }
+    14% {
+      opacity: 1;
+      scale: 1;
+      filter: blur(0px);
+      translate: 0 0;
+    }
+    82% {
+      opacity: 1;
+      scale: 1;
+      filter: blur(0px);
+      translate: 0 0;
+    }
+    100% {
+      opacity: 0;
+      scale: 0.98;
+      filter: blur(6px);
+      translate: -24px 0;
     }
   }
   @keyframes caret-blink {
@@ -290,5 +318,15 @@
   }
   html {
     @apply font-sans font-sans font-mono;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-skeleton {
+    animation: none;
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+    filter: none;
   }
 }
