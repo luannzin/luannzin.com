@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
+  experimental: {
+    turbopackRustReactCompiler: true, // use the Rust version, instead of the OG Babel one
+  },
 };
 
 export default withInternationalization(nextConfig);
