@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "@/app/globals.css";
 
-import { connection } from "next/server";
-import { Suspense } from "react";
+
 import { Providers } from "@/components/client/providers";
 import { setLocale } from "@/i18n/generated";
 import { cn } from "@/lib/utils";
-import { PageSkeleton } from "./_components/page-skeleton";
+
 import { PublicHeader } from "./_components/public-header";
 import { PublicSidebar } from "./_components/public-sidebar";
 
@@ -25,20 +24,16 @@ export const metadata: Metadata = {
   },
 };
 
-const Localized = async ({ children }: { children: React.ReactNode }) => {
-  await connection();
-  await setLocale();
-  return children;
-};
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await setLocale();
+
   return (
     <html
-      lang="pt-BR"
+      lang={locale}
       className={cn("h-full", "antialiased tracking-tight", geist.className)}
       suppressHydrationWarning
     >
@@ -48,9 +43,7 @@ export default async function RootLayout({
             <PublicHeader />
             <div className="flex gap-12">
               <PublicSidebar />
-              <Suspense fallback={<PageSkeleton />}>
-                <Localized>{children}</Localized>
-              </Suspense>
+              {children}
             </div>
           </div>
         </Providers>
