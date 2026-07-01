@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "@/app/globals.css";
 
-
 import { Providers } from "@/components/client/providers";
 import { setLocale } from "@/i18n/generated";
 import { cn } from "@/lib/utils";
@@ -23,6 +22,8 @@ export const metadata: Metadata = {
     icon: "https://github.com/luannzin.png",
   },
 };
+
+export const instant = false;
 
 export default async function RootLayout({
   children,

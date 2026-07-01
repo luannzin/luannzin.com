@@ -1,7 +1,12 @@
+import { cacheLife, cacheTag } from "next/cache";
 import { ProjectCard } from "@/components/modules/projects/project-card";
 import { PAID_PROJECTS, PROJECTS } from "@/lib/config/projects";
 
 export default async function ProjectsPage() {
+  "use cache";
+  cacheTag("projects");
+  cacheLife("days");
+
   return (
     <div className="flex flex-col gap-4">
       <span>Own Projects</span>
