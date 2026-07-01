@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Blog } from "@/components/modules/blog";
 import { Experience } from "@/components/modules/experience";
-import { ContributionsHeatmap } from "@/components/modules/github/contributions/contributions-heatmap";
+import { Contributions } from "@/components/modules/github/contributions";
 import { Projects } from "@/components/modules/projects";
 import { GITHUB_USERNAME as username } from "@/lib/config/constants";
 import { github } from "@/lib/data/github";
@@ -26,7 +26,7 @@ export default async function HomePage() {
           <span className="text-sm text-muted-foreground">@{username}</span>
         </div>
       </div>
-      <ContributionsHeatmap contributions={contributions} />
+      <Contributions contributions={contributions} />
       <Projects />
       <Blog />
       <Experience />
