@@ -8,4 +8,5 @@ export type Post = {
   tags: string[];
   rating?: number;
   category?: string;
+  locale?: string;
 };

@@ -5,7 +5,7 @@ const PublicHeader = () => {
   return (
     <header className="w-full py-2 flex justify-between items-center">
       <span className="text-sm text-muted-foreground">
-        {t.app["(routes)"]["(public)"]._components.header.title}
+        {t.app._components.header.title}
       </span>
       <ThemeToggle />
     </header>

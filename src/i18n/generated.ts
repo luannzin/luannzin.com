@@ -7,13 +7,9 @@ import { createI18n } from "better-intl/runtime";
 export const translations = {
 	en: {
 		app: {
-			"(routes)": {
-				"(public)": {
-					_components: {
-						header: {
-							title: "frontend developer crafting calm, intuitive interfaces.",
-						},
-					},
+			_components: {
+				header: {
+					title: "frontend developer crafting calm, intuitive interfaces.",
 				},
 			},
 		},
@@ -35,13 +31,9 @@ export const translations = {
 	},
 	pt: {
 		app: {
-			"(routes)": {
-				"(public)": {
-					_components: {
-						header: {
-							title: "desenvolvedor frontend criando interfaces calmas e intuitivas.",
-						},
-					},
+			_components: {
+				header: {
+					title: "desenvolvedor frontend criando interfaces calmas e intuitivas.",
 				},
 			},
 		},
@@ -63,13 +55,9 @@ export const translations = {
 	},
 	es: {
 		app: {
-			"(routes)": {
-				"(public)": {
-					_components: {
-						header: {
-							title: "desarrollador frontend creando interfaces calmadas y intuitivas.",
-						},
-					},
+			_components: {
+				header: {
+					title: "desarrollador frontend creando interfaces calmadas y intuitivas.",
 				},
 			},
 		},
