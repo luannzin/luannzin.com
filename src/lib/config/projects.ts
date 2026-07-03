@@ -1,8 +1,9 @@
 export const PROJECTS = [
   {
-    name: "developing something",
+    name: "better-intl",
     description:
-      "i don't have own projects yet, but you can see my freelance projects details",
+      "The easiest and most intuitive internationalization framework for Next.js.",
+    url: "https://github.com/luannzin/better-intl",
   },
 ];
 
