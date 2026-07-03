@@ -1,4 +1,4 @@
-import { cacheLife, cacheTag } from "next/cache";
+// import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import { Blog } from "@/components/modules/blog";
 import { Experience } from "@/components/modules/experience";
@@ -8,9 +8,9 @@ import { GITHUB_USERNAME as username } from "@/lib/config/constants";
 import { github } from "@/lib/data/github";
 
 export default async function HomePage() {
-  "use cache";
-  cacheTag("homepage");
-  cacheLife("days");
+  // "use cache";
+  // cacheTag("homepage");
+  // cacheLife("days");
 
   const contributions = await github.contributions();
 

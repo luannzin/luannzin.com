@@ -6,6 +6,17 @@ import { createI18n } from "better-intl/runtime";
 
 export const translations = {
 	en: {
+		app: {
+			"(routes)": {
+				"(public)": {
+					_components: {
+						header: {
+							title: "frontend developer crafting calm, intuitive interfaces.",
+						},
+					},
+				},
+			},
+		},
 		components: {
 			modules: {
 				github: {
@@ -23,6 +34,17 @@ export const translations = {
 		},
 	},
 	pt: {
+		app: {
+			"(routes)": {
+				"(public)": {
+					_components: {
+						header: {
+							title: "desenvolvedor frontend criando interfaces calmas e intuitivas.",
+						},
+					},
+				},
+			},
+		},
 		components: {
 			modules: {
 				github: {
@@ -40,6 +62,17 @@ export const translations = {
 		},
 	},
 	es: {
+		app: {
+			"(routes)": {
+				"(public)": {
+					_components: {
+						header: {
+							title: "desarrollador frontend creando interfaces calmadas y intuitivas.",
+						},
+					},
+				},
+			},
+		},
 		components: {
 			modules: {
 				github: {
