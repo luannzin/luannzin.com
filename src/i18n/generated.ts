@@ -11,6 +11,9 @@ export const translations = {
 				header: {
 					title: "frontend developer crafting calm, intuitive interfaces.",
 				},
+				footer: {
+					description: "made with ♡ by luannzin.",
+				},
 			},
 		},
 		components: {
@@ -35,6 +38,9 @@ export const translations = {
 				header: {
 					title: "desenvolvedor frontend criando interfaces leves e intuitivas.",
 				},
+				footer: {
+					description: "feito com ♡ por luannzin.",
+				},
 			},
 		},
 		components: {
@@ -58,6 +64,9 @@ export const translations = {
 			_components: {
 				header: {
 					title: "desarrollador frontend creando interfaces intuitivas y ligeras.",
+				},
+				footer: {
+					description: "hecho con ♡ por luannzin.",
 				},
 			},
 		},

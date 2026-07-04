@@ -6,4 +6,11 @@ export default {
       es: "desarrollador frontend creando interfaces intuitivas y ligeras.",
     },
   },
+  footer: {
+    description: {
+      en: "made with ♡ by luannzin.",
+      pt: "feito com ♡ por luannzin.",
+      es: "hecho con ♡ por luannzin.",
+    },
+  },
 };
