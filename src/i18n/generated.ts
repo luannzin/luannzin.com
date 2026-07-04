@@ -115,6 +115,7 @@ export const intlConfig = {
 
 // Helpers bound to `translations` + `intlConfig` once. Import `t` anywhere
 // (sync on both client and server); call `setLocale()` once per request in the
-// root layout; call `updateLocale(locale)` to persist a new preference.
+// root layout; `getLocale()` returns the active locale string; call
+// `updateLocale(locale)` to persist a new preference.
 const i18n = createI18n(translations, intlConfig);
-export const { t, setLocale, updateLocale } = i18n;
+export const { t, setLocale, getLocale, updateLocale } = i18n;

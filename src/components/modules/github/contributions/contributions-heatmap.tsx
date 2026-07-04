@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/tooltip";
 import { t } from "@/i18n/generated";
 import { GITHUB_USERNAME as username } from "@/lib/config/constants";
+import { dateTimeFormat } from "@/lib/helpers/formatters/date-time-format";
 import { formatToLocalDate } from "@/lib/helpers/formatters/format-to-local-date";
+import { formatToLocaleString } from "@/lib/helpers/formatters/format-to-locale-string";
 import { cn } from "@/lib/utils";
 import type { ContributionDayType } from "@/types/github/contributions";
 import { LEVEL_COLORS } from "./level-colors";
@@ -40,13 +42,13 @@ const ContributionsHeatmap = ({ contributions }: ContributionsHeatmapProps) => {
             payload={() => (
               <span>
                 {t.components.modules.github.contributions.tooltip({
-                  count: c.count.toLocaleString(undefined, {
+                  count: formatToLocaleString(c.count, {
                     useGrouping: true,
                   }),
-                  date: new Intl.DateTimeFormat(undefined, {
+                  date: dateTimeFormat(date, {
                     month: "long",
                     day: "numeric",
-                  }).format(date),
+                  }),
                 })}
               </span>
             )}

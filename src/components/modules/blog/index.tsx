@@ -2,6 +2,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { t } from "@/i18n/generated";
 import { getAllPosts } from "@/lib/blog/get-all-posts";
+import { dateTimeFormat } from "@/lib/helpers/formatters/date-time-format";
 import { formatToLocalDate } from "@/lib/helpers/formatters/format-to-local-date";
 
 const Blog = () => {
@@ -28,10 +29,10 @@ const Blog = () => {
               </div>
             </Link>
             <span className="text-xs text-muted-foreground">
-              {new Intl.DateTimeFormat(undefined, {
+              {dateTimeFormat(date, {
                 month: "long",
                 day: "numeric",
-              }).format(date)}
+              })}
             </span>
           </div>
         );
