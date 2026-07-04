@@ -1,4 +1,15 @@
 import { GlobeIcon } from "lucide-react";
+import type { ElementType } from "react";
+
+export type ProjectType = {
+  name: string;
+  description: string;
+  technologies?: string[];
+  adornments?: {
+    start: ElementType;
+  };
+  url?: string;
+};
 
 export const PROJECTS = [
   {
@@ -10,7 +21,7 @@ export const PROJECTS = [
     },
     url: "https://github.com/luannzin/better-intl",
   },
-];
+] satisfies ProjectType[];
 
 export const PAID_PROJECTS = [
   {
@@ -37,4 +48,4 @@ export const PAID_PROJECTS = [
       "PostgreSQL",
     ],
   },
-];
+] satisfies ProjectType[];

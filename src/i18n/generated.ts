@@ -33,7 +33,7 @@ export const translations = {
 		app: {
 			_components: {
 				header: {
-					title: "desenvolvedor frontend criando interfaces calmas e intuitivas.",
+					title: "desenvolvedor frontend criando interfaces leves e intuitivas.",
 				},
 			},
 		},
@@ -57,7 +57,7 @@ export const translations = {
 		app: {
 			_components: {
 				header: {
-					title: "desarrollador frontend creando interfaces calmadas y intuitivas.",
+					title: "desarrollador frontend creando interfaces intuitivas y ligeras.",
 				},
 			},
 		},

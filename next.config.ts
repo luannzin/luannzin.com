@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  partialPrefetching: true,
   experimental: {
     turbopackRustReactCompiler: true, // use the Rust version, instead of the OG Babel one
   },

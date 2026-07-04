@@ -1,10 +1,10 @@
 import { ArrowUpRightIcon, LockIcon } from "lucide-react";
 
-import type { PROJECTS } from "@/lib/config/projects";
+import type { ProjectType } from "@/lib/config/projects";
 import { cn } from "@/lib/utils";
 
 type ProjectCardProps = {
-  project: (typeof PROJECTS)[number];
+  project: ProjectType;
   paid?: boolean;
 };
 
