@@ -5,7 +5,7 @@ import "@/app/globals.css";
 import { Providers } from "@/components/client/providers";
 import { setLocale } from "@/i18n/generated";
 import { cn } from "@/lib/utils";
-
+import { PublicFooter } from "./_components/public-footer";
 import { PublicHeader } from "./_components/public-header";
 import { PublicSidebar } from "./_components/public-sidebar";
 
@@ -40,12 +40,13 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col items-center">
         <Providers>
-          <div className="max-w-5xl w-full flex flex-col gap-8">
+          <div className="max-w-5xl w-full flex flex-col gap-8 h-screen">
             <PublicHeader />
-            <div className="flex gap-12">
+            <div className="flex gap-12 flex-1">
               <PublicSidebar />
               {children}
             </div>
+            <PublicFooter locale={locale} />
           </div>
         </Providers>
       </body>

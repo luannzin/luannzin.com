@@ -1,3 +1,4 @@
+import { locales } from "@/config/locales";
 import type { I18nUserConfig } from "better-intl";
 
 export default {
@@ -8,8 +9,8 @@ export default {
   out: "./src/i18n/generated.ts",
 
   // Canonical locale + ultimate fallback.
-  defaultLocale: "en",
-  locales: ["en", "pt", "es"],
+  defaultLocale: locales[0].code,
+  locales: locales.map((locale) => locale.code),
 
   // "error" | "warn" | "silent" — behaviour when a key misses a locale.
   onMissing: "warn",

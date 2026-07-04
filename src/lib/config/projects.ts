@@ -1,8 +1,13 @@
+import { GlobeIcon } from "lucide-react";
+
 export const PROJECTS = [
   {
     name: "better-intl",
     description:
       "The easiest and most intuitive internationalization framework for Next.js.",
+    adornments: {
+      start: GlobeIcon,
+    },
     url: "https://github.com/luannzin/better-intl",
   },
 ];

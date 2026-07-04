@@ -9,11 +9,14 @@ type ProjectCardProps = {
 };
 
 const ProjectCard = ({ project, paid = false }: ProjectCardProps) => {
+  const StartAdornment = project?.adornments?.start;
+
   return (
     <div
       className={cn(
         "border border-border p-4",
-        paid && "opacity-50 cursor-not-allowed",
+        "border border-border p-4",
+        paid && "opacity-50 cursor-not-allowed pointer-events-none",
       )}
     >
       <div className="flex flex-col gap-2">
@@ -31,7 +34,10 @@ const ProjectCard = ({ project, paid = false }: ProjectCardProps) => {
           </a>
           {paid && <LockIcon className="size-4 text-muted-foreground" />}
         </div>
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-muted-foreground flex items-center gap-1">
+          {StartAdornment && (
+            <StartAdornment className="size-3.5 text-muted-foreground" />
+          )}
           {project.description}
         </span>
       </div>
