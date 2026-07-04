@@ -1,5 +1,6 @@
 import type { Route } from "next";
 import Link from "next/link";
+import { t } from "@/i18n/generated";
 import { getAllPosts } from "@/lib/blog/get-all-posts";
 import { formatToLocalDate } from "@/lib/helpers/formatters/format-to-local-date";
 
@@ -8,7 +9,7 @@ const Blog = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <span>Writing</span>
+      <span>{t.components.modules.blog.title}</span>
       {posts.map((post) => {
         const date = formatToLocalDate(post.publishedAt);
 

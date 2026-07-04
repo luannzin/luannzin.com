@@ -18,6 +18,9 @@ export const translations = {
 		},
 		components: {
 			modules: {
+				blog: {
+					title: "Writing",
+				},
 				github: {
 					contributions: {
 						title: (v: { total: string }) => `${v.total} contributions in the last year to`,
@@ -45,6 +48,9 @@ export const translations = {
 		},
 		components: {
 			modules: {
+				blog: {
+					title: "Artigos",
+				},
 				github: {
 					contributions: {
 						title: (v: { total: string }) => `${v.total} contribuições no último ano para`,
@@ -72,6 +78,9 @@ export const translations = {
 		},
 		components: {
 			modules: {
+				blog: {
+					title: "Artículos",
+				},
 				github: {
 					contributions: {
 						title: (v: { total: string }) => `${v.total} contribuciones en el último año para`,
