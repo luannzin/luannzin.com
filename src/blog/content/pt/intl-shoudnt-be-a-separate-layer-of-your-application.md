@@ -1,7 +1,7 @@
 ---
 title: "Internacionalização não deveria ser uma camada separada da aplicação."
 excerpt: "better-intl muda a forma de pensar i18n no Next.js. Em vez de organizar traduções por idioma, você organiza por feature. Tudo é gerado em build-time ou in-development-time, com tipagem completa e zero runtime de i18n. Ainda é um projeto em evolução, nasceu como um PoC validado em produção."
-publishedAt: "2026-07-01"
+publishedAt: "2026-07-13"
 author: "Luan Fabri"
 tags:
   - i18n
