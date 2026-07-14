@@ -1,14 +1,13 @@
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeSlug from "rehype-slug";
-import { remark } from "remark";
-import html from "remark-html";
+import rehypeStringify from "rehype-stringify";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import { unified } from "unified";
 
 export async function markdownToHtml(markdown: string) {
-  const result = await remark()
-    .use(rehypeSlug)
-    .use(rehypeAutolinkHeadings)
-    .use(html)
-    .process(markdown);
-
-  return result.toString();
+  return await unified()
+    .use(remarkParse)
+    .use(remarkRehype)
+    .use(rehypeStringify)
+    .process(markdown)
+    .then((v) => String(v));
 }

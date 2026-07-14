@@ -8,9 +8,9 @@ export default {
   },
   footer: {
     description: {
-      en: "made with ♡ by luannzin.",
-      pt: "feito com ♡ por luannzin.",
-      es: "hecho con ♡ por luannzin.",
+      en: "made with ☕ by luannzin.",
+      pt: "feito com ☕ por luannzin.",
+      es: "hecho con ☕ por luannzin.",
     },
   },
 };

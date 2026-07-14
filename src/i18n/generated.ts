@@ -12,7 +12,7 @@ export const translations = {
 					title: "frontend developer crafting calm, intuitive interfaces.",
 				},
 				footer: {
-					description: "made with ♡ by luannzin.",
+					description: "made with ☕ by luannzin.",
 				},
 			},
 		},
@@ -20,6 +20,7 @@ export const translations = {
 			modules: {
 				blog: {
 					title: "Writing",
+					back: "Back to blog",
 				},
 				github: {
 					contributions: {
@@ -42,7 +43,7 @@ export const translations = {
 					title: "desenvolvedor frontend criando interfaces leves e intuitivas.",
 				},
 				footer: {
-					description: "feito com ♡ por luannzin.",
+					description: "feito com ☕ por luannzin.",
 				},
 			},
 		},
@@ -50,6 +51,7 @@ export const translations = {
 			modules: {
 				blog: {
 					title: "Artigos",
+					back: "Voltar para o blog",
 				},
 				github: {
 					contributions: {
@@ -72,7 +74,7 @@ export const translations = {
 					title: "desarrollador frontend creando interfaces intuitivas y ligeras.",
 				},
 				footer: {
-					description: "hecho con ♡ por luannzin.",
+					description: "hecho con ☕ por luannzin.",
 				},
 			},
 		},
@@ -80,6 +82,7 @@ export const translations = {
 			modules: {
 				blog: {
 					title: "Artículos",
+					back: "Volver al blog",
 				},
 				github: {
 					contributions: {
