@@ -69,14 +69,13 @@ export default function Home() {
         className={`${enter} mt-8 space-y-4 text-pretty text-foreground/70 delay-400`}
       >
         <p>
-          I’m a front-end engineer from Brazil. At{" "}
+          I’m a front-end engineer at{" "}
           <InlineLink href="https://loopscape.com.br" icon={LoopscapeIcon}>
             Loopscape
           </InlineLink>
-          , I
-          build ERPs and multi-tenant platforms with React and Next.js: software
-          people spend their whole workday in. I care about the details that
-          make it fast and clear to use.
+          , I build ERPs and multi-tenant platforms with React and Next.js:
+          software people spend their whole workday in. I care about the details
+          that make it fast and clear to use.
         </p>
         <p>
           On the side, I build open source tools for problems I keep running
