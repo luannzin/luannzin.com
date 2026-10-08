@@ -10,7 +10,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --animate-skeleton: skeleton 2s -1s infinite linear;
-  --font-heading: var(--font-heading);
+  --font-heading: var(--font-sans);
   --animate-caret-blink: 1s ease-out infinite caret-blink;
   --animate-toast-success-odd: toast-success-odd 0.32s cubic-bezier(0.5, 1, 0.89, 1);
   --animate-toast-success-even: toast-success-even 0.32s cubic-bezier(0.5, 1, 0.89, 1);
@@ -235,8 +235,14 @@
   body {
     @apply bg-background text-foreground;
   }
-  html {
-    @apply font-mono;
+  .dark {
+    color-scheme: dark;
+  }
+  ::selection {
+    @apply bg-foreground/15 text-foreground;
+  }
+  :focus-visible {
+    @apply outline-2 outline-ring;
   }
   code, kbd, samp, pre {
     font-family: var(--font-mono);

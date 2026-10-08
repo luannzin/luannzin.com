@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,
+  images: {
+    remotePatterns: [new URL("https://github.com/luannzin.png")],
+  },
   turbopack: {
     rules: {
       "*.css": {

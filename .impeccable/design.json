@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-08T00:00:00Z",
+  "title": "Design System: Luan Fabri",
+  "extensions": {
+    "colorMeta": {
+      "ground": { "role": "neutral", "displayName": "Soft Black Ground", "canonical": "color-mix(in srgb, var(--color-neutral-950) 95%, var(--color-white))", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
+      "ink": { "role": "neutral", "displayName": "Paper White Ink", "canonical": "var(--color-neutral-100)", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
+      "ink-soft": { "role": "neutral", "displayName": "Soft Ink", "canonical": "color-mix(in oklab, var(--foreground) 70%, transparent)", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
+      "ink-muted": { "role": "neutral", "displayName": "Muted Ink", "canonical": "color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-white))", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
+      "tile": { "role": "neutral", "displayName": "Tile Grey", "canonical": "--alpha(var(--color-white) / 4%)", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "--alpha(var(--color-white) / 6%)", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
+      "focus-ring": { "role": "neutral", "displayName": "Focus Grey", "canonical": "var(--color-neutral-500)", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] }
+    },
+    "typographyMeta": {
+      "title": { "displayName": "Title", "purpose": "Name in the header and section headings; weight 500 is the only difference from body." },
+      "body": { "displayName": "Body", "purpose": "Bio prose in Soft Ink, text-wrap pretty, relaxed leading." },
+      "label": { "displayName": "Label", "purpose": "Role line and project name/description pairs, snug leading." }
+    },
+    "shadows": [
+      { "name": "inset-hairline", "value": "inset 0 0 0 1px var(--border)", "purpose": "Edge of project tiles; the system's only shadow, and it is an edge, not a lift." },
+      { "name": "avatar-edge", "value": "outline: 1px solid rgb(255 255 255 / 0.1); outline-offset: -1px", "purpose": "Keeps the avatar photo from bleeding into the ground." }
+    ],
+    "motion": [
+      { "name": "ease-enter", "value": "cubic-bezier(0.2, 0, 0, 1)", "purpose": "Page entrance easing." },
+      { "name": "enter", "value": "fade-in + blur 4px + translateY 12px, 500ms, fill-mode both, motion-safe only", "purpose": "One staged entrance for top-level blocks." },
+      { "name": "enter-stagger", "value": "0ms / 100ms / 200ms", "purpose": "Header, bio, projects; new sections take the next 100ms step." },
+      { "name": "state", "value": "150ms", "purpose": "Underline color, tile icon color, arrow opacity and translate on hover." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Inline Link",
+      "kind": "custom",
+      "refersTo": "inline-link",
+      "description": "Link inside prose with an optional leading Central icon and a hairline underline.",
+      "html": "<p class=\"ds-prose\">See my code on <a class=\"ds-inline-link\" href=\"#\"><svg class=\"ds-inline-icon\" viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M18.25 15.25V5.75M18.25 5.75H8.75M18.25 5.75L6 18\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg><span class=\"ds-underline\">GitHub</span></a>.</p>",
+      "css": ".ds-prose { font: 400 16px/1.625 Inter, ui-sans-serif, system-ui, sans-serif; color: color-mix(in oklab, var(--foreground, #f5f5f5) 70%, transparent); } .ds-inline-link { color: var(--foreground, #f5f5f5); text-decoration: none; white-space: nowrap; border-radius: 6px; outline-offset: 2px; } .ds-inline-icon { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; margin-right: 4px; } .ds-underline { text-decoration: underline 1px; text-decoration-color: color-mix(in oklab, var(--foreground, #f5f5f5) 25%, transparent); text-underline-offset: 3px; transition: text-decoration-color 150ms; } .ds-inline-link:hover .ds-underline { text-decoration-color: color-mix(in oklab, var(--foreground, #f5f5f5) 60%, transparent); } .ds-inline-link:focus-visible { outline: 2px solid var(--ring, #737373); }"
+    },
+    {
+      "name": "Project Row",
+      "kind": "custom",
+      "refersTo": "project-row",
+      "description": "Whole-row link to a project: icon tile, underlined name, muted description, hover arrow.",
+      "html": "<a class=\"ds-row\" href=\"#\"><span class=\"ds-tile\"><svg viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M3.25 12H5.25M9.75 12H12.25M9.75 8.25H14.25M3.25 8.25H5.25M3.25 15.75H5.25M6.25 20.75H17.75C18.8546 20.75 19.75 19.8546 19.75 18.75V5.25C19.75 4.14543 18.8546 3.25 17.75 3.25H6.25C5.14543 3.25 4.25 4.14543 4.25 5.25V18.75C4.25 19.8546 5.14543 20.75 6.25 20.75Z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></span><span class=\"ds-row-text\"><span class=\"ds-row-name\"><span class=\"ds-row-underline\">echo</span><svg class=\"ds-row-arrow\" viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M18.25 15.25V5.75M18.25 5.75H8.75M18.25 5.75L6 18\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></span><span class=\"ds-row-desc\">The note taker that learns with you</span></span></a>",
+      "css": ".ds-row { display: flex; align-items: center; gap: 16px; border-radius: 14px; outline-offset: 4px; text-decoration: none; font: 400 16px/1.375 Inter, ui-sans-serif, system-ui, sans-serif; } .ds-row:focus-visible { outline: 2px solid var(--ring, #737373); } .ds-tile { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 10px; background: var(--muted, #1f1f1f); color: var(--muted-foreground, #818181); box-shadow: inset 0 0 0 1px var(--border, #242424); transition: color 150ms; } .ds-tile svg { width: 20px; height: 20px; } .ds-row:hover .ds-tile { color: var(--foreground, #f5f5f5); } .ds-row-text { min-width: 0; } .ds-row-name { display: flex; align-items: center; gap: 4px; color: var(--foreground, #f5f5f5); } .ds-row-underline { text-decoration: underline 1px; text-decoration-color: color-mix(in oklab, var(--foreground, #f5f5f5) 25%, transparent); text-underline-offset: 3px; transition: text-decoration-color 150ms; } .ds-row:hover .ds-row-underline { text-decoration-color: color-mix(in oklab, var(--foreground, #f5f5f5) 60%, transparent); } .ds-row-arrow { width: 14px; height: 14px; color: var(--muted-foreground, #818181); opacity: 0; translate: -2px 2px; transition: opacity 150ms, translate 150ms; } .ds-row:hover .ds-row-arrow { opacity: 1; translate: 0 0; } .ds-row-desc { display: block; color: var(--muted-foreground, #818181); }"
+    },
+    {
+      "name": "Header",
+      "kind": "custom",
+      "refersTo": "avatar",
+      "description": "40px avatar with inset edge beside name (weight 500) and muted role line.",
+      "html": "<header class=\"ds-header\"><span class=\"ds-avatar\"></span><div class=\"ds-header-text\"><h1 class=\"ds-name\">Luan Fabri</h1><p class=\"ds-role\">Front-end engineer at Loopscape</p></div></header>",
+      "css": ".ds-header { display: flex; align-items: center; gap: 12px; font: 400 16px/1.375 Inter, ui-sans-serif, system-ui, sans-serif; } .ds-avatar { width: 40px; height: 40px; border-radius: 9999px; background: #404040; outline: 1px solid rgb(255 255 255 / 0.1); outline-offset: -1px; } .ds-name { margin: 0; font-size: 16px; font-weight: 500; color: var(--foreground, #f5f5f5); } .ds-role { margin: 0; color: var(--muted-foreground, #818181); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Column",
+    "overview": "One narrow column of text on a near-black neutral ground. The copy and the work carry the page; the interface recedes until a link or a row is touched. Hierarchy comes from weight and tone, never from size: everything is Inter at 16px, separated into three ink tiers and set apart by generous vertical space.\n\nThe world is brief-pinned. Its form follows the user's four reference sites (Jakub Krehel, Lee Robinson, Emil Kowalski, interfaces.dev); no concept roll ran, seed key \"none (pinned)\". It is dark only and carries no accent color. Detail lives in small, deliberate touches: hairline underlines, 1.5px stroke icons in currentColor, faint inset rings, one staggered blur-up entrance.",
+    "keyCharacteristics": [
+      "Single 576px column, top-left aligned.",
+      "One type size (16px); hierarchy by weight (500 vs 400) and ink tier.",
+      "Neutral greys only; no accent hue anywhere.",
+      "Hairline underlines and inset 1px rings instead of borders and shadows.",
+      "Motion is one staged entrance plus 150ms hover state changes."
+    ],
+    "rules": [
+      { "name": "The No Accent Rule", "body": "The palette has no hue. Emphasis is earned by moving up an ink tier (muted, soft, full), never by color.", "section": "colors" },
+      { "name": "The Three Tiers Rule", "body": "Text uses exactly three tones: full ink for things you can act on or name, soft ink for prose, muted ink for supporting lines. A fourth tone is drift.", "section": "colors" },
+      { "name": "The One Size Rule", "body": "All text is 16px. New sections get hierarchy from weight 500, ink tier, and space, not from a larger size.", "section": "typography" },
+      { "name": "The Inset Edge Rule", "body": "Containers are defined by a 1px inset ring, never by an outer shadow or a solid border.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep every new section inside the 576px column, separated by 80px, with a weight-500 16px heading 20px above its content.",
+      "Do use the three ink tiers: full for names and links, 70% for prose, muted for supporting lines.",
+      "Do draw icons from Central Icons (round-outlined, radius 2, 1.5px stroke) in currentColor.",
+      "Do signal interactivity with the 25% to 60% underline shift and 150ms transitions.",
+      "Do gate entrance motion behind reduced-motion and keep it to one staged reveal."
+    ],
+    "donts": [
+      "Don't introduce an accent color; the palette is neutral by commitment.",
+      "Don't raise font size for hierarchy; the system is one size.",
+      "Don't use drop shadows or solid borders on containers; use the 1px inset ring.",
+      "Don't ship a light theme; the system is dark only."
+    ]
+  }
+}

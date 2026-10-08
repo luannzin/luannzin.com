@@ -1,69 +1,151 @@
 import Image from "next/image";
+import type { ComponentType, ReactNode, SVGProps } from "react";
+import echoLogo from "@/assets/echo.png";
+import {
+  ArrowUpRightIcon,
+  GitHubIcon,
+  GlobeIcon,
+  LinkedInIcon,
+  XIcon,
+} from "@/components/icons";
+
+type Icon = ComponentType<SVGProps<SVGSVGElement>>;
+
+const projects = [
+  {
+    name: "echo",
+    description: "The note taker that learns with you",
+    href: "https://useecho.dev",
+    mark: (
+      <Image
+        src={echoLogo}
+        alt=""
+        width={44}
+        height={44}
+        className="rounded-[10px] outline -outline-offset-1 outline-white/10"
+      />
+    ),
+  },
+  {
+    name: "better-intl",
+    description: "Typed, file-based i18n for Next.js",
+    href: "https://github.com/luannzin/better-intl",
+    mark: <GlobeIcon className="size-5" />,
+  },
+];
+
+// One staged entrance for the page: header, bio, projects, 100ms apart.
+const enter =
+  "motion-safe:animate-in fade-in blur-in-4 slide-in-from-bottom-3 fill-mode-both duration-500 ease-[cubic-bezier(0.2,0,0,1)]";
+
+const underline =
+  "underline decoration-foreground/25 decoration-1 underline-offset-[3px] transition-[text-decoration-color] duration-150 group-hover:decoration-foreground/60";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+    <main className="mx-auto w-full max-w-xl px-6 pt-20 pb-24 leading-relaxed sm:pt-28">
+      <header className={`${enter} flex items-center gap-3`}>
         <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+          src="https://github.com/luannzin.png"
+          alt=""
+          width={40}
+          height={40}
+          preload
+          className="size-10 rounded-full outline -outline-offset-1 outline-white/10"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+        <div className="leading-snug">
+          <h1 className="font-medium">Luan Fabri</h1>
+          <p className="text-muted-foreground">
+            Front-end engineer at Loopscape
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </header>
+
+      <section
+        aria-label="About"
+        className={`${enter} mt-8 space-y-4 text-pretty text-foreground/70 delay-100`}
+      >
+        <p>
+          I’m a front-end engineer from Jaú, Brazil. At{" "}
+          <InlineLink href="https://loopscape.com.br">Loopscape</InlineLink>, I
+          build ERPs and multi-tenant platforms with React and Next.js: software
+          people spend their whole workday in. I care about the details that
+          make it fast and clear to use.
+        </p>
+        <p>
+          On the side, I build open source tools for problems I keep running
+          into. You can see my code on{" "}
+          <InlineLink href="https://github.com/luannzin" icon={GitHubIcon}>
+            GitHub
+          </InlineLink>
+          , follow along on{" "}
+          <InlineLink href="https://x.com/__luannzin" icon={XIcon}>
+            X
+          </InlineLink>
+          , or find me on{" "}
+          <InlineLink
+            href="https://linkedin.com/in/luannzin"
+            icon={LinkedInIcon}
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            LinkedIn
+          </InlineLink>
+          .
+        </p>
+      </section>
+
+      <section
+        aria-labelledby="projects"
+        className={`${enter} mt-20 delay-200`}
+      >
+        <h2 id="projects" className="font-medium">
+          Projects
+        </h2>
+        <ul className="mt-5 grid gap-5">
+          {projects.map(({ name, description, href, mark }) => (
+            <li key={name}>
+              <a
+                href={href}
+                className="group flex items-center gap-4 rounded-[14px] outline-offset-4"
+              >
+                <span className="grid size-11 shrink-0 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors duration-150 group-hover:text-foreground">
+                  {mark}
+                </span>
+                <span className="leading-snug">
+                  <span className="flex items-center gap-1 text-foreground">
+                    <span className={underline}>{name}</span>
+                    <ArrowUpRightIcon className="size-3.5 -translate-x-0.5 translate-y-0.5 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100" />
+                  </span>
+                  <span className="block text-muted-foreground">
+                    {description}
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </main>
+  );
+}
+
+function InlineLink({
+  href,
+  icon: Icon,
+  children,
+}: {
+  href: string;
+  icon?: Icon;
+  children: ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      className="group whitespace-nowrap rounded-sm text-foreground outline-offset-2"
+    >
+      {Icon && (
+        <Icon className="mr-1 inline-block size-[1em] align-[-0.125em]" />
+      )}
+      <span className={underline}>{children}</span>
+    </a>
   );
 }
