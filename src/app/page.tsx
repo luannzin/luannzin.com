@@ -6,6 +6,7 @@ import {
   GitHubIcon,
   GlobeIcon,
   LinkedInIcon,
+  LoopscapeIcon,
 } from "@/components/icons";
 import { TextReveal } from "@/components/motion/text-reveal";
 
@@ -68,8 +69,11 @@ export default function Home() {
         className={`${enter} mt-8 space-y-4 text-pretty text-foreground/70 delay-400`}
       >
         <p>
-          I’m a front-end engineer from Jaú, Brazil. At{" "}
-          <InlineLink href="https://loopscape.com.br">Loopscape</InlineLink>, I
+          I’m a front-end engineer from Brazil. At{" "}
+          <InlineLink href="https://loopscape.com.br" icon={LoopscapeIcon}>
+            Loopscape
+          </InlineLink>
+          , I
           build ERPs and multi-tenant platforms with React and Next.js: software
           people spend their whole workday in. I care about the details that
           make it fast and clear to use.
