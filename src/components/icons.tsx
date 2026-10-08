@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-// Central Icons, round-outlined-radius-2-stroke-1.5. Paths are verbatim; color comes from currentColor.
+// Central Icons, round-outlined-radius-2-stroke-1.5.
 
 type IconProps = ComponentProps<"svg">;
 

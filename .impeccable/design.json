@@ -149,8 +149,8 @@
       },
       {
         "name": "enter-stagger",
-        "value": "0 / 80 / 180 / 280 / 380ms",
-        "purpose": "Avatar + \"Luan\" (0), \"Fabri\" (80), role (180), bio (280), projects (380): 80ms between title words, 100ms between blocks; new sections take the next 100ms step."
+        "value": "words 0 + 50ms step (name), 150ms + 50ms step (role); blocks 0 / 400 / 500ms",
+        "purpose": "TextReveal (motion) on name and role, word by word; avatar, bio, projects as CSS blocks; new sections take the next 100ms step."
       },
       {
         "name": "state",

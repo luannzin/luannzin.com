@@ -148,7 +148,7 @@ The signature component: a whole-row link to a piece of work.
 40px circle with a 1px white-at-10% outline inset by 1px; sits 12px left of the name and role.
 
 ### Entrance
-Every unit fades in from 4px blur and 12px below over 500ms on `cubic-bezier(0.2, 0, 0, 1)`, and only under `prefers-reduced-motion: no-preference`. The name is the focal moment and reveals word by word: avatar and "Luan" at 0ms, "Fabri" at 80ms, then the role line at 180ms, bio at 280ms, projects at 380ms (80ms between title words, 100ms between blocks). New sections join at the next 100ms step. Pure CSS (tw-animate-css), server-rendered, no motion library.
+The name and role are the focal moment: `TextReveal` (`src/components/motion/text-reveal.tsx`, adapted from beUI, uses `motion`) reveals them word by word, each word rising 20% from 6px blur on a spring, 50ms apart; the name starts at 0ms, the role at 150ms. Reduced motion keeps a plain opacity fade. The avatar (0ms), bio (400ms) and projects (500ms) are CSS blocks (tw-animate-css) that fade in from 4px blur and 12px below over 500ms on `cubic-bezier(0.2, 0, 0, 1)`, only under `prefers-reduced-motion: no-preference`. New sections join at the next 100ms step.
 
 ### Browser Surfaces
 `color-scheme: dark`; text selection is ink at 15% behind full ink; every `:focus-visible` gets a 2px Focus Grey outline.

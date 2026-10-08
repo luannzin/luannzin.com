@@ -7,6 +7,7 @@ import {
   GlobeIcon,
   LinkedInIcon,
 } from "@/components/icons";
+import { TextReveal } from "@/components/motion/text-reveal";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -33,7 +34,6 @@ const projects = [
   },
 ];
 
-// One staged entrance: the name word by word (80ms), then each block 100ms apart.
 const enter =
   "motion-safe:animate-in fade-in blur-in-4 slide-in-from-bottom-3 fill-mode-both duration-500 ease-[cubic-bezier(0.2,0,0,1)]";
 
@@ -53,19 +53,19 @@ export default function Home() {
           className={`${enter} size-10 rounded-full outline -outline-offset-1 outline-white/10`}
         />
         <div className="leading-snug">
-          <h1 className="font-medium">
-            <span className={`${enter} inline-block`}>Luan</span>{" "}
-            <span className={`${enter} inline-block delay-80`}>Fabri</span>
-          </h1>
-          <p className={`${enter} text-muted-foreground delay-180`}>
-            Front-end engineer at Loopscape
-          </p>
+          <TextReveal as="h1" text="Luan Fabri" className="font-medium" />
+          <TextReveal
+            as="p"
+            text="Front-end engineer at Loopscape"
+            delay={0.15}
+            className="text-muted-foreground"
+          />
         </div>
       </header>
 
       <section
         aria-label="About"
-        className={`${enter} mt-8 space-y-4 text-pretty text-foreground/70 delay-280`}
+        className={`${enter} mt-8 space-y-4 text-pretty text-foreground/70 delay-400`}
       >
         <p>
           I’m a front-end engineer from Jaú, Brazil. At{" "}
@@ -95,7 +95,7 @@ export default function Home() {
 
       <section
         aria-labelledby="projects"
-        className={`${enter} mt-20 delay-380`}
+        className={`${enter} mt-20 delay-500`}
       >
         <h2 id="projects" className="font-medium">
           Projects
