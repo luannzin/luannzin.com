@@ -6,7 +6,6 @@ import {
   GitHubIcon,
   GlobeIcon,
   LinkedInIcon,
-  XIcon,
 } from "@/components/icons";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
@@ -34,7 +33,7 @@ const projects = [
   },
 ];
 
-// One staged entrance for the page: header, bio, projects, 100ms apart.
+// One staged entrance: the name word by word (80ms), then each block 100ms apart.
 const enter =
   "motion-safe:animate-in fade-in blur-in-4 slide-in-from-bottom-3 fill-mode-both duration-500 ease-[cubic-bezier(0.2,0,0,1)]";
 
@@ -44,18 +43,21 @@ const underline =
 export default function Home() {
   return (
     <main className="mx-auto w-full max-w-xl px-6 pt-20 pb-24 leading-relaxed sm:pt-28">
-      <header className={`${enter} flex items-center gap-3`}>
+      <header className="flex items-center gap-3">
         <Image
           src="https://github.com/luannzin.png"
           alt=""
           width={40}
           height={40}
           preload
-          className="size-10 rounded-full outline -outline-offset-1 outline-white/10"
+          className={`${enter} size-10 rounded-full outline -outline-offset-1 outline-white/10`}
         />
         <div className="leading-snug">
-          <h1 className="font-medium">Luan Fabri</h1>
-          <p className="text-muted-foreground">
+          <h1 className="font-medium">
+            <span className={`${enter} inline-block`}>Luan</span>{" "}
+            <span className={`${enter} inline-block delay-80`}>Fabri</span>
+          </h1>
+          <p className={`${enter} text-muted-foreground delay-180`}>
             Front-end engineer at Loopscape
           </p>
         </div>
@@ -63,7 +65,7 @@ export default function Home() {
 
       <section
         aria-label="About"
-        className={`${enter} mt-8 space-y-4 text-pretty text-foreground/70 delay-100`}
+        className={`${enter} mt-8 space-y-4 text-pretty text-foreground/70 delay-280`}
       >
         <p>
           I’m a front-end engineer from Jaú, Brazil. At{" "}
@@ -79,10 +81,8 @@ export default function Home() {
             GitHub
           </InlineLink>
           , follow along on{" "}
-          <InlineLink href="https://x.com/__luannzin" icon={XIcon}>
-            X
-          </InlineLink>
-          , or find me on{" "}
+          <InlineLink href="https://x.com/__luannzin">X</InlineLink>, or find me
+          on{" "}
           <InlineLink
             href="https://linkedin.com/in/luannzin"
             icon={LinkedInIcon}
@@ -95,12 +95,12 @@ export default function Home() {
 
       <section
         aria-labelledby="projects"
-        className={`${enter} mt-20 delay-200`}
+        className={`${enter} mt-20 delay-380`}
       >
         <h2 id="projects" className="font-medium">
           Projects
         </h2>
-        <ul className="mt-5 grid gap-5">
+        <ul className="mt-4 grid gap-6">
           {projects.map(({ name, description, href, mark }) => (
             <li key={name}>
               <a
@@ -143,7 +143,7 @@ function InlineLink({
       className="group whitespace-nowrap rounded-sm text-foreground outline-offset-2"
     >
       {Icon && (
-        <Icon className="mr-1 inline-block size-[1em] align-[-0.125em]" />
+        <Icon className="me-1 inline-block size-[1em] align-[-0.125em]" />
       )}
       <span className={underline}>{children}</span>
     </a>

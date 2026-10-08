@@ -4,31 +4,165 @@
   "title": "Design System: Luan Fabri",
   "extensions": {
     "colorMeta": {
-      "ground": { "role": "neutral", "displayName": "Soft Black Ground", "canonical": "color-mix(in srgb, var(--color-neutral-950) 95%, var(--color-white))", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
-      "ink": { "role": "neutral", "displayName": "Paper White Ink", "canonical": "var(--color-neutral-100)", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
-      "ink-soft": { "role": "neutral", "displayName": "Soft Ink", "canonical": "color-mix(in oklab, var(--foreground) 70%, transparent)", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
-      "ink-muted": { "role": "neutral", "displayName": "Muted Ink", "canonical": "color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-white))", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
-      "tile": { "role": "neutral", "displayName": "Tile Grey", "canonical": "--alpha(var(--color-white) / 4%)", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
-      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "--alpha(var(--color-white) / 6%)", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] },
-      "focus-ring": { "role": "neutral", "displayName": "Focus Grey", "canonical": "var(--color-neutral-500)", "tonalRamp": ["#0a0a0a", "#161616", "#262626", "#404040", "#737373", "#a3a3a3", "#d4d4d4", "#f5f5f5"] }
+      "ground": {
+        "role": "neutral",
+        "displayName": "Soft Black Ground",
+        "canonical": "color-mix(in srgb, var(--color-neutral-950) 95%, var(--color-white))",
+        "tonalRamp": [
+          "#0a0a0a",
+          "#161616",
+          "#262626",
+          "#404040",
+          "#737373",
+          "#a3a3a3",
+          "#d4d4d4",
+          "#f5f5f5"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Paper White Ink",
+        "canonical": "var(--color-neutral-100)",
+        "tonalRamp": [
+          "#0a0a0a",
+          "#161616",
+          "#262626",
+          "#404040",
+          "#737373",
+          "#a3a3a3",
+          "#d4d4d4",
+          "#f5f5f5"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "color-mix(in oklab, var(--foreground) 70%, transparent)",
+        "tonalRamp": [
+          "#0a0a0a",
+          "#161616",
+          "#262626",
+          "#404040",
+          "#737373",
+          "#a3a3a3",
+          "#d4d4d4",
+          "#f5f5f5"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-white))",
+        "tonalRamp": [
+          "#0a0a0a",
+          "#161616",
+          "#262626",
+          "#404040",
+          "#737373",
+          "#a3a3a3",
+          "#d4d4d4",
+          "#f5f5f5"
+        ]
+      },
+      "tile": {
+        "role": "neutral",
+        "displayName": "Tile Grey",
+        "canonical": "--alpha(var(--color-white) / 4%)",
+        "tonalRamp": [
+          "#0a0a0a",
+          "#161616",
+          "#262626",
+          "#404040",
+          "#737373",
+          "#a3a3a3",
+          "#d4d4d4",
+          "#f5f5f5"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "--alpha(var(--color-white) / 6%)",
+        "tonalRamp": [
+          "#0a0a0a",
+          "#161616",
+          "#262626",
+          "#404040",
+          "#737373",
+          "#a3a3a3",
+          "#d4d4d4",
+          "#f5f5f5"
+        ]
+      },
+      "focus-ring": {
+        "role": "neutral",
+        "displayName": "Focus Grey",
+        "canonical": "var(--color-neutral-500)",
+        "tonalRamp": [
+          "#0a0a0a",
+          "#161616",
+          "#262626",
+          "#404040",
+          "#737373",
+          "#a3a3a3",
+          "#d4d4d4",
+          "#f5f5f5"
+        ]
+      }
     },
     "typographyMeta": {
-      "title": { "displayName": "Title", "purpose": "Name in the header and section headings; weight 500 is the only difference from body." },
-      "body": { "displayName": "Body", "purpose": "Bio prose in Soft Ink, text-wrap pretty, relaxed leading." },
-      "label": { "displayName": "Label", "purpose": "Role line and project name/description pairs, snug leading." }
+      "title": {
+        "displayName": "Title",
+        "purpose": "Name in the header and section headings; weight 500 is the only difference from body."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Bio prose in Soft Ink, text-wrap pretty, relaxed leading."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Role line and project name/description pairs, snug leading."
+      }
     },
     "shadows": [
-      { "name": "inset-hairline", "value": "inset 0 0 0 1px var(--border)", "purpose": "Edge of project tiles; the system's only shadow, and it is an edge, not a lift." },
-      { "name": "avatar-edge", "value": "outline: 1px solid rgb(255 255 255 / 0.1); outline-offset: -1px", "purpose": "Keeps the avatar photo from bleeding into the ground." }
+      {
+        "name": "inset-hairline",
+        "value": "inset 0 0 0 1px var(--border)",
+        "purpose": "Edge of project tiles; the system's only shadow, and it is an edge, not a lift."
+      },
+      {
+        "name": "avatar-edge",
+        "value": "outline: 1px solid rgb(255 255 255 / 0.1); outline-offset: -1px",
+        "purpose": "Keeps the avatar photo from bleeding into the ground."
+      }
     ],
     "motion": [
-      { "name": "ease-enter", "value": "cubic-bezier(0.2, 0, 0, 1)", "purpose": "Page entrance easing." },
-      { "name": "enter", "value": "fade-in + blur 4px + translateY 12px, 500ms, fill-mode both, motion-safe only", "purpose": "One staged entrance for top-level blocks." },
-      { "name": "enter-stagger", "value": "0ms / 100ms / 200ms", "purpose": "Header, bio, projects; new sections take the next 100ms step." },
-      { "name": "state", "value": "150ms", "purpose": "Underline color, tile icon color, arrow opacity and translate on hover." }
+      {
+        "name": "ease-enter",
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "purpose": "Page entrance easing."
+      },
+      {
+        "name": "enter",
+        "value": "fade-in + blur 4px + translateY 12px, 500ms, fill-mode both, motion-safe only",
+        "purpose": "One staged entrance for top-level blocks."
+      },
+      {
+        "name": "enter-stagger",
+        "value": "0 / 80 / 180 / 280 / 380ms",
+        "purpose": "Avatar + \"Luan\" (0), \"Fabri\" (80), role (180), bio (280), projects (380): 80ms between title words, 100ms between blocks; new sections take the next 100ms step."
+      },
+      {
+        "name": "state",
+        "value": "150ms",
+        "purpose": "Underline color, tile icon color, arrow opacity and translate on hover."
+      }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" }
+      {
+        "name": "sm",
+        "value": "640px"
+      }
     ]
   },
   "components": [
@@ -68,13 +202,29 @@
       "Motion is one staged entrance plus 150ms hover state changes."
     ],
     "rules": [
-      { "name": "The No Accent Rule", "body": "The palette has no hue. Emphasis is earned by moving up an ink tier (muted, soft, full), never by color.", "section": "colors" },
-      { "name": "The Three Tiers Rule", "body": "Text uses exactly three tones: full ink for things you can act on or name, soft ink for prose, muted ink for supporting lines. A fourth tone is drift.", "section": "colors" },
-      { "name": "The One Size Rule", "body": "All text is 16px. New sections get hierarchy from weight 500, ink tier, and space, not from a larger size.", "section": "typography" },
-      { "name": "The Inset Edge Rule", "body": "Containers are defined by a 1px inset ring, never by an outer shadow or a solid border.", "section": "elevation" }
+      {
+        "name": "The No Accent Rule",
+        "body": "The palette has no hue. Emphasis is earned by moving up an ink tier (muted, soft, full), never by color.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three Tiers Rule",
+        "body": "Text uses exactly three tones: full ink for things you can act on or name, soft ink for prose, muted ink for supporting lines. A fourth tone is drift.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Size Rule",
+        "body": "All text is 16px. New sections get hierarchy from weight 500, ink tier, and space, not from a larger size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Inset Edge Rule",
+        "body": "Containers are defined by a 1px inset ring, never by an outer shadow or a solid border.",
+        "section": "elevation"
+      }
     ],
     "dos": [
-      "Do keep every new section inside the 576px column, separated by 80px, with a weight-500 16px heading 20px above its content.",
+      "Do keep every new section inside the 576px column, separated by 80px, with a weight-500 16px heading 16px above its content.",
       "Do use the three ink tiers: full for names and links, 70% for prose, muted for supporting lines.",
       "Do draw icons from Central Icons (round-outlined, radius 2, 1.5px stroke) in currentColor.",
       "Do signal interactivity with the 25% to 60% underline shift and 150ms transitions.",

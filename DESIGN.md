@@ -37,7 +37,7 @@ spacing:
   hair: "4px"
   pair: "12px"
   line: "16px"
-  list: "20px"
+  list: "24px"
   gutter: "24px"
   block: "32px"
   section: "80px"
@@ -116,7 +116,7 @@ A strictly neutral, near-black palette resolved from the coss UI dark tokens (`.
 
 A single centered column, `max-width` 576px with 24px side gutters, top-left aligned content. Top padding is 80px on mobile and 112px from 640px up; bottom padding 96px. No grid, no sidebar, no breakpoint other than that top-padding step.
 
-Vertical rhythm, as built: avatar to name/role 12px apart horizontally; header to bio 32px; bio paragraphs 16px apart; bio to the next section heading 80px; section heading to its list 20px; list rows 20px apart. The 80px break is the section separator; there are no rules or dividers.
+Vertical rhythm, as built: avatar to name/role 12px apart horizontally; header to bio 32px; bio paragraphs 16px apart; bio to the next section heading 80px; section heading to its list 16px; list rows 24px apart (the heading sits closer to its list than rows sit to each other, so it reads as the list's owner, not a third row). The 80px break is the section separator; there are no rules or dividers.
 
 ## Elevation & Depth
 
@@ -148,7 +148,7 @@ The signature component: a whole-row link to a piece of work.
 40px circle with a 1px white-at-10% outline inset by 1px; sits 12px left of the name and role.
 
 ### Entrance
-Each top-level block (header, bio, projects) fades in from 4px blur and 12px below over 500ms on `cubic-bezier(0.2, 0, 0, 1)`, staggered 0 / 100 / 200ms, and only under `prefers-reduced-motion: no-preference`. New sections join the same stagger at the next 100ms step.
+Every unit fades in from 4px blur and 12px below over 500ms on `cubic-bezier(0.2, 0, 0, 1)`, and only under `prefers-reduced-motion: no-preference`. The name is the focal moment and reveals word by word: avatar and "Luan" at 0ms, "Fabri" at 80ms, then the role line at 180ms, bio at 280ms, projects at 380ms (80ms between title words, 100ms between blocks). New sections join at the next 100ms step. Pure CSS (tw-animate-css), server-rendered, no motion library.
 
 ### Browser Surfaces
 `color-scheme: dark`; text selection is ink at 15% behind full ink; every `:focus-visible` gets a 2px Focus Grey outline.
@@ -156,7 +156,7 @@ Each top-level block (header, bio, projects) fades in from 4px blur and 12px bel
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep every new section inside the 576px column, separated by 80px, with a weight-500 16px heading 20px above its content.
+- **Do** keep every new section inside the 576px column, separated by 80px, with a weight-500 16px heading 16px above its content.
 - **Do** use the three ink tiers: full for names and links, 70% for prose, muted for supporting lines.
 - **Do** draw icons from Central Icons (round-outlined, radius 2, 1.5px stroke) in currentColor.
 - **Do** signal interactivity with the 25% to 60% underline shift and 150ms transitions.
