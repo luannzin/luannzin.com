@@ -858,13 +858,14 @@
     & table {
       width: 100%;
       font-variant-numeric: tabular-nums;
-      text-align: start;
     }
     & th {
       color: var(--foreground);
       font-weight: 500;
     }
+    /* on the cells: a th centres itself and ignores what the table inherits */
     & :where(th, td) {
+      text-align: start;
       padding-block: 0.5rem;
       padding-inline-end: 1rem;
       border-bottom: 1px solid var(--border);

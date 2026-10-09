@@ -181,6 +181,15 @@ export default function Home() {
         prompt={`Tell me about Luan Fabri, the front-end engineer behind ${site}`}
         className={`${enter} mt-20 delay-700`}
       />
+
+      <footer className={`${enter} mt-20 delay-800`}>
+        <a
+          href="/index.md"
+          className="group rounded-sm font-mono text-muted-foreground text-sm outline-offset-2 transition-[color] duration-150 hover:text-foreground"
+        >
+          <span className={underline}>index.md</span>
+        </a>
+      </footer>
     </main>
   );
 }

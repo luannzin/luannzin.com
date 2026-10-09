@@ -4,6 +4,7 @@ import { Marked, type Tokens } from "marked";
 import { highlight } from "sugar-high";
 import { lang } from "sugar-high/lang";
 import { createScene } from "@/lib/scene";
+import { site } from "@/lib/site";
 
 export type Heading = { id: string; text: string; depth: 2 | 3 };
 
@@ -92,17 +93,17 @@ const ICONS: Record<string, string> = {
 const icon = (name = "") =>
   `<span class="flow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] ?? ICONS.file}</svg></span>`;
 
+type Node = {
+  title: string;
+  note: string;
+  icon: string;
+  lit: boolean;
+  label?: string;
+};
+
 // ```flow: one node a line, "title | note | icon | lit"; a line without a
-// pipe labels the arrow after the node above it. Nodes run two a row, and
-// the arrow turns down to the next row, like reading.
-function flowBlock(text: string) {
-  type Node = {
-    title: string;
-    note: string;
-    icon: string;
-    lit: boolean;
-    label?: string;
-  };
+// pipe labels the arrow after the node above it.
+function flowNodes(text: string) {
   const nodes: Node[] = [];
   let label: string | undefined;
   for (const raw of text.split("\n")) {
@@ -118,6 +119,12 @@ function flowBlock(text: string) {
     nodes.push({ title, note, icon: name, lit: flag === "lit", label });
     label = undefined;
   }
+  return nodes;
+}
+
+// Nodes run two a row, and the arrow turns down to the next row, like reading.
+function flowBlock(text: string) {
+  const nodes = flowNodes(text);
   const node = (n: Node) =>
     `<div class="flow-node"${n.lit ? " data-lit" : ""}>${icon(n.icon)}<span class="flow-text"><span class="flow-title">${escapeHtml(n.title)}</span>${n.note ? `<span class="flow-note">${escapeHtml(n.note)}</span>` : ""}</span></div>`;
   const marks = '<i class="flow-dot"></i><i class="flow-head"></i>';
@@ -134,14 +141,16 @@ function flowBlock(text: string) {
   return `<figure class="flow" role="img" aria-label="${escapeHtml(`Diagram: ${summary}`)}">${html}</figure>`;
 }
 
-// ```scenes: seeds, mounted as live scenes on the client.
-function scenesBlock(text: string) {
-  const seeds = text
+const seedsOf = (text: string) =>
+  text
     .split(/[\s,]+/)
     .filter(Boolean)
     .map(Number)
     .filter(Number.isFinite);
-  const cards = seeds
+
+// ```scenes: seeds, mounted as live scenes on the client.
+function scenesBlock(text: string) {
+  const cards = seedsOf(text)
     .map((seed) => {
       const { name, time } = createScene(seed);
       return `<figure class="scene-card" data-hover-play><div class="scene-slot" data-island="scene" data-seed="${seed}" role="img" aria-label="${escapeHtml(`An animated scene drawn in dots: ${name}`)}" style="background:${time.ground}"></div><figcaption>${escapeHtml(name)}</figcaption></figure>`;
@@ -223,4 +232,28 @@ export function renderMarkdown(source: string) {
   const html = marked.parse(source, { async: false });
   const words = source.split(/\s+/).filter(Boolean).length;
   return { html, toc, minutes: Math.max(1, Math.round(words / 220)) };
+}
+
+// The post as plain markdown for agents (`/writing/[slug].md`): the blocks
+// only the page can draw become text, and links into the site go absolute.
+export function plainMarkdown(source: string) {
+  return source
+    .replace(
+      /^```(flow|scenes|roll)[^\n]*\n([\s\S]*?)^```[ \t\r]*$/gm,
+      (_, fence: string, text: string) => {
+        if (fence === "flow") {
+          return flowNodes(text)
+            .map(
+              (n, i) =>
+                `${i + 1}. ${n.title}${n.label ? `, via ${n.label}` : ""}${n.note ? `: ${n.note}` : ""}`,
+            )
+            .join("\n");
+        }
+        const names = seedsOf(text).map((seed) => createScene(seed).name);
+        return fence === "roll"
+          ? `*A live scene, with a button that draws another: ${names[0]}.*`
+          : `*Live scenes: ${names.join(", ")}.*`;
+      },
+    )
+    .replace(/\]\(\//g, `](${site}/`);
 }

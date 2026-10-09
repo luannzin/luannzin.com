@@ -67,7 +67,7 @@ There are nine places, eleven times of day, and eleven things to stand in them:
 The same code, six other seeds. Hover one to set it moving:
 
 ```scenes
-2 109 103 9 46 101
+2 109 103 9 46 58
 ```
 
 The name under each picture comes from the same choices: a word for the time and a word for the place, like the one above. Or keep drawing; every press picks a new seed:
@@ -85,7 +85,7 @@ seed | one number | hash | lit
 createScene | picks every part | layers
 renderer(cols, rows)
 frame(t) | shades every cell | grid
-canvas | draws the dots on the GPU | image | lit
+canvas | dots on the GPU | image | lit
 ```
 
 The frame is a grid of cells, one for every three pixels of width, or finer on a sharper screen, and each cell is shaded in full colour before anything is drawn.
@@ -104,7 +104,7 @@ Most scenes are a sky over land over water. Two are not.
 
 ### A street that runs away
 
-The city is drawn in one-point perspective: the street runs straight away from us to a point on the horizon. Every column of the frame looks at one wall, and how far away that wall is follows from how far the column is from the middle. Knowing the depth, the rest is division:
+The city is drawn in one-point perspective: the street runs straight away from us to a point on the horizon. Every column of the frame looks at one wall, and how far away that wall is follows from how far the column is from the middle. Knowing the depth, the rest is division. Trimmed down, it reads:
 
 ```ts title="src/lib/scene.ts"
 const z = Math.min(end, STREET / Math.abs(x - 1));
@@ -128,7 +128,7 @@ The reef is the sky turned upside down. The gradient runs from the bright surfac
 
 ## From colour to dots
 
-Each cell becomes one dot, in one of three sizes or none, the way a printed halftone does it. The brightest cells get the largest dots. A four-by-four ordered dither decides between neighbouring sizes, so a smooth gradient turns into an even texture instead of hard bands:
+Each cell becomes one dot, in one of three sizes or none, the way a printed halftone does it. The brightest cells get the largest dots. A four-by-four ordered dither decides between neighbouring sizes, so a smooth gradient turns into an even texture instead of hard bands. Trimmed down, it is three lines:
 
 ```ts title="src/lib/scene.ts" {2}
 const level = floor + (1 - floor) * peak ** 0.75;
@@ -144,13 +144,16 @@ The scene draws fifteen frames a second. Light that never moves, like the sky's 
 
 Then the GPU draws the dots. The frame goes up as a small texture, one texel a cell, its colour and its dot size. One triangle covers the canvas, and every pixel works out which cell it falls in and how far it is from the middle, so every dot comes out round, with a pixel's worth of soft edge, and a frame costs the same however many dots there are.
 
+If frames start running slow, eight in a row over 30 milliseconds, the cells grow and there are fewer to shade. Past 320 columns they grow rather than multiply, and without WebGL the dots are filled on a plain canvas, fewer and larger.
+
 ## Touching it
 
 - **Pointer:** a small warm light follows the mouse, and the water reflects it.
 - **Tap:** on the sky, a shooting star leaves from where you pressed; on the water, a ring spreads out and fades; under the sea, a few bubbles rise.
+- **Dice:** each press throws the die and draws a new seed, for this visit only. While it tumbles, the old scene melts into the new one: both warp through noise, and the new one breaks through where the noise runs lowest.
 - **Rest:** the scene stops drawing when it scrolls out of view, and it holds still if your system asks for reduced motion.
 
-On the home page, the same seed draws a square crop of the scene inside each post's tile, around its landmark, still until you hover it. Open the post and the tile grows into the picture at the top.
+On the home page, the same seed draws a square crop of the scene inside each post's tile, around its landmark, still until you hover or focus it. Open the post and the tile grows into the picture at the top.
 
 ![The Writing list on the home page, with this post's tile](/writing/art-from-a-seed/home-tile.png "The tile is the same scene, cropped close round its landmark.")
 

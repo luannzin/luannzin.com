@@ -23,7 +23,15 @@ export async function generateMetadata({
   params,
 }: PageProps<"/writing/[slug]">): Promise<Metadata> {
   const post = getPost((await params).slug);
-  return post ? { title: post.title, description: post.description } : {};
+  return post
+    ? {
+        title: post.title,
+        description: post.description,
+        alternates: {
+          types: { "text/markdown": `${site}/writing/${post.slug}.md` },
+        },
+      }
+    : {};
 }
 
 // `params` is URL data, so the article streams inside Suspense; links to it
