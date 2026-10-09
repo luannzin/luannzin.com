@@ -171,10 +171,10 @@ The world is brief-pinned. Its form follows the user's four reference sites (Jak
 
 Writing extends the column without changing it. A post is the same column plus one living figure: a seeded halftone scene (time of day, place, landmark) drawn as dithered dots on a canvas. That figure is the only colour in the world, and it is art, not interface. Everything around it (breadcrumb, title, contents, prose, code) stays in the ink tiers at one size.
 
-Articles also carry four richer blocks, all authored in markdown and rendered to static HTML at build time: a code box with a file header, a flow diagram, a framed image, and a gallery of live scenes. They stay in the same neutral tiers; the gallery is the Art Exception repeated, not a new one. The few parts that need the client (copy buttons, live scenes) mount into placeholders the HTML leaves.
+Articles also carry five richer blocks, all authored in markdown and rendered to static HTML at build time: a code box with a file header, a flow diagram, a framed image, a gallery of live scenes, and a scene roller. They stay in the same neutral tiers; the gallery and the roller are the Art Exception repeated, not a new one. The few parts that need the client (copy buttons, live scenes, the roller's button) mount into placeholders the HTML leaves.
 
 **Key Characteristics:**
-- Single 576px column, top-left aligned; the article figure, framed images, scene galleries, code boxes and the contents rail are the only things allowed outside it.
+- Single 576px column, top-left aligned; the article figure, framed images, scene galleries, scene rollers, code boxes and the contents rail are the only things allowed outside it.
 - One type size (16px); hierarchy by weight (500 vs 400) and ink tier. Code is the one deliberate step down (Geist Mono 14px).
 - Neutral greys only in the interface; full colour lives inside the seeded scene art and nowhere else.
 - Hairline underlines and inset 1px rings instead of borders and shadows.
@@ -195,7 +195,7 @@ A strictly neutral, near-black palette resolved from the coss UI dark tokens (`.
 - **Focus Grey** (`--ring`): 2px keyboard focus outline.
 
 ### Scene Art
-Each post's scene picks its own palette from its seed (a time of day: night, twilight, dusk, dawn, aurora, each with its own near-black sky ground). Those colours are generated per post, not tokens; they exist only on the scene canvas, at full strength in the article figure and in the 44px home tile crop.
+Each post's scene picks its own palette from its seed (a time of day: night, twilight, dusk, dawn, aurora, alpenglow, plum dusk, lanterns, rain, storm, or deep water, each with its own near-black ground; the place picked first decides which times it can have). Those colours are generated per post, not tokens; they exist only on the scene canvas, at full strength in the article figure and in the 44px home tile crop. Each dot's colour is pushed away from its own grey before it is drawn, so the art reads vivid while whites and greys stay neutral.
 
 ### Named Rules
 **The No Accent Rule.** The interface has no hue. Emphasis is earned by moving up an ink tier (muted, soft, full), never by color.
@@ -239,6 +239,7 @@ Breakouts are the only departures from the column:
 - **Code boxes:** full-bleed on phones (the 24px gutters cancelled); from sm they hang 24px into each gutter as a rounded box, so code text lines up with the prose beside it.
 - **Framed images:** full-bleed on phones, inside the column from sm, breaking out 64px each side at lg like the scene figure; the caption realigns with the column text at each step.
 - **Scene galleries:** two columns at every width (20px between rows, 12px between columns), inside the column on phones, breaking out 64px each side at lg with 16px columns.
+- **Scene rollers:** placed like a framed image: full-bleed on phones, inside the column from sm, breaking out 64px each side at lg; the caption row realigns with the column text at each step.
 - **Flow diagrams:** stay in the column. From sm, two nodes per row with a 64px arrow track between them, and a turn connector (40px on phones, 56px from sm) leading down to the next row; on phones every node stacks in one column joined by vertical arrows.
 - **Contents rail:** from xl, a 240px sticky rail (48px from the top) sits 64px left of the column. Below xl it becomes a disclosure 40px above the prose.
 
@@ -257,7 +258,7 @@ Text-level rules are hairlines too: table rows and `hr` take a 1px Hairline rule
 
 ## Shapes
 
-Soft, small corners. Tiles use 10px (the coss `--radius`, 0.625rem); larger containers (scene figure from sm, code blocks from sm, contents disclosure) and row focus outlines use 14px, concentric with the tile at its 4px offset; inline-link, inline-code, breadcrumb, Copy link, contents entry, heading-anchor focus, flow icon tiles and arrow labels use 6px. The code copy button uses 8px; the language badge 4px. The avatar is a full circle. Anything full-bleed on a phone (scene figure, code block) has square corners, because it meets the screen edge. Icons are Central Icons, round-outlined, radius 2, 1.5px stroke, always `currentColor`, never filled glyphs; the set includes arrow-up-right, arrow-right, chevron-right, link, check and copy. Flow diagrams draw Central-style strokes inline in the static HTML (hash, layers, grid, image, file), falling back to file.
+Soft, small corners. Tiles use 10px (the coss `--radius`, 0.625rem); larger containers (scene figure from sm, code blocks from sm, contents disclosure) and row focus outlines use 14px, concentric with the tile at its 4px offset; inline-link, inline-code, breadcrumb, Copy link, contents entry, heading-anchor focus, flow icon tiles, arrow labels and the cover dice use 6px. The code copy button uses 8px; the language badge 4px. The avatar is a full circle. Anything full-bleed on a phone (scene figure, code block) has square corners, because it meets the screen edge. Icons are Central Icons, round-outlined, radius 2, 1.5px stroke, always `currentColor`, never filled glyphs; the set includes arrow-up-right, arrow-right, chevron-right, link, check, copy and dice (Central's outlined die keeps its pips solid; that is the icon, not a filled variant). Flow diagrams draw Central-style strokes inline in the static HTML (hash, layers, grid, image, file), falling back to file.
 
 **The Concentric Corner Rule.** A rounded thing inside a rounded thing takes the outer radius minus the gap between them: a flow node is 14px because its 6px icon tile sits 8px in; a row's focus outline is 14px because it sits 4px outside a 10px tile.
 
@@ -286,10 +287,12 @@ The Project Row's sibling for posts, linking within the site.
 ### Scene Art
 The living figure, the world's one exception.
 - **Form:** a 2:1 canvas of dithered dots in the seed's full colour, on its own sky ground.
-- **Life:** animates at 15fps (clouds, stars, water, beam, lamps) only while on screen. On the article, a mouse pointer carries a small warm light the water reflects, and a tap drops a shooting star in the sky or a ripple on the water (up to 4 at once, each fading over 2.5s).
+- **Life:** animates at 15fps (clouds, stars, water, rain, lightning, lanterns, fish, petals, beam, lamps) only while on screen. On the article, a mouse pointer carries a small warm light the water reflects, and a tap drops a shooting star in the sky, a ripple on the water, or bubbles under the sea (up to 4 at once, each fading over 2.5s).
 - **Still:** under reduced motion it draws one frame and stays still; no pointer light, no taps.
 - **Hover play:** inside a link (the home tile) or a card marked to play on hover (the scene gallery), it holds still until that container is hovered or focused.
 - **Label:** the wrapper is `role="img"` with "An animated scene drawn in dots: [name]"; the caption shows the name only.
+- **Dice (article figure):** a 32px button 8px in from the figure's top-right corner (6px corners, concentric with the 14px figure), black at 40% with a backdrop blur and an inset white-at-10% ring, an 18px Central dice icon at white 80% rising to full on hover, presses to 0.96. Each press draws a random seed for this visit only (a reload restores the post's own), turns the die a quarter, and the caption follows the new name (announced politely). Labelled "Draw another scene".
+- **Dice hint:** the first cover a visitor ever sees (remembered in local storage) draws a hand-drawn arrow to the dice in Muted Ink: a 2px marker line that swoops, loops once and runs out to the dice (900ms from 900ms), then a concave head outlined (260ms) and hatched stroke by stroke (260ms). A 5px Ground-at-60% halo under the strokes keeps the part over the art legible. It sits in a 132 by 64 box over the figure's top-right with its head level with the dice, decorative and hidden from assistive tech, and fades over 200ms once the dice is pressed. Under reduced motion it appears already drawn. The one place the interface draws freehand; it is a pointer, never content.
 
 ### Article Breadcrumb
 A single row at the top of a post.
@@ -317,7 +320,7 @@ The article body, rendered from markdown, in the three ink tiers.
 - **Blockquote:** full ink, 16px start padding, 1px ink-at-20% bar.
 - **Tables:** full width, tabular numerals, 8px vertical cell padding, 16px end padding, a Hairline rule under every row; no fills, no vertical rules.
 - **Inline code:** Geist Mono at 0.875em, full ink, Tile Grey fill, inset Hairline ring, 6px corners, 2px by 6px padding.
-- **Code:** every fenced block renders as a Code Box (below), unless it is a flow or scenes block.
+- **Code:** every fenced block renders as a Code Box (below), unless it is a flow, scenes or roll block.
 
 ### Code Box
 A fenced code block with a header. Authored as ```` ```lang title="file" {marked lines} ````.
@@ -347,6 +350,11 @@ An image alone in its paragraph becomes a figure; its markdown title is the capt
 A grid of live scenes from other seeds, authored as ```` ```scenes ```` with a list of seeds.
 - **Card:** a 2:1 Scene Art slot, 10px corners, art edge, painted in its sky ground until the live scene mounts; the generated name below in Muted Ink, 8px under, first letter capitalised.
 - **Life:** each scene holds still and plays only while its card is hovered, the same rule as the home tile.
+
+### Scene Roller
+One live scene and a button that draws another, authored as ```` ```roll ```` with a starting seed.
+- **Scene:** a 2:1 Scene Art slot that plays while on screen and takes the pointer light and taps, like the article figure; square and edge-to-edge on phones, 14px corners with the art edge from sm. Before the client mounts, its sky ground and generated name hold the place.
+- **Caption row:** the generated name in Muted Ink (first letter capitalised, announced politely when it changes) at the start, and "Another scene" with a 16px dice icon at the end, styled as Copy Link (Muted Ink to full ink, 150ms, presses to 0.96). Each press draws a fresh random seed; the seed is never shown.
 
 ### Author Footer
 The article ends on the home header's identity row (40px avatar, name underlined in full ink, role in Muted Ink) as one link back home, 80px below the body; focus 4px offset, 14px corners.

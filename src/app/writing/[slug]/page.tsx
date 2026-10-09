@@ -2,16 +2,15 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense, ViewTransition } from "react";
+import { Suspense } from "react";
 import { ArticleIslands } from "@/components/article-islands";
 import { CopyLink } from "@/components/copy-link";
+import { CoverArt } from "@/components/cover-art";
 import { ChevronRightIcon } from "@/components/icons";
 import { TextReveal } from "@/components/motion/text-reveal";
-import { SceneArt } from "@/components/scene-art";
 import { Toc } from "@/components/toc";
 import { enter, underline } from "@/lib/classes";
 import { renderMarkdown } from "@/lib/markdown";
-import { createScene } from "@/lib/scene";
 import { formatDate, getPost, getPosts } from "@/lib/writing";
 
 export function generateStaticParams() {
@@ -45,7 +44,6 @@ async function Post({
   if (!post) notFound();
 
   const { html, toc, minutes } = renderMarkdown(post.body);
-  const { name } = createScene(post.seed);
 
   return (
     <main className="mx-auto w-full max-w-xl px-6 pt-6 pb-24 leading-relaxed sm:pt-10">
@@ -86,22 +84,7 @@ async function Post({
         </p>
       </header>
 
-      <figure className="-mx-6 mt-8 sm:mx-0 lg:-mx-16">
-        <ViewTransition name={`art-${slug}`} share="morph" default="none">
-          <div
-            role="img"
-            aria-label={`An animated scene drawn in dots: ${name}`}
-            className="overflow-hidden sm:rounded-[14px] sm:outline sm:-outline-offset-1 sm:outline-white/10"
-          >
-            <SceneArt seed={post.seed} stir />
-          </div>
-        </ViewTransition>
-        <figcaption
-          className={`${enter} mt-3 text-muted-foreground first-letter:uppercase delay-400 max-sm:px-6 lg:px-16`}
-        >
-          {name}
-        </figcaption>
-      </figure>
+      <CoverArt seed={post.seed} slug={slug} />
 
       <div className="relative mt-12">
         {toc.length > 0 && (

@@ -150,6 +150,14 @@ function scenesBlock(text: string) {
   return `<div class="scenes">${cards}</div>`;
 }
 
+// ```roll: one seed, drawn live on the client with a button that draws
+// another. Until then, its ground and its name hold the place.
+function rollBlock(text: string) {
+  const seed = Number(text.trim()) >>> 0;
+  const { name, time } = createScene(seed);
+  return `<figure class="scene-roll" data-island="roll" data-seed="${seed}"><div class="scene-slot" role="img" aria-label="${escapeHtml(`An animated scene drawn in dots: ${name}`)}" style="background:${time.ground}"></div><figcaption><span>${escapeHtml(name)}</span></figcaption></figure>`;
+}
+
 // --- images --------------------------------------------------------------
 
 // Width and height of a PNG in public/, so the frame reserves its space.
@@ -191,6 +199,7 @@ export function renderMarkdown(source: string) {
         const fence = info.trim().split(/\s+/)[0];
         if (fence === "flow") return flowBlock(text);
         if (fence === "scenes") return scenesBlock(text);
+        if (fence === "roll") return rollBlock(text);
         return codeBlock(text, info);
       },
       // An image alone in its paragraph becomes a framed figure; its title is

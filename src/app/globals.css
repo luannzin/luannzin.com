@@ -254,6 +254,55 @@
   }
 }
 
+/* The first cover anyone sees draws an arrow to its dice, as if by hand: the
+   line swoops and loops, then the head is outlined and hatched. It fades once
+   the dice is rolled. */
+@layer components {
+  .dice-hint {
+    transition: opacity 200ms;
+
+    &[data-gone] {
+      opacity: 0;
+    }
+    & .halo {
+      color: var(--background);
+      opacity: 0.6;
+    }
+    & .draw {
+      stroke-dasharray: 1;
+      animation: hint-draw 900ms 900ms both cubic-bezier(0.45, 0, 0.25, 1);
+    }
+    & .head {
+      animation-duration: 260ms;
+      animation-delay: 1780ms;
+    }
+    & .hatch {
+      animation-duration: 260ms;
+      animation-delay: 2000ms;
+      animation-timing-function: linear;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      & .draw {
+        animation: none;
+      }
+    }
+  }
+}
+@keyframes hint-draw {
+  /* hidden until it starts, so a round cap never shows early as a dot */
+  from {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  1% {
+    opacity: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 /* Article body, rendered from markdown. One size, three ink tiers: headings
    and links in full ink, prose in soft ink, supporting marks muted. */
 @layer components {
@@ -373,10 +422,10 @@
     & > :is(.code, pre) + * {
       margin-top: 1.5rem;
     }
-    & > :is(.flow, .scenes, .frame) {
+    & > :is(.flow, .scenes, .frame, .scene-roll) {
       margin-top: 2rem;
     }
-    & > :is(.flow, .scenes, .frame) + * {
+    & > :is(.flow, .scenes, .frame, .scene-roll) + * {
       margin-top: 2rem;
     }
 
@@ -725,6 +774,50 @@
 
       &::first-letter {
         text-transform: uppercase;
+      }
+    }
+
+    /* One live scene and a button that draws another. Placed like a framed
+       image: full bleed on phones, in the column from sm, out at lg. */
+    & .scene-roll {
+      margin-inline: -1.5rem;
+
+      @variant sm {
+        margin-inline: 0;
+      }
+      @variant lg {
+        margin-inline: -4rem;
+      }
+
+      & .scene-slot {
+        border-radius: 0;
+        outline: none;
+
+        @variant sm {
+          border-radius: 14px;
+          outline: 1px solid rgb(255 255 255 / 0.1);
+        }
+      }
+
+      & figcaption {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 0.75rem;
+        padding-inline: 1.5rem;
+        color: var(--muted-foreground);
+
+        @variant sm {
+          padding-inline: 0;
+        }
+        @variant lg {
+          padding-inline: 4rem;
+        }
+
+        & > span::first-letter {
+          text-transform: uppercase;
+        }
       }
     }
 
