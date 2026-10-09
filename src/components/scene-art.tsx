@@ -1,12 +1,11 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
+import { dots } from "@/lib/dots";
 import {
-  colorString,
   createScene,
   type Frame,
   type Pointer,
-  RADIUS,
   renderer,
   type Scene,
   START,
@@ -16,8 +15,13 @@ import {
 import { cn } from "@/lib/utils";
 
 const FRAME = 1000 / 15;
-// Target cell size in CSS pixels: finer on phones, where the frame is small.
-const cellSize = (width: number) => (width < 500 ? 3.4 : 4.5);
+// A cell, in CSS pixels. When the GPU draws the dots, three, or on a denser
+// screen four and a half device pixels: any finer and a dot stops reading as
+// round. On a 2D canvas, larger, and finer on phones, where the frame is small.
+const cellSize = (width: number, dpr: number, fine: boolean) =>
+  fine ? Math.min(3, 4.5 / dpr) : width < 500 ? 3.4 : 4.5;
+// A frame that takes longer than this, eight in a row, and cells grow.
+const SLOW = 30;
 
 function viewOf(scene: Scene, crop: boolean): View {
   // the tile is a close square round the landmark, so it still reads at 44px
@@ -55,95 +59,56 @@ export function SceneArt({
   // paints, and before a view transition takes its snapshot.
   useLayoutEffect(() => {
     const canvas = ref.current;
-    const ctx = canvas?.getContext("2d");
     const view = viewOf(scene, crop);
-    if (!canvas || !ctx) return;
+    if (!canvas) return;
+    const painter = dots(canvas);
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const fills = new Map<number, string>();
     const pointer: Pointer = { x: 0, y: 0, strength: 0 };
     const aim = { x: 0, y: 0, inside: false };
     const taps: Tap[] = [];
 
     let cols = 0;
     let rows = 0;
-    let frame: (t: number, p?: Pointer, taps?: Tap[]) => Frame = () => ({
-      step: new Uint8Array(),
-      color: new Uint32Array(),
-    });
-    let xs = new Int32Array();
-    let ys = new Int32Array();
-    let shownStep = new Uint8Array();
-    let shownColor = new Uint32Array();
+    let frame: (t: number, p?: Pointer, taps?: Tap[]) => Frame = () =>
+      new Uint8ClampedArray();
+    let coarse = 1; // how much cells have had to grow on a slow device
+    let slow = 0;
     let clock = START;
     let last = 0;
     let raf = 0;
     let visible = false;
     let engaged = stir;
 
-    const paint = (next: Frame, full: boolean) => {
-      const groups = new Map<number, number[]>();
-      ctx.fillStyle = scene.time.ground;
-      if (full) ctx.fillRect(0, 0, canvas.width, canvas.height);
-      for (let k = 0; k < next.step.length; k++) {
-        const step = next.step[k];
-        const color = next.color[k];
-        if (!full && step === shownStep[k] && color === shownColor[k]) continue;
-        shownStep[k] = step;
-        shownColor[k] = color;
-        const c = k % cols;
-        const r = (k - c) / cols;
-        // each cell owns a whole-pixel rectangle, so redrawing one never
-        // touches its neighbours
-        if (!full)
-          ctx.fillRect(xs[c], ys[r], xs[c + 1] - xs[c], ys[r + 1] - ys[r]);
-        if (!step) continue;
-        const group = groups.get(color);
-        if (group) group.push(k);
-        else groups.set(color, [k]);
-      }
-      const size = Math.min(canvas.width / cols, canvas.height / rows);
-      for (const [color, cells] of groups) {
-        const fill = fills.get(color) ?? colorString(color);
-        fills.set(color, fill);
-        ctx.fillStyle = fill;
-        ctx.beginPath();
-        for (const k of cells) {
-          const c = k % cols;
-          const r = (k - c) / cols;
-          const x = (xs[c] + xs[c + 1]) / 2;
-          const y = (ys[r] + ys[r + 1]) / 2;
-          const radius = RADIUS[shownStep[k]] * size;
-          ctx.moveTo(x + radius, y);
-          ctx.arc(x, y, radius, 0, Math.PI * 2);
-        }
-        ctx.fill();
-      }
-    };
+    const paint = () =>
+      painter.draw(frame(clock, pointer, taps), cols, rows, scene.time.ground);
 
     const layout = () => {
       const width = canvas.clientWidth;
       if (!width) return;
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      // a GPU canvas takes every device pixel there is; a 2D one stops at two
+      const dpr = Math.min(painter.fine ? 3 : 2, window.devicePixelRatio || 1);
       const height = (width * view.h) / view.w;
+      // past this many columns (51k cells), cells grow rather than multiply
+      const most = painter.fine ? 320 : 200;
       const nextCols = crop
         ? 18
-        : Math.max(64, Math.min(200, Math.round(width / cellSize(width))));
+        : Math.round(
+            Math.max(
+              64,
+              Math.min(
+                most,
+                width / (cellSize(width, dpr, painter.fine) * coarse),
+              ),
+            ),
+          );
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       if (nextCols !== cols) {
         cols = nextCols;
         rows = Math.round((cols * view.h) / view.w);
         frame = renderer(scene, cols, rows, view);
-        shownStep = new Uint8Array(cols * rows);
-        shownColor = new Uint32Array(cols * rows);
       }
-      xs = Int32Array.from({ length: cols + 1 }, (_, c) =>
-        Math.round((c * canvas.width) / cols),
-      );
-      ys = Int32Array.from({ length: rows + 1 }, (_, r) =>
-        Math.round((r * canvas.height) / rows),
-      );
-      paint(frame(clock, pointer, taps), true);
+      paint();
     };
 
     const tick = (now: number) => {
@@ -157,7 +122,15 @@ export function SceneArt({
       pointer.x += (aim.x - pointer.x) * ease(10);
       pointer.y += (aim.y - pointer.y) * ease(10);
       while (taps.length && clock - taps[0].t > 2.5) taps.shift();
-      paint(frame(clock, pointer, taps), false);
+      const started = performance.now();
+      paint();
+      // a device that cannot keep up gets fewer, larger dots
+      slow = performance.now() - started > SLOW ? slow + 1 : 0;
+      if (slow >= 8 && coarse < 2 && !crop) {
+        coarse *= 1.4;
+        slow = 0;
+        layout();
+      }
     };
 
     const sync = () => {

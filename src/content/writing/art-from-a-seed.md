@@ -85,10 +85,10 @@ seed | one number | hash | lit
 createScene | picks every part | layers
 renderer(cols, rows)
 frame(t) | shades every cell | grid
-canvas | redraws changed dots | image | lit
+canvas | draws the dots on the GPU | image | lit
 ```
 
-The frame is a grid of cells, about one for every four and a half pixels of width, and each cell is shaded in full colour before anything is drawn.
+The frame is a grid of cells, one for every three pixels of width, or finer on a sharper screen, and each cell is shaded in full colour before anything is drawn.
 
 The sky runs from its top colour down to a brighter horizon, with a glow round the sun or moon. Clouds are layers of noise, lit on the side that faces the light and kept clear of the moon's face. Mountains are ridged noise: the slopes facing the light catch it, far ranges fade toward the sky, mist pools at their feet, and the crest of each one catches a line of sky behind it, so a dark range still separates from a dark sky. At alpenglow the sun is not up yet, but the snow on the high peaks already is, so only the faces turned toward it go rose.
 
@@ -138,9 +138,11 @@ const step = Math.round(level * 3 + dither);
 
 Then the colour makes up what the size could not: a small dot is drawn a little brighter and a large one a little dimmer, so the picture keeps its tone across the dither's steps. Each dot's colour is also pushed away from its own grey, so coral, neon and blossom stay vivid while white snow and grey storm cloud stay as they are. Land is allowed to drop to no dot at all, which is what makes a dark hill read against a dark sky.
 
-## Drawing only what changed
+## Shading only what moves
 
-The scene draws on a canvas, fifteen frames a second. Every cell owns a whole-pixel square, so a cell can be cleared and redrawn without touching its neighbours, and a frame only redraws the cells whose dot changed. Hills and towers stay put; clouds, stars, rain and water move. The dots that are left are grouped by colour, six bits a channel, and each group is filled at once.
+The scene draws fifteen frames a second. Light that never moves, like the sky's gradient, the glow round the moon, lamplight in the air and the road of light on the water, is worked out once, and a cloud only when it drifts into view. A frame shades what is left: clouds, stars, rain and water.
+
+Then the GPU draws the dots. The frame goes up as a small texture, one texel a cell, its colour and its dot size. One triangle covers the canvas, and every pixel works out which cell it falls in and how far it is from the middle, so every dot comes out round, with a pixel's worth of soft edge, and a frame costs the same however many dots there are.
 
 ## Touching it
 

@@ -679,8 +679,9 @@ function noise(x: number, y: number, s: number, period = 0): number {
   let x0 = xi;
   let x1 = xi + 1;
   if (period) {
-    x0 = ((xi % period) + period) % period;
-    x1 = (x0 + 1) % period;
+    // the same wrap as `%` twice, without the cost of a float remainder
+    x0 = xi - Math.floor(xi / period) * period;
+    x1 = x0 + 1 < period ? x0 + 1 : x0 + 1 - period;
   }
   const a = hash(x0, yi, s);
   const b = hash(x1, yi, s);
@@ -757,8 +758,9 @@ export type View = { x: number; y: number; w: number; h: number };
 export type Pointer = { x: number; y: number; strength: number };
 export type Tap = { x: number; y: number; t: number };
 
-// One frame: a dot size (0 to 3) and a 24-bit colour per cell.
-export type Frame = { step: Uint8Array; color: Uint32Array };
+// One frame: four bytes a cell, its colour and then its dot size (0 to 3), so
+// it goes to the GPU as it is.
+export type Frame = Uint8ClampedArray;
 
 // Dot area for each step, against the largest, and the radius each step is
 // drawn at, in cells: a pinprick, a bead, a full dot.
@@ -767,9 +769,9 @@ export const RADIUS = [0, 0.13, 0.26, 0.42];
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(
   (v) => v / 16 - 0.47,
 );
-// How hard brightness maps to dot size (below 1 lifts the mid-tones), how far
-// a dot's colour is pushed from grey, and how bright the dimmest dot is drawn.
-const VIVID = { tone: 0.75, chroma: 1.45, least: 0.38 };
+// How far a dot's colour is pushed from grey, and how bright the dimmest dot
+// is drawn.
+const VIVID = { chroma: 1.45, least: 0.38 };
 
 const SKY = 0;
 const SOLID = 1;
@@ -867,6 +869,17 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
     const r = Math.floor((y - view.y) / ch);
     return c < 0 || c >= cols || r < 0 || r >= rows ? -1 : r * cols + c;
   };
+  // A speck: a lamp, a fish, a bubble, a petal. One cell while cells are
+  // large, and a small square of them once they are fine, so it keeps its
+  // size however many dots the frame is drawn in.
+  const grain = Math.max(1, Math.round(0.012 / cw));
+  const speck = (x: number, y: number, fn: (k: number) => void) => {
+    const c0 = Math.floor((x - view.x) / cw - (grain - 1) / 2);
+    const r0 = Math.floor((y - view.y) / ch - (grain - 1) / 2);
+    for (let r = Math.max(0, r0); r < Math.min(rows, r0 + grain); r++)
+      for (let c = Math.max(0, c0); c < Math.min(cols, c0 + grain); c++)
+        fn(r * cols + c);
+  };
 
   // --- land, built once ---------------------------------------------------
   const ridge = (range: Range, x: number) => {
@@ -951,7 +964,6 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
   const kind = new Uint8Array(n);
   const base = new Float32Array(n * 3); // static colour of land
   const glow = new Float32Array(n * 3); // light that never moves
-  const haze = new Float32Array(n);
   const lights: Light[] = [];
   // what distance fades land toward: the horizon, dimmed into the shade
   const hazeColor: RGB = [
@@ -998,22 +1010,45 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
       },
     );
 
+  // A crest, its slope, the headland and the island only change along x:
+  // worked out once a column, not once a cell.
+  const crests = scene.ranges.map((range) => {
+    const top = new Float64Array(cols);
+    const slope = new Float64Array(cols);
+    for (let c = 0; c < cols; c++) {
+      top[c] = ridge(range, X[c]);
+      slope[c] =
+        (ridge(range, X[c] + 0.004) - ridge(range, X[c] - 0.004)) / 0.008;
+    }
+    return { top, slope };
+  });
+  const coast = place === "coast";
+  const heads = coast ? Array.from(X, (x) => headland(x)) : [];
+  const isles = coast
+    ? Array.from(X, (x) => {
+        const ix = scene.side < 0 ? 1.65 : 0.35;
+        return (
+          H -
+          0.035 * Math.max(0, 1 - ((x - ix) / 0.28) ** 2) -
+          0.012 * fbm(x * 18, 9, S, 2)
+        );
+      })
+    : [];
+
   for (let r = 0; r < rows; r++) {
     const y = Y[r];
     for (let c = 0; c < cols; c++) {
       const x = X[c];
       const k = r * cols + c;
-      haze[k] = fbm(x * 2.2, y * 3.4, S + 50, 3);
       kind[k] = reef ? SEA : scene.water && y >= H ? WATER : SKY;
 
       // ranges, far to near
       for (let i = 0; i < scene.ranges.length; i++) {
         const range = scene.ranges[i];
-        const top = ridge(range, x);
+        const top = crests[i].top[c];
         if (y < top || (scene.water && y >= H)) continue;
         const depth = y - top;
-        const slope =
-          (ridge(range, x + 0.004) - ridge(range, x - 0.004)) / 0.008;
+        const slope = crests[i].slope[c];
         const facing = clamp(0.5 + slope * lightDir * 2.4);
         const grain = noise(x * 60 + depth * 18, depth * 30, S + 9);
         let lit = facing * (0.55 + 0.45 * grain) * smooth(0.3, 0, depth);
@@ -1048,8 +1083,8 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
         paint(k, rgb);
       }
 
-      if (place === "coast") {
-        const land = headland(x);
+      if (coast) {
+        const land = heads[c];
         if (land.reach && y >= land.top && y < land.bottom) {
           const rock = fbm(x * 30, y * 30, S + 4, 3);
           const brow = smooth(land.top + 0.02, land.top, y);
@@ -1060,12 +1095,7 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
           paint(k, tint(time.shade, time.light, s * 0.4));
         }
         // a low island on the far side
-        const ix = scene.side < 0 ? 1.65 : 0.35;
-        const isle =
-          H -
-          0.035 * Math.max(0, 1 - ((x - ix) / 0.28) ** 2) -
-          0.012 * fbm(x * 18, 9, S, 2);
-        if (y >= isle && y < H) paint(k, tint(time.shade, hazeColor, 0.55));
+        if (y >= isles[c] && y < H) paint(k, tint(time.shade, hazeColor, 0.55));
       }
 
       if (place === "fjord" || place === "lake") {
@@ -1190,8 +1220,9 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
     for (let i = 0; i < 28; i++) {
       const lx = g0 + random() * (g1 - g0);
       const ly = bank + (Math.floor(random() * 4) + 0.3) * (STEPS / 4);
-      const k = cellAt(lx, ly);
-      if (k >= 0) kind[k] = LAMP;
+      speck(lx, ly, (k) => {
+        kind[k] = LAMP;
+      });
       shine(lx, ly, lx, ly, time.warm, 0.3, 0.01);
     }
 
@@ -1832,8 +1863,9 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
     });
     // stone lanterns either side
     for (const side of [-1, 1]) {
-      const k = cellAt(mx + side * 0.1, markBase - 0.008);
-      if (k >= 0) kind[k] = LAMP;
+      speck(mx + side * 0.1, markBase - 0.008, (k) => {
+        kind[k] = LAMP;
+      });
       lights.push({ x: mx + side * 0.1, y: markBase - 0.008, power: 0.25 });
     }
   } else if (landmark === "torii") {
@@ -2052,10 +2084,14 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
     );
   };
   const threshold = 0.68 - scene.clouds * 0.1;
-  for (let r = 0; r < skyRows; r++) {
-    const y = Y[r];
-    for (let i = 0; i < span; i++) {
-      const x = i * cw;
+  // A column of cloud is worked out the first time it drifts into view: the
+  // band is three frames wide and takes minutes to come round.
+  const ready = new Uint8Array(span);
+  const fill = (i: number) => {
+    ready[i] = 1;
+    const x = i * cw;
+    for (let r = 0; r < skyRows; r++) {
+      const y = Y[r];
       const d = density(x, y);
       cover[r * span + i] = smooth(threshold, threshold + 0.1, d);
       const toward = density(x + 0.03 * lightDir, y - 0.04);
@@ -2063,13 +2099,130 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
         0.5 + (d - toward) * 9 - (d - threshold) * 1.2,
       );
     }
+  };
+
+  // --- light that never moves, worked out once ----------------------------
+  // The sky and the open sea under any cloud, the glow lamps cast into the
+  // air, where the stars are, and on water the road under the sun or moon,
+  // the lamps' streaks and the mist: the same every frame, so shaded here.
+  const under = new Float32Array(n * 3);
+  const clear = new Float32Array(n); // cloud broken round the sun or moon
+  const near = new Float32Array(n); // how much the sun or moon lights cloud
+  const star = new Float32Array(n); // a star's brightness, where there is one
+  const lamps = new Float32Array(n); // lamplight in the air, in warm
+  const sweep = new Float32Array(n); // the lighthouse lamp's, which flashes
+  const road = new Float32Array(n);
+  const streaks = new Float32Array(n); // lamps drawn down the water
+  const beamStreak = new Float32Array(n);
+  const mist = new Float32Array(n);
+  // under the sea: the angle up to the sun, and how far its shafts reach
+  const fan = new Float32Array(reef ? n : 0);
+  const shaft = new Float32Array(reef ? n : 0);
+  const lighthouse = lights.find((light) => light.beam);
+  for (let r = 0; r < rows; r++) {
+    const y = Y[r];
+    for (let c = 0; c < cols; c++) {
+      const x = X[c];
+      const k = r * cols + c;
+      const kk = kind[k];
+      const dbx = x - body.x;
+      const dby = y - body.y;
+      const dm = Math.sqrt(dbx * dbx + dby * dby);
+      if (kk === WATER) {
+        if (city) continue;
+        const depth = y - mirror[c];
+        road[k] = Math.exp(-((dbx / (0.02 + depth * 0.5)) ** 2));
+        for (const light of lights) {
+          const g =
+            Math.exp(-(((x - light.x) / (0.004 + depth * 0.06)) ** 2)) *
+            light.power *
+            smooth(0.3, 0, depth);
+          if (light.beam) beamStreak[k] += g;
+          else streaks[k] += g * 0.9;
+        }
+        mist[k] = Math.exp(-depth / 0.025) * 0.14;
+        continue;
+      }
+      if (kk !== LAMP) {
+        for (const light of lights) {
+          const lx = x - light.x;
+          const ly = y - light.y;
+          const d2 = lx * lx + ly * ly;
+          if (d2 > 0.09 && !light.beam) continue; // the glow is gone by 0.3
+          const dl = Math.sqrt(d2);
+          if (light.beam)
+            sweep[k] +=
+              (Math.exp(-dl / 0.022) * 0.7 + Math.exp(-dl / 0.1) * 0.2) *
+              light.power;
+          else
+            lamps[k] +=
+              (Math.exp(-dl / 0.012) * 0.5 + Math.exp(-dl / 0.06) * 0.1) *
+              light.power;
+        }
+      }
+      if (kk !== SKY && kk !== SEA) continue;
+      const haze = fbm(x * 2.2, y * 3.4, S + 50, 3);
+      if (kk === SKY) {
+        const v = clamp(y / H);
+        const high = smooth(0, 0.6, v);
+        const low = smooth(0.55, 1, v);
+        const band = time.band ? Math.exp(-(((H - y) / 0.035) ** 2)) * 0.55 : 0;
+        // the glow round the sun or moon, wide and low for a setting sun
+        const halo = !time.body
+          ? 0
+          : time.body === "sun"
+            ? Math.exp(-((dbx / 0.7) ** 2) - (dby / 0.2) ** 2) * 0.5 +
+              Math.exp(-dm / 0.09) * 0.6
+            : Math.exp(-dm / 0.25) * 0.3 + Math.exp(-dm / 0.08) * 0.45;
+        for (let i = 0; i < 3; i++)
+          under[k * 3 + i] =
+            mix(mix(time.top[i], time.mid[i], high), time.horizon[i], low) *
+              (0.88 + 0.24 * haze) +
+            (time.band?.[i] ?? 0) * band +
+            time.halo[i] * halo;
+        clear[k] = time.body
+          ? 0.04 + 0.96 * smooth(body.r * 1.4, body.r * 5, dm)
+          : 1;
+        near[k] = time.body ? Math.exp(-dm / 0.3) : 0;
+        if (
+          r < skyRows &&
+          !(time.body && dm < body.r) &&
+          hash(c, r * 3 + 11, S) > 1 - 0.022 * time.stars
+        )
+          star[k] = smooth(H, 0.2, y) * (1 - Math.min(1, halo));
+      } else {
+        // open water: bright under the surface, dark below, and the sun's
+        // glare through it
+        const high = smooth(0, 0.55, y);
+        const low = smooth(0.5, 1.05, y);
+        const glare = Math.exp(-dm / 0.12) * 0.55 + Math.exp(-dm / 0.4) * 0.2;
+        for (let i = 0; i < 3; i++)
+          under[k * 3 + i] =
+            mix(mix(time.top[i], time.mid[i], high), time.horizon[i], low) *
+              (0.9 + 0.2 * haze) +
+            time.halo[i] * glare;
+        fan[k] = Math.atan2(dbx, dby + 0.15);
+        shaft[k] = Math.exp(-dm / 0.7) * 0.3;
+      }
+    }
   }
+  // a lamp or window, white-hot at its core in the lighthouse
+  const hot = landmark === "lighthouse" ? 0.45 : 0;
+  const lampColor = tint(time.warm, WHITE, hot).map((v) => v * (1 + hot * 0.3));
+  const flame = tint(time.warm, WHITE, 0.3); // a lamp floating on the river
+  const [cloud0, cloud1, cloud2] = time.cloud;
 
   const rgb = new Float32Array(n * 3);
-  const out: Frame = { step: new Uint8Array(n), color: new Uint32Array(n) };
+  const out: Frame = new Uint8ClampedArray(n * 4);
   const bolt = new Float32Array(20);
   // The cell being shaded, and the three ways colour lands on it.
   const p = [0, 0, 0];
+  const above = [0, 0, 0]; // what a cell of water mirrors
+  const keep = (k: number) => {
+    rgb[k * 3] = p[0];
+    rgb[k * 3 + 1] = p[1];
+    rgb[k * 3 + 2] = p[2];
+  };
   const put = (col: ArrayLike<number>) => {
     p[0] = col[0];
     p[1] = col[1];
@@ -2140,6 +2293,14 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
     }
     const blink = hash(Math.floor(t * 9), 0, S) < 0.18 ? 0.12 : 1;
 
+    if (skyRows) {
+      const from = Math.floor((X[0] + drift) / cw);
+      for (let i = from; i <= from + cols + 1; i++) {
+        const j = ((i % span) + span) % span;
+        if (!ready[j]) fill(j);
+      }
+    }
+
     for (let r = 0; r < rows; r++) {
       const y = Y[r];
       for (let c = 0; c < cols; c++) {
@@ -2154,25 +2315,12 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
         const dm = Math.sqrt(dbx * dbx + dby * dby);
 
         if (kk === SKY) {
-          const v = clamp(y / H);
-          const sky = tint(
-            tint(time.top, time.mid, smooth(0, 0.6, v)),
-            time.horizon,
-            smooth(0.55, 1, v),
-          );
-          add(sky, 0.88 + 0.24 * haze[k]);
-          if (time.band)
-            add(time.band, Math.exp(-(((H - y) / 0.035) ** 2)) * 0.55);
-          // the glow round the sun or moon, wide and low for a setting sun
-          const halo = !time.body
-            ? 0
-            : time.body === "sun"
-              ? Math.exp(-((dbx / 0.7) ** 2) - (dby / 0.2) ** 2) * 0.5 +
-                Math.exp(-dm / 0.09) * 0.6
-              : Math.exp(-dm / 0.25) * 0.3 + Math.exp(-dm / 0.08) * 0.45;
-          add(time.halo, halo);
+          p[0] = under[k * 3];
+          p[1] = under[k * 3 + 1];
+          p[2] = under[k * 3 + 2];
 
-          if (time.aurora) {
+          // (the aurora's lower edge never comes below 0.38)
+          if (time.aurora && y < 0.47) {
             for (let a = 0; a < 2; a++) {
               const edge =
                 0.2 +
@@ -2199,7 +2347,9 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
                 (a ? 0.55 : 0.95) *
                 smooth(H, H - 0.18, y);
               // green at the lower edge, violet up in the rays
-              add(tint(AURORA_LOW, AURORA_HIGH, smooth(0, 0.14, above)), g);
+              const high = smooth(0, 0.14, above);
+              add(AURORA_LOW, g * (1 - high));
+              add(AURORA_HIGH, g * high);
             }
           }
 
@@ -2211,11 +2361,7 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
             const fx = sx - ix;
             const i0 = r * span + (((ix % span) + span) % span);
             const i1 = r * span + ((((ix + 1) % span) + span) % span);
-            cov =
-              (cover[i0] + (cover[i1] - cover[i0]) * fx) *
-              (time.body
-                ? 0.04 + 0.96 * smooth(body.r * 1.4, body.r * 5, dm)
-                : 1);
+            cov = (cover[i0] + (cover[i1] - cover[i0]) * fx) * clear[k];
             const l = litc[i0] + (litc[i1] - litc[i0]) * fx;
 
             if (time.body && dm < body.r) {
@@ -2240,33 +2386,27 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
                 ],
                 a,
               );
-            } else if (
-              cov < 0.05 &&
-              hash(c, r * 3 + 11, S) > 1 - 0.022 * time.stars
-            ) {
+            } else if (cov < 0.05 && star[k]) {
               const tw =
                 0.6 +
                 0.4 *
                   Math.sin(
                     t * (1.5 + hash(c, r, S) * 3) + hash(r, c, S) * 6.28,
                   );
-              const s =
-                (0.45 + 0.55 * tw) *
-                smooth(H, 0.2, y) *
-                (1 - Math.min(1, halo));
+              const s = (0.45 + 0.55 * tw) * star[k];
               for (let i = 0; i < 3; i++) p[i] = Math.max(p[i], s * STAR[i]);
             }
 
             if (cov > 0.01) {
-              const near = time.body ? Math.exp(-dm / 0.3) : 0;
               const b = clamp(
-                l * (0.45 + 0.6 * near) + 0.25 * smooth(H - 0.25, H, y),
+                l * (0.45 + 0.6 * near[k]) + 0.25 * smooth(H - 0.25, H, y),
               );
-              const [s0, s1, s2] = time.cloud;
-              blend(
-                b < 0.5 ? tint(s0, s1, b * 2) : tint(s1, s2, b * 2 - 1),
-                Math.min(1, cov * 1.1),
-              );
+              const lo = b < 0.5 ? cloud0 : cloud1;
+              const hi = b < 0.5 ? cloud1 : cloud2;
+              const m = b < 0.5 ? b * 2 : b * 2 - 1;
+              const a = Math.min(1, cov * 1.1);
+              for (let i = 0; i < 3; i++)
+                p[i] = mix(p[i], mix(lo[i], hi[i], m), a);
             }
           }
 
@@ -2298,18 +2438,10 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
           // neon hanging in the wet air
           addGlow(k, 0.6);
         } else if (kk === SEA) {
-          // open water: bright under the surface, dark below
-          const sea = tint(
-            tint(time.top, time.mid, smooth(0, 0.55, y)),
-            time.horizon,
-            smooth(0.5, 1.05, y),
-          );
-          add(sea, 0.9 + 0.2 * haze[k]);
-          // the sun through the surface, and its glare
-          add(
-            time.halo,
-            Math.exp(-dm / 0.12) * 0.55 + Math.exp(-dm / 0.4) * 0.2,
-          );
+          p[0] = under[k * 3];
+          p[1] = under[k * 3 + 1];
+          p[2] = under[k * 3 + 2];
+          // the sun through the surface
           if (dm < body.r)
             blend(
               time.bodyColor,
@@ -2317,12 +2449,13 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
                 (0.75 + 0.25 * Math.sin(t * 2 + x * 40)),
             );
           // shafts of light fanning down from it, swaying
-          const fan = Math.atan2(dbx, dby + 0.15);
           add(
             time.light,
-            smooth(0.45, 0.8, noise(fan * 4.5 + t * 0.07, t * 0.05, S + 90)) *
-              Math.exp(-dm / 0.7) *
-              0.3,
+            smooth(
+              0.45,
+              0.8,
+              noise(fan[k] * 4.5 + t * 0.07, t * 0.05, S + 90),
+            ) * shaft[k],
           );
           // ripples of light just under the surface
           add(
@@ -2339,21 +2472,24 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
           if (hash(c, r - Math.floor(t * 0.6), S + 92) > 0.988)
             add(SILVER, 0.22 + 0.12 * Math.sin(t * 2 + c));
         } else if (kk === SOLID) {
-          put(base.subarray(k * 3, k * 3 + 3));
-          addGlow(k, 1);
+          p[0] = base[k * 3] + glow[k * 3];
+          p[1] = base[k * 3 + 1] + glow[k * 3 + 1];
+          p[2] = base[k * 3 + 2] + glow[k * 3 + 2];
           if (strike > 0.03) add(time.light, strike * 0.08);
         } else if (kk === SIGN || kk === BLINK) {
-          add(base.subarray(k * 3, k * 3 + 3), kk === BLINK ? blink : 1);
+          const s = kk === BLINK ? blink : 1;
+          p[0] = base[k * 3] * s;
+          p[1] = base[k * 3 + 1] * s;
+          p[2] = base[k * 3 + 2] * s;
         } else {
-          // a lamp or window, flickering a little; the lighthouse lamp burns
-          // white-hot at its core
-          const g =
+          // a lamp or window, flickering a little
+          add(
+            lampColor,
             0.82 +
-            0.12 * Math.sin(t * 3.1 + c * 1.7) +
-            0.06 * Math.sin(t * 7.3 + r) +
-            0.25 * flash;
-          const hot = landmark === "lighthouse" ? 0.45 : 0;
-          put(tint(time.warm, WHITE, hot).map((v) => v * g * (1 + hot * 0.3)));
+              0.12 * Math.sin(t * 3.1 + c * 1.7) +
+              0.06 * Math.sin(t * 7.3 + r) +
+              0.25 * flash,
+          );
         }
 
         // the windmill's sails, turning
@@ -2410,36 +2546,30 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
 
         // lamps glow into the air round them; the lighthouse sweeps its beam
         if (kk !== LAMP) {
-          for (const light of lights) {
-            const lx = x - light.x;
-            const ly = y - light.y;
-            const d2 = lx * lx + ly * ly;
-            if (d2 > 0.09 && !light.beam) continue; // the glow is gone by 0.3
-            const dl = Math.sqrt(d2);
-            let g =
-              (light.beam
-                ? Math.exp(-dl / 0.022) * 0.7 + Math.exp(-dl / 0.1) * 0.2
-                : Math.exp(-dl / 0.012) * 0.5 + Math.exp(-dl / 0.06) * 0.1) *
-              light.power;
-            if (light.beam) {
-              g *= 1 + flash * 0.8;
-              const along = Math.abs(lx) / (Math.abs(cb) * 1.1 + 0.01);
-              if (lx * cb > 0 && along < 1) {
-                // a pale wedge, white enough to read against a lit sky
-                const spread = 0.02 + Math.abs(lx) * 0.2;
-                add(
-                  BEAM,
-                  (1 - along) ** 1.6 *
-                    Math.exp(-((ly / spread) ** 2)) *
-                    (dark ? 0.6 : 0.5),
-                );
-              }
+          if (lighthouse) {
+            const lx = x - lighthouse.x;
+            const along = Math.abs(lx) / (Math.abs(cb) * 1.1 + 0.01);
+            if (lx * cb > 0 && along < 1) {
+              // a pale wedge, white enough to read against a lit sky
+              const spread = 0.02 + Math.abs(lx) * 0.2;
+              add(
+                BEAM,
+                (1 - along) ** 1.6 *
+                  Math.exp(-(((y - lighthouse.y) / spread) ** 2)) *
+                  (dark ? 0.6 : 0.5),
+              );
             }
-            add(time.warm, g);
           }
+          add(time.warm, lamps[k] + sweep[k] * (1 + flash * 0.8));
         }
 
-        if (pointer && pointer.strength > 0.01) {
+        // (by half a unit away the pointer's light is gone)
+        if (
+          pointer &&
+          pointer.strength > 0.01 &&
+          Math.abs(x - pointer.x) < 0.5 &&
+          Math.abs(y - pointer.y) < 0.5
+        ) {
           const px = x - pointer.x;
           const py = y - pointer.y;
           const dp = Math.sqrt(px * px + py * py);
@@ -2466,7 +2596,7 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
               const across = Math.abs(qx * uy - qy * ux);
               add(
                 TRAIL,
-                Math.exp(-across / (ch * 0.6)) *
+                Math.exp(-across / (ch * grain * 0.6)) *
                   1.2 *
                   (1 - Math.max(0, along) / len) *
                   smooth(1.1, 0.6, age),
@@ -2475,7 +2605,7 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
           }
         }
 
-        rgb.set(p, k * 3);
+        keep(k);
       }
     }
 
@@ -2517,14 +2647,15 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
       }
     };
     drawLanterns(false);
-    for (const e of embers) {
-      const k = cellAt(
+    for (const e of embers)
+      speck(
         e.x + 0.01 * Math.sin(t * 0.7 + e.phase * 20),
         1.02 - frac(t * e.v + e.phase) * 1.1,
+        (k) => {
+          if (kind[k] !== WATER)
+            lift(k, time.warm, 0.3 + 0.25 * Math.sin(t * 3 + e.phase * 30));
+        },
       );
-      if (k >= 0 && kind[k] !== WATER)
-        lift(k, time.warm, 0.3 + 0.25 * Math.sin(t * 3 + e.phase * 30));
-    }
 
     if (reef) {
       // the school turns in a ring that wanders; each fish flashes as it
@@ -2540,43 +2671,36 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
         const vy = Math.cos(a) * 0.42;
         const vl = Math.hypot(vx, vy);
         const b = 0.4 + 0.6 * Math.abs(vx / vl);
-        over(cellAt(fx, fy), SILVER, b);
-        over(
-          cellAt(fx - (vx / vl) * cw * 1.2, fy - (vy / vl) * ch * 1.2),
-          SILVER,
-          b * 0.45,
+        const tail = 1.2 * grain;
+        speck(fx, fy, (k) => over(k, SILVER, b));
+        speck(fx - (vx / vl) * cw * tail, fy - (vy / vl) * ch * tail, (k) =>
+          over(k, SILVER, b * 0.45),
         );
       }
       for (const s of reds) {
         const x = s.x + s.reach * Math.sin(t * s.speed + s.phase);
         const dir = Math.sign(Math.cos(t * s.speed + s.phase)) || 1;
-        over(cellAt(x, s.y), [1, 0.38, 0.24], 0.9);
-        over(cellAt(x - dir * cw, s.y), [1, 0.38, 0.24], 0.5);
+        speck(x, s.y, (k) => over(k, [1, 0.38, 0.24], 0.9));
+        speck(x - dir * cw * grain, s.y, (k) => over(k, [1, 0.38, 0.24], 0.5));
       }
       for (let i = 0; i < 8; i++) {
         const rise = frac(t * 0.06 + i / 8);
-        over(
-          cellAt(
-            vent.x +
-              0.006 * Math.sin(t * 2.2 + i * 1.9) +
-              rise * 0.02 * Math.sin(i),
-            vent.y - rise * (vent.y - 0.02),
-          ),
-          BUBBLE,
-          0.55 * smooth(0, 0.05, rise),
+        speck(
+          vent.x +
+            0.006 * Math.sin(t * 2.2 + i * 1.9) +
+            rise * 0.02 * Math.sin(i),
+          vent.y - rise * (vent.y - 0.02),
+          (k) => over(k, BUBBLE, 0.55 * smooth(0, 0.05, rise)),
         );
       }
       // a touch lets a few bubbles go
       for (const tap of taps) {
         const age = t - tap.t;
         for (let i = 0; i < 6; i++)
-          over(
-            cellAt(
-              tap.x + (i - 2.5) * 0.006 + 0.01 * Math.sin(age * 5 + i * 2),
-              tap.y - age * (0.08 + i * 0.015),
-            ),
-            BUBBLE,
-            0.7 * smooth(2.5, 1.5, age),
+          speck(
+            tap.x + (i - 2.5) * 0.006 + 0.01 * Math.sin(age * 5 + i * 2),
+            tap.y - age * (0.08 + i * 0.015),
+            (k) => over(k, BUBBLE, 0.7 * smooth(2.5, 1.5, age)),
           );
       }
       if (landmark === "manta") {
@@ -2611,6 +2735,9 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
     }
 
     // --- water: what is above, mirrored and broken by the swell -------------
+    const skiffX = skiffs.map(
+      (s) => s.x + 0.025 * Math.sin(t * 0.04 + s.phase),
+    );
     for (let r = 0; r < rows; r++) {
       const y = Y[r];
       if (y < H) continue;
@@ -2629,9 +2756,13 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
         for (const tap of taps) {
           if (tap.y < H) continue;
           const age = t - tap.t;
+          const ring = ch * grain;
+          const reach = age * 0.05 + ring * 4; // past it, the ring is gone
+          if (Math.abs(y - tap.y) > reach || Math.abs(x - tap.x) > reach * 3)
+            continue;
           const d = Math.sqrt(((x - tap.x) / 3) ** 2 + (y - tap.y) ** 2);
           ripple +=
-            Math.exp(-(((d - age * 0.05) / ch) ** 2)) * Math.exp(-age * 1.4);
+            Math.exp(-(((d - age * 0.05) / ring) ** 2)) * Math.exp(-age * 1.4);
         }
         // a wet street stretches what it mirrors into long smears
         const sway = city
@@ -2642,10 +2773,13 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
         );
         const mc = Math.round((x + sway - view.x) / cw - 0.5);
         const mk = mr * cols + mc;
-        const above =
-          mr >= 0 && mr < rows && mc >= 0 && mc < cols && kind[mk] !== WATER
-            ? rgb.subarray(mk * 3, mk * 3 + 3)
-            : air;
+        const inside =
+          mr >= 0 && mr < rows && mc >= 0 && mc < cols && kind[mk] !== WATER;
+        const from = inside ? rgb : air;
+        const at = inside ? mk * 3 : 0;
+        above[0] = from[at];
+        above[1] = from[at + 1];
+        above[2] = from[at + 2];
         if (city) {
           // asphalt, with a zebra crossing near us and a curb each side
           const z = EYE / Math.max(1e-3, y - H);
@@ -2676,31 +2810,27 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
           blend(above, (0.62 - 0.3 * smooth(0, 0.35, depth)) * (0.7 + 0.5 * w));
           // the road of light under the sun or moon
           if (time.body) {
-            const road =
-              Math.exp(-(((x - body.x) / (0.02 + depth * 0.5)) ** 2)) *
-              smooth(0.5, 0.82, w);
             const sun = time.body === "sun";
-            const glint = road * (sun ? 0.8 : 0.7);
+            const glint = road[k] * smooth(0.5, 0.82, w) * (sun ? 0.8 : 0.7);
             p[0] += time.bodyColor[0] * glint;
             p[1] += time.bodyColor[1] * glint * (sun ? 0.8 : 1);
             p[2] += time.bodyColor[2] * glint * (sun ? 0.6 : 1);
           }
           // lamps drawn down the water as broken streaks
-          for (const light of lights) {
-            const lw = 0.004 + depth * 0.06;
-            add(
-              time.warm,
-              Math.exp(-(((x - light.x) / lw) ** 2)) *
-                smooth(0.45, 0.8, w) *
-                light.power *
-                smooth(0.3, 0, depth) *
-                (light.beam ? 0.8 + 0.6 * flash : 0.9),
-            );
-          }
+          add(
+            time.warm,
+            smooth(0.45, 0.8, w) *
+              (streaks[k] + beamStreak[k] * (0.8 + 0.6 * flash)),
+          );
           // mist on the water at the horizon
-          add(hazeColor, Math.exp(-depth / 0.025) * 0.14);
+          add(hazeColor, mist[k]);
         }
-        if (pointer && pointer.strength > 0.01 && pointer.y < H) {
+        if (
+          pointer &&
+          pointer.strength > 0.01 &&
+          pointer.y < H &&
+          Math.abs(x - pointer.x) < 0.024 + depth * 0.2
+        ) {
           add(
             time.warm,
             Math.exp(-(((x - pointer.x) / (0.006 + depth * 0.05)) ** 2)) *
@@ -2736,8 +2866,9 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
             );
         }
         // long river boats, a boatman standing at the stern
-        for (const s of skiffs) {
-          const bx = s.x + 0.025 * Math.sin(t * 0.04 + s.phase);
+        for (let i = 0; i < skiffs.length; i++) {
+          const s = skiffs[i];
+          const bx = skiffX[i];
           const u = (x - bx) / s.len;
           if (Math.abs(u) > 1) continue;
           const v = y - s.y;
@@ -2749,14 +2880,14 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
             v <= deck;
           if ((v < 0.002 && v > deck) || man) put(boatDark);
         }
-        rgb.set(p, k * 3);
+        keep(k);
       }
     }
 
     drawLanterns(true);
     // lamps floating downstream, each with its streak in the water
-    const bows = skiffs.map((s) => ({
-      x: s.x + 0.025 * Math.sin(t * 0.04 + s.phase) + 0.85 * s.len * s.dir,
+    const bows = skiffs.map((s, i) => ({
+      x: skiffX[i] + 0.85 * s.len * s.dir,
       y: s.y - Math.max(0.01, ch) - 0.006,
       phase: s.phase,
     }));
@@ -2769,28 +2900,26 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
       ...bows,
     ]) {
       const fl = 0.8 + 0.2 * Math.sin(t * 7 + d.phase * 30);
-      over(cellAt(d.x, d.y), tint(time.warm, WHITE, 0.3), 0.9 * fl);
-      for (let i = 1; i <= 3; i++) {
-        const k = cellAt(d.x + 0.003 * Math.sin(t * 3 + i), d.y + i * ch);
-        if (k >= 0 && kind[k] === WATER)
-          lift(k, time.warm, 0.35 * (1 - i / 4) * fl);
-      }
+      speck(d.x, d.y, (k) => over(k, flame, 0.9 * fl));
+      for (let i = 1; i <= 3; i++)
+        speck(d.x + 0.003 * Math.sin(t * 3 + i), d.y + i * ch * grain, (k) => {
+          if (kind[k] === WATER) lift(k, time.warm, 0.35 * (1 - i / 4) * fl);
+        });
     }
     // petals falling from the blossom, tumbling
     for (const pt of petals) {
       const travel = 1.06 - pt.y;
       const f = frac((t * pt.v) / travel + pt.phase);
-      over(
-        cellAt(
-          pt.x +
-            0.03 * Math.sin(t * 0.8 + pt.phase * 11) * f -
-            scene.side * 0.12 * f,
-          pt.y + f * travel,
-        ),
-        BLOSSOM[2],
+      const a =
         0.7 *
-          (0.6 + 0.4 * Math.sin(t * 4 + pt.phase * 20)) *
-          smooth(0, 0.05, f),
+        (0.6 + 0.4 * Math.sin(t * 4 + pt.phase * 20)) *
+        smooth(0, 0.05, f);
+      speck(
+        pt.x +
+          0.03 * Math.sin(t * 0.8 + pt.phase * 11) * f -
+          scene.side * 0.12 * f,
+        pt.y + f * travel,
+        (k) => over(k, BLOSSOM[2], a),
       );
     }
 
@@ -2827,13 +2956,17 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
         const kk = kind[k];
         const floor =
           kk === SKY ? 0.1 : kk === SEA ? 0.06 : kk === WATER ? 0.12 : 0.03;
-        const peak = Math.max(cr, cg, cb2, 1e-4);
-        const level = clamp(floor + (1 - floor) * peak ** VIVID.tone) * fade;
+        // How hard brightness maps to dot size: peak ** 0.75, which lifts the
+        // mid-tones, from two square roots, since a power a cell is the
+        // dearest thing in the frame.
+        const root = Math.sqrt(Math.max(cr, cg, cb2, 1e-4));
+        const level =
+          clamp(floor + (1 - floor) * root * Math.sqrt(root)) * fade;
         const step = Math.max(
           0,
           Math.min(3, Math.round(level * 3 + BAYER[(r & 3) * 4 + (c & 3)])),
         );
-        out.step[k] = step;
+        out[k * 4 + 3] = step;
         if (step) {
           // Each dot's colour is pushed away from its own grey, so a scene
           // reads vivid without whites and greys turning a hue.
@@ -2847,21 +2980,15 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
           const s =
             (VIVID.least + (1 - VIVID.least) * want) /
             Math.max(vr, vg, vb, 1e-4);
-          // 6 bits a channel: enough for smooth tones, few enough to reuse fills
-          out.color[k] =
-            (Math.round(clamp(vr * s) * 63) << 12) |
-            (Math.round(clamp(vg * s) * 63) << 6) |
-            Math.round(clamp(vb * s) * 63);
+          // (a clamped array rounds and clamps on the way in)
+          out[k * 4] = vr * s * 255;
+          out[k * 4 + 1] = vg * s * 255;
+          out[k * 4 + 2] = vb * s * 255;
         } else {
-          out.color[k] = 0;
+          out[k * 4] = out[k * 4 + 1] = out[k * 4 + 2] = 0;
         }
       }
     }
     return out;
   };
-}
-
-export function colorString(packed: number) {
-  const ch = (v: number) => Math.round((v / 63) * 255);
-  return `rgb(${ch((packed >> 12) & 63)} ${ch((packed >> 6) & 63)} ${ch(packed & 63)})`;
 }

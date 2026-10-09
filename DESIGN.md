@@ -286,7 +286,7 @@ The Project Row's sibling for posts, linking within the site.
 
 ### Scene Art
 The living figure, the world's one exception.
-- **Form:** a 2:1 canvas of dithered dots in the seed's full colour, on its own sky ground.
+- **Form:** a 2:1 canvas of dithered dots in the seed's full colour, on its own sky ground. One dot a 3px cell, or a 4.5-device-pixel cell on denser screens, drawn on the GPU (`src/lib/dots.ts`) as round, soft-edged dots; without WebGL, larger 4.5px cells (3.4px on phones) on a 2D canvas. Specks (fish, bubbles, petals, floating lamps) keep a fixed size, a small square of dots once cells are fine. A slow device gets larger cells.
 - **Life:** animates at 15fps (clouds, stars, water, rain, lightning, lanterns, fish, petals, beam, lamps) only while on screen. On the article, a mouse pointer carries a small warm light the water reflects, and a tap drops a shooting star in the sky, a ripple on the water, or bubbles under the sea (up to 4 at once, each fading over 2.5s).
 - **Still:** under reduced motion it draws one frame and stays still; no pointer light, no taps.
 - **Hover play:** inside a link (the home tile) or a card marked to play on hover (the scene gallery), it holds still until that container is hovered or focused.
