@@ -17,7 +17,7 @@ import {
 } from "@/components/icons";
 import { TextReveal } from "@/components/motion/text-reveal";
 import { SceneArt } from "@/components/scene-art";
-import { enter, underline } from "@/lib/classes";
+import { bezel, enter, underline } from "@/lib/classes";
 import { getPosts } from "@/lib/writing";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
@@ -116,8 +116,10 @@ export default function Home() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className="grid size-11 shrink-0 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors duration-150 group-hover:text-foreground">
-                  {mark}
+                <span className={bezel}>
+                  <span className="grid size-11 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors duration-150 group-hover:text-foreground">
+                    {mark}
+                  </span>
                 </span>
                 <span className="leading-snug">
                   <span className="flex items-center gap-1 text-foreground">
@@ -146,15 +148,17 @@ export default function Home() {
                 prefetch
                 className="group flex items-center gap-4 rounded-[14px] outline-offset-4"
               >
-                <ViewTransition
-                  name={`art-${slug}`}
-                  share="morph"
-                  default="none"
-                >
-                  <span className="block size-11 shrink-0 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-white/10">
-                    <SceneArt seed={seed} crop />
-                  </span>
-                </ViewTransition>
+                <span className={bezel}>
+                  <ViewTransition
+                    name={`art-${slug}`}
+                    share="morph"
+                    default="none"
+                  >
+                    <span className="block size-11 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-white/10">
+                      <SceneArt seed={seed} crop />
+                    </span>
+                  </ViewTransition>
+                </span>
                 <span className="leading-snug">
                   <span className="flex items-center gap-1 text-foreground">
                     <span className={underline}>{title}</span>

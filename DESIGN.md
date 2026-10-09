@@ -272,9 +272,10 @@ Text-weight link that sits inside prose.
 
 ### Project Row
 The signature component: a whole-row link to a piece of work.
-- **Structure:** 44px tile, 16px gap, then name (full ink, underlined as above) over description (Muted Ink), both at label leading.
+- **Structure:** 44px tile in a frame, 16px gap, then name (full ink, underlined as above) over description (Muted Ink), both at label leading.
 - **Tile:** Tile Grey fill, 10px corners, inset Hairline ring, 20px Central icon in Muted Ink. When a project has its own mark, the mark fills the tile instead (10px corners, 1px white-at-10% outline inset by 1px, like the avatar); a real mark always beats a library glyph.
-- **Hover:** tile icon brightens to full ink, underline rises to 60%, and a 14px arrow-up-right fades in beside the name while sliding 2px up-right into place, all 150ms.
+- **Frame:** the tile sits 4px inside a 52px frame with 14px corners (concentric), Well Grey fill and an inset Hairline ring; writing tiles share it. The morph moves only the tile, never the frame.
+- **Hover:** frame ring rises to ink at 10%, tile icon brightens to full ink, underline rises to 60%, and a 14px arrow-up-right fades in beside the name while sliding 2px up-right into place, all 150ms.
 - **Focus:** 2px Focus Grey outline at 4px offset with 14px corners.
 
 ### Writing Row
