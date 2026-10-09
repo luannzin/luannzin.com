@@ -7,6 +7,7 @@ import {
   ViewTransition,
 } from "react";
 import echoLogo from "@/assets/echo.png";
+import { AskAI } from "@/components/ask-ai";
 import {
   ArrowRightIcon,
   ArrowUpRightIcon,
@@ -18,6 +19,7 @@ import {
 import { TextReveal } from "@/components/motion/text-reveal";
 import { SceneArt } from "@/components/scene-art";
 import { bezel, enter, underline } from "@/lib/classes";
+import { site } from "@/lib/site";
 import { getPosts } from "@/lib/writing";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
@@ -173,6 +175,12 @@ export default function Home() {
           ))}
         </ul>
       </section>
+
+      <AskAI
+        label="Ask about Luan on"
+        prompt={`Tell me about Luan Fabri, the front-end engineer behind ${site}`}
+        className={`${enter} mt-20 delay-700`}
+      />
     </main>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useCopy } from "@/components/copy-link";
+import { useCopy } from "@/components/share";
 import { CheckIcon, CopyIcon, DiceIcon } from "@/components/icons";
 import { ActionSwapIcon } from "@/components/motion/action-swap";
 import { SceneArt } from "@/components/scene-art";

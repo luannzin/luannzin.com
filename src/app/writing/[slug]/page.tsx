@@ -4,13 +4,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ArticleIslands } from "@/components/article-islands";
-import { CopyLink } from "@/components/copy-link";
+import { AskAI } from "@/components/ask-ai";
 import { CoverArt } from "@/components/cover-art";
 import { ChevronRightIcon } from "@/components/icons";
 import { TextReveal } from "@/components/motion/text-reveal";
+import { Share } from "@/components/share";
 import { Toc } from "@/components/toc";
 import { enter, underline } from "@/lib/classes";
 import { renderMarkdown } from "@/lib/markdown";
+import { site } from "@/lib/site";
 import { formatDate, getPost, getPosts } from "@/lib/writing";
 
 export function generateStaticParams() {
@@ -44,13 +46,11 @@ async function Post({
   if (!post) notFound();
 
   const { html, toc, minutes } = renderMarkdown(post.body);
+  const url = `${site}/writing/${slug}`;
 
   return (
     <main className="mx-auto w-full max-w-xl px-6 pt-6 pb-24 leading-relaxed sm:pt-10">
-      <nav
-        aria-label="Breadcrumb"
-        className={`${enter} flex items-center justify-between gap-6`}
-      >
+      <nav aria-label="Breadcrumb" className={enter}>
         <ol className="flex min-w-0 items-center gap-1.5">
           <li className="shrink-0">
             <Link
@@ -67,7 +67,6 @@ async function Post({
             {post.title}
           </li>
         </ol>
-        <CopyLink />
       </nav>
 
       <header className="mt-16 leading-snug sm:mt-20">
@@ -82,6 +81,11 @@ async function Post({
           <span aria-hidden> · </span>
           {minutes} min read
         </p>
+        <AskAI
+          label="Summarize with"
+          prompt={`Summarize this article by Luan Fabri: ${url}`}
+          className={`${enter} mt-4 delay-400`}
+        />
       </header>
 
       <CoverArt seed={post.seed} slug={slug} />
@@ -118,24 +122,31 @@ async function Post({
       </div>
 
       <footer className="mt-20">
-        <Link
-          href="/"
-          className="group flex w-fit items-center gap-3 rounded-[14px] leading-snug outline-offset-4"
-        >
-          <Image
-            src="https://github.com/luannzin.png"
-            alt=""
-            width={40}
-            height={40}
-            className="size-10 rounded-full outline -outline-offset-1 outline-white/10"
-          />
-          <span>
-            <span className={`${underline} font-medium`}>Luan Fabri</span>
-            <span className="block text-muted-foreground">
-              Front-end engineer at Loopscape
+        <div
+          aria-hidden
+          className="relative h-px bg-border before:absolute before:top-1/2 before:left-1/2 before:size-1.5 before:-translate-1/2 before:rotate-45 before:bg-muted-foreground before:shadow-[0_0_0_4px_var(--background)]"
+        />
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
+          <Link
+            href="/"
+            className="group flex items-center gap-3 rounded-[14px] leading-snug outline-offset-4"
+          >
+            <Image
+              src="https://github.com/luannzin.png"
+              alt=""
+              width={40}
+              height={40}
+              className="size-10 rounded-full outline -outline-offset-1 outline-white/10"
+            />
+            <span>
+              <span className={`${underline} font-medium`}>Luan Fabri</span>
+              <span className="block text-muted-foreground">
+                Front-end engineer at Loopscape
+              </span>
             </span>
-          </span>
-        </Link>
+          </Link>
+          <Share title={post.title} url={url} />
+        </div>
       </footer>
     </main>
   );

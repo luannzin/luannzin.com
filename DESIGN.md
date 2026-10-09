@@ -188,7 +188,7 @@ A strictly neutral, near-black palette resolved from the coss UI dark tokens (`.
 - **Soft Black Ground** (`--background`): page background everywhere.
 - **Paper White Ink** (`--foreground`): names, headings, link text, the current breadcrumb crumb, the active contents entry; the only full-strength text.
 - **Soft Ink** (`--foreground` at 70%): long-form bio and article prose, so links and bold in it stand forward.
-- **Muted Ink** (`--muted-foreground`): role line, project and post descriptions, article meta and scene caption, breadcrumb parent, Copy link at rest, contents entries at rest, list markers, heading "#" anchors, resting tile icons, the hover arrows.
+- **Muted Ink** (`--muted-foreground`): role line, project and post descriptions, article meta and scene caption, breadcrumb parent, Share and Ask AI at rest, contents entries at rest, list markers, heading "#" anchors, resting tile icons, the hover arrows.
 - **Tile Grey** (`--muted`, white at 4%): fill of project icon tiles, inline code, and flow diagram nodes.
 - **Well Grey** (white at 2.5%): the recessed fill behind code boxes and framed images; a shade quieter than Tile Grey so the content inside, not the box, is what reads.
 - **Hairline** (`--border`, white at 6%): inset 1px ring on tiles, inline code, code boxes, framed images, flow nodes, flow icon tiles and arrow labels, and the contents disclosure; also the rule under table rows and the `hr`.
@@ -258,7 +258,7 @@ Text-level rules are hairlines too: table rows and `hr` take a 1px Hairline rule
 
 ## Shapes
 
-Soft, small corners. Tiles use 10px (the coss `--radius`, 0.625rem); larger containers (scene figure from sm, code blocks from sm, contents disclosure) and row focus outlines use 14px, concentric with the tile at its 4px offset; inline-link, inline-code, breadcrumb, Copy link, contents entry, heading-anchor focus, flow icon tiles, arrow labels and the cover dice use 6px. The code copy button uses 8px; the language badge 4px. The avatar is a full circle. Anything full-bleed on a phone (scene figure, code block) has square corners, because it meets the screen edge. Icons are Central Icons, round-outlined, radius 2, 1.5px stroke, always `currentColor`, never filled glyphs; the set includes arrow-up-right, arrow-right, chevron-right, link, check, copy and dice (Central's outlined die keeps its pips solid; that is the icon, not a filled variant). Flow diagrams draw Central-style strokes inline in the static HTML (hash, layers, grid, image, file), falling back to file.
+Soft, small corners. Tiles use 10px (the coss `--radius`, 0.625rem); larger containers (scene figure from sm, code blocks from sm, contents disclosure) and row focus outlines use 14px, concentric with the tile at its 4px offset; inline-link, inline-code, breadcrumb, contents entry, heading-anchor focus, flow icon tiles, arrow labels and the cover dice use 6px. The code copy button, Share and Ask AI tiles use 8px; the language badge 4px. The avatar is a full circle. Anything full-bleed on a phone (scene figure, code block) has square corners, because it meets the screen edge. Icons are Central Icons, round-outlined, radius 2, 1.5px stroke, always `currentColor`, never filled glyphs; the set includes arrow-up-right, arrow-right, chevron-right, link, check, copy and dice (Central's outlined die keeps its pips solid; that is the icon, not a filled variant). Flow diagrams draw Central-style strokes inline in the static HTML (hash, layers, grid, image, file), falling back to file.
 
 **The Concentric Corner Rule.** A rounded thing inside a rounded thing takes the outer radius minus the gap between them: a flow node is 14px because its 6px icon tile sits 8px in; a row's focus outline is 14px because it sits 4px outside a 10px tile.
 
@@ -298,13 +298,13 @@ The living figure, the world's one exception.
 ### Article Breadcrumb
 A single row at the top of a post.
 - **Left:** "Writing" link in Muted Ink (to full ink on hover, 150ms), a 16px chevron-right in Muted Ink, 6px gaps, then the current title in full ink, truncated to one line.
-- **Right:** Copy link, held at the row's end edge.
 
-### Copy Link
-A quiet text button with a rolling label.
-- **Rest:** "Copy link" plus a 16px link icon, Muted Ink, 6px gap, 4px by 8px padding pulled back into the row so text aligns with the edge, 6px corners.
-- **Hover / Press:** full ink over 150ms; presses scale to 0.96.
-- **Swap:** on copy the label rolls letter by letter to "Copied" (or "Copy failed") and the icon rolls to check; letters enter from below on a spring (stiffness 460, damping 30, mass 0.55) with 3px blur, 25ms apart, and exit upward in 160ms at half the stagger. It returns to "Copy link" after 2s. A polite live region announces the result. Vendored from beUI Action Swap (`src/components/motion/action-swap.tsx`).
+### Share
+A split button at the end of the author footer (`src/components/share.tsx`).
+- **Shape:** at least 32px tall, Tile Grey fill, inset Hairline ring, 8px corners; a 1px Hairline divides the two halves. Text and icons in Muted Ink, each half to full ink on hover over 150ms; presses scale to 0.96.
+- **Main half:** a 16px link icon then "Share" (10px start, 12px end padding, 6px gap). It copies the canonical post URL (`src/lib/site.ts`).
+- **Chevron half:** a 16px chevron pointing down that turns up while open (200ms, `cubic-bezier(0.23, 1, 0.32, 1)`). It opens a coss Menu aligned to the end: "Share on X" (intent with the title, URL and via), "Share on LinkedIn", and "Share on other apps" (the Web Share sheet, listed only where the browser has one). The popup drops coss's border and shadow for the inset Hairline ring, and fades from 0.96 scale over 150ms; it leaves on opacity alone.
+- **Swap:** the label always reads "Share"; on copy only the icon changes, to check (or a cross when copying fails), for 2s. The Action Swap (`src/components/motion/action-swap.tsx`, from beUI) shrinks the old icon out as the new one grows in: scale 0.25 to 1, opacity, 4px blur to none, a 0.3s spring with no bounce; reduced motion swaps at once. A polite live region announces the result.
 
 ### Heading Anchors
 Article h2 and h3 are links to themselves.
@@ -328,7 +328,7 @@ A fenced code block with a header. Authored as ```` ```lang title="file" {marked
 - **Box:** Well Grey fill; full-bleed on phones with top and bottom hairlines, from sm a 14px-corner box with an inset Hairline ring, hanging 24px into the gutters.
 - **Header:** Mono Label in Muted Ink, 12px by 24px padding above the code, 8px gaps: the language badge, the file name (or the language name when untitled, truncated to one line), and the copy button at the end edge.
 - **Language badge:** a 16px tile, 4px corners, ink-at-12% fill, the short language name (TS, TSX, CSS, SH...) in 9px Geist Mono 600 full ink. It is an icon, not a label.
-- **Copy:** an icon-only button (16px copy icon in a 28px hit area, 8px corners), Muted Ink rising to full ink in 150ms, pressing to 0.96. On copy the icon rolls to check with the Action Swap motion and returns after 2s; it is labelled "Copy code" / "Copied" and a polite live region announces the result.
+- **Copy:** an icon-only button (16px copy icon in a 28px hit area, 8px corners), Muted Ink rising to full ink in 150ms, pressing to 0.96. On copy the icon swaps to check with the Action Swap motion and returns after 2s; it is labelled "Copy code" / "Copied" and a polite live region announces the result.
 - **Code:** Geist Mono 14px at 1.7, 12px top and 16px bottom padding, 24px sides, 2-space tabs, horizontal scroll with a thin ink-at-15% scrollbar. Highlighting per the Three Tiers Rule.
 - **Line numbers:** only when the block has two or more lines; right-aligned in 2ch, 20px before the code, ink at 28%.
 - **Marked lines:** a band of ink at 6% across the full width of the box, reaching the end edge even when the code scrolls.
@@ -358,15 +358,18 @@ One live scene and a button that draws another, authored as ```` ```roll ```` wi
 - **Caption row:** the generated name in Muted Ink (first letter capitalised, announced politely when it changes) at the start, and "Another scene" with a 16px dice icon at the end, styled as Copy Link (Muted Ink to full ink, 150ms, presses to 0.96). Each press draws a fresh random seed; the seed is never shown.
 
 ### Author Footer
-The article ends on the home header's identity row (40px avatar, name underlined in full ink, role in Muted Ink) as one link back home, 80px below the body; focus 4px offset, 14px corners.
+80px below the body, a Hairline rule with a 6px diamond at its centre (a square in Muted Ink turned 45 degrees, cut out of the rule by a 4px Ground ring). 40px below it, one row that wraps (24px across, 16px down) when it runs out of room: the home header's identity (40px avatar, name underlined in full ink, role in Muted Ink) as one link back home, focus 4px offset with 14px corners; Share at the row's end.
+
+### Ask AI
+A row that opens a prompt in ChatGPT, Claude, Perplexity and Grok (`src/components/ask-ai.tsx`, each reading `?q=`). A Muted Ink label, 12px gap, then four 32px tiles 8px apart: Tile Grey fill, inset Hairline ring, 8px corners, the assistant's 16px mark in Muted Ink rising to full ink on hover over 150ms, presses at 0.96. The label is hidden from assistive tech and folded into each link's name ("Summarize with Claude"). Home ends on "Ask about Luan on", 80px below Writing; an article carries "Summarize with" 16px under its meta line, entering at 400ms, half the 32px gap to the figure so it reads with the header. Prompts link the canonical URL so they work from any host.
 
 ### Avatar
 40px circle with a 1px white-at-10% outline inset by 1px; sits 12px left of the name and role.
 
 ### Entrance
-The name and role are the focal moment: `TextReveal` (`src/components/motion/text-reveal.tsx`, adapted from beUI, uses `motion`) reveals them word by word, each word rising 20% from 6px blur on a spring, 50ms apart; the name starts at 0ms, the role at 150ms. Reduced motion keeps a plain opacity fade. The avatar (0ms), bio (400ms), projects (500ms) and writing (600ms) are CSS blocks (tw-animate-css) that fade in from 4px blur and 12px below over 500ms on `cubic-bezier(0.2, 0, 0, 1)`, only under `prefers-reduced-motion: no-preference`. New sections join at the next 100ms step.
+The name and role are the focal moment: `TextReveal` (`src/components/motion/text-reveal.tsx`, adapted from beUI, uses `motion`) reveals them word by word, each word rising 20% from 6px blur on a spring, 50ms apart; the name starts at 0ms, the role at 150ms. Reduced motion keeps a plain opacity fade. The avatar (0ms), bio (400ms), projects (500ms), writing (600ms) and Ask AI (700ms) are CSS blocks (tw-animate-css) that fade in from 4px blur and 12px below over 500ms on `cubic-bezier(0.2, 0, 0, 1)`, only under `prefers-reduced-motion: no-preference`. New sections join at the next 100ms step.
 
-On an article the same grammar runs once: breadcrumb at 0ms, title words (TextReveal) from 100ms, meta at 300ms, caption and article at 400ms, contents rail or disclosure at 500ms. The figure itself does not fade; it arrives by the morph, or is simply present.
+On an article the same grammar runs once: breadcrumb at 0ms, title words (TextReveal) from 100ms, meta at 300ms, Summarize with, caption and article at 400ms, contents rail or disclosure at 500ms. The figure itself does not fade; it arrives by the morph, or is simply present.
 
 ### Browser Surfaces
 `color-scheme: dark`; text selection is ink at 15% behind full ink; every `:focus-visible` gets a 2px Focus Grey outline. Page titles read "[Post title] · Luan Fabri".
