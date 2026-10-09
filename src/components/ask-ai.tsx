@@ -1,12 +1,12 @@
-import type { ComponentType, SVGProps } from "react";
 import {
   ChatGPTIcon,
   ClaudeIcon,
   GrokIcon,
   PerplexityIcon,
 } from "@/components/icons";
+import { press } from "@/lib/classes";
 
-const assistants: [string, string, ComponentType<SVGProps<SVGSVGElement>>][] =
+const assistants: [string, string, typeof ChatGPTIcon][] =
   [
     ["ChatGPT", "https://chatgpt.com/", ChatGPTIcon],
     ["Claude", "https://claude.ai/new", ClaudeIcon],
@@ -20,11 +20,11 @@ const assistants: [string, string, ComponentType<SVGProps<SVGSVGElement>>][] =
 export function AskAI({
   label,
   prompt,
-  className = "",
+  className,
 }: {
   label: string;
   prompt: string;
-  className?: string;
+  className: string;
 }) {
   const query = new URLSearchParams({ q: prompt });
 
@@ -42,7 +42,7 @@ export function AskAI({
               rel="noopener noreferrer"
               aria-label={`${label} ${name}`}
               title={name}
-              className="grid size-8 place-items-center rounded-[8px] bg-muted text-muted-foreground inset-ring inset-ring-border outline-offset-2 transition-[color,scale] duration-150 ease-out hover:text-foreground active:scale-[0.96]"
+              className={`${press} grid size-8 place-items-center rounded-[8px] bg-muted text-muted-foreground inset-ring inset-ring-border outline-offset-2 hover:text-foreground`}
             >
               <Icon className="size-4" />
             </a>

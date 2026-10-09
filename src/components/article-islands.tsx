@@ -6,6 +6,7 @@ import { useCopy } from "@/components/share";
 import { CheckIcon, CopyIcon, DiceIcon } from "@/components/icons";
 import { ActionSwapIcon } from "@/components/motion/action-swap";
 import { SceneArt } from "@/components/scene-art";
+import { press } from "@/lib/classes";
 import { createScene } from "@/lib/scene";
 
 type Island =
@@ -76,7 +77,7 @@ function RollScene({ seed: first }: { seed: number }) {
         <button
           type="button"
           onClick={() => setSeed(Math.floor(Math.random() * 2 ** 32))}
-          className="-my-1 -me-2 flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm px-2 py-1 text-muted-foreground transition-[color,scale] duration-150 hover:text-foreground active:scale-[0.96]"
+          className={`-my-1 -me-2 flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm px-2 py-1 text-muted-foreground hover:text-foreground ${press}`}
         >
           Another scene
           <DiceIcon className="size-4" />
@@ -96,7 +97,7 @@ function CopyCode({ code }: { code: HTMLElement }) {
         type="button"
         onClick={() => copy(code.textContent ?? "")}
         aria-label={copied ? "Copied" : "Copy code"}
-        className="-m-1.5 grid size-7 place-items-center rounded-md text-muted-foreground transition-[color,scale] duration-150 hover:text-foreground active:scale-[0.96]"
+        className={`${press} -m-1.5 grid size-7 place-items-center rounded-md text-muted-foreground hover:text-foreground`}
       >
         <ActionSwapIcon value={copied ? "check" : "copy"}>
           {copied ? (

@@ -43,7 +43,7 @@ const icon = { idle: LinkIcon, copied: CheckIcon, failed: CloseIcon };
 const announce = { idle: "", copied: "Copied", failed: "Copy failed" };
 
 const segment =
-  "flex items-center outline-offset-2 transition-[color,scale] duration-150 ease-out hover:text-foreground active:scale-[0.96]";
+  "flex items-center outline-offset-2 transition-[color] duration-150 hover:text-foreground";
 
 const noop = () => () => {};
 
@@ -59,7 +59,7 @@ export function Share({ title, url }: { title: string; url: string }) {
   );
 
   return (
-    <div className="flex min-h-8 shrink-0 rounded-[8px] bg-muted text-muted-foreground inset-ring inset-ring-border">
+    <div className="flex min-h-8 shrink-0 rounded-[8px] bg-muted text-muted-foreground inset-ring inset-ring-border transition-[scale] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] has-active:scale-[0.96]">
       <button
         type="button"
         onClick={() => copy(url)}
@@ -82,7 +82,7 @@ export function Share({ title, url }: { title: string; url: string }) {
         <MenuPopup
           align="end"
           sideOffset={6}
-          className="border-0 shadow-none inset-ring inset-ring-border transition-[opacity,scale] duration-150 ease-out before:hidden data-ending-style:opacity-0 data-starting-style:scale-[0.96] data-starting-style:opacity-0"
+          className="border-0 shadow-none inset-ring inset-ring-border transition-[opacity,scale] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] before:hidden data-ending-style:opacity-0 data-ending-style:duration-100 data-starting-style:scale-[0.96] data-starting-style:opacity-0"
         >
           <MenuLinkItem
             href={`https://x.com/intent/post?${new URLSearchParams({ text: title, url, via: "__luannzin" })}`}

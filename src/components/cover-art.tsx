@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, ViewTransition } from "react";
 import { Die } from "@/components/die";
 import { SceneArt } from "@/components/scene-art";
-import { enter } from "@/lib/classes";
+import { enter, press } from "@/lib/classes";
 import { type Melt, melt } from "@/lib/melt";
 import { createScene } from "@/lib/scene";
 
@@ -94,7 +94,7 @@ export function CoverArt({ seed: own, slug }: { seed: number; slug: string }) {
         onClick={roll}
         aria-label="Draw another scene"
         data-ready={ready ? (hint ? "now" : "late") : undefined}
-        className="cover-dice absolute end-2 top-2 grid size-8 place-items-center rounded-md bg-black/40 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] backdrop-blur-sm transition-[color,scale] duration-150 hover:text-white active:scale-[0.96]"
+        className={`cover-dice absolute end-2 top-2 grid size-8 place-items-center rounded-md bg-black/40 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] backdrop-blur-sm hover:text-white ${press}`}
       >
         <Die seed={seed} className="size-[22px] overflow-visible" />
       </button>

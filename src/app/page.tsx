@@ -177,7 +177,7 @@ export default function Home() {
       </section>
 
       <AskAI
-        label="Ask about Luan on"
+        label="Ask about me on"
         prompt={`Tell me about Luan Fabri, the front-end engineer behind ${site}`}
         className={`${enter} mt-20 delay-700`}
       />

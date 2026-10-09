@@ -178,7 +178,7 @@ Articles also carry five richer blocks, all authored in markdown and rendered to
 - One type size (16px); hierarchy by weight (500 vs 400) and ink tier. Code is the one deliberate step down (Geist Mono 14px).
 - Neutral greys only in the interface; full colour lives inside the seeded scene art and nowhere else.
 - Hairline underlines and inset 1px rings instead of borders and shadows.
-- Motion is one staged entrance, 150ms hover state changes, and one shared-element morph from tile to figure.
+- Motion is one staged entrance, 150ms hover state changes, presses that dip to 0.96 on a strong ease-out (`cubic-bezier(0.23, 1, 0.32, 1)`, the `press` class in `src/lib/classes.ts`), and one shared-element morph from tile to figure.
 
 ## Colors
 
@@ -301,10 +301,10 @@ A single row at the top of a post.
 
 ### Share
 A split button at the end of the author footer (`src/components/share.tsx`).
-- **Shape:** at least 32px tall, Tile Grey fill, inset Hairline ring, 8px corners; a 1px Hairline divides the two halves. Text and icons in Muted Ink, each half to full ink on hover over 150ms; presses scale to 0.96.
+- **Shape:** at least 32px tall, Tile Grey fill, inset Hairline ring, 8px corners; a 1px Hairline divides the two halves. Text and icons in Muted Ink, each half to full ink on hover over 150ms; pressing either half scales the whole control to 0.96, so it reads as one button.
 - **Main half:** a 16px link icon then "Share" (10px start, 12px end padding, 6px gap). It copies the canonical post URL (`src/lib/site.ts`).
-- **Chevron half:** a 16px chevron pointing down that turns up while open (200ms, `cubic-bezier(0.23, 1, 0.32, 1)`). It opens a coss Menu aligned to the end: "Share on X" (intent with the title, URL and via), "Share on LinkedIn", and "Share on other apps" (the Web Share sheet, listed only where the browser has one). The popup drops coss's border and shadow for the inset Hairline ring, and fades from 0.96 scale over 150ms; it leaves on opacity alone.
-- **Swap:** the label always reads "Share"; on copy only the icon changes, to check (or a cross when copying fails), for 2s. The Action Swap (`src/components/motion/action-swap.tsx`, from beUI) shrinks the old icon out as the new one grows in: scale 0.25 to 1, opacity, 4px blur to none, a 0.3s spring with no bounce; reduced motion swaps at once. A polite live region announces the result.
+- **Chevron half:** a 16px chevron pointing down that turns up while open (200ms, `cubic-bezier(0.23, 1, 0.32, 1)`). It opens a coss Menu aligned to the end: "Share on X" (intent with the title, URL and via), "Share on LinkedIn", and "Share on other apps" (the Web Share sheet, listed only where the browser has one). The popup drops coss's border and shadow for the inset Hairline ring, and fades from 0.96 scale over 150ms; it leaves on opacity alone in 100ms, faster than it came.
+- **Swap:** the label always reads "Share"; on copy only the icon changes, to check (or a cross when copying fails), for 2s. The Action Swap (`src/components/motion/action-swap.tsx`, from beUI) shrinks the old icon out as the new one grows in: scale 0.25 to 1, opacity, 4px blur to none, a 0.3s spring with no bounce; reduced motion keeps only a 150ms crossfade. A polite live region announces the result.
 
 ### Heading Anchors
 Article h2 and h3 are links to themselves.
@@ -361,7 +361,7 @@ One live scene and a button that draws another, authored as ```` ```roll ```` wi
 80px below the body, a Hairline rule with a 6px diamond at its centre (a square in Muted Ink turned 45 degrees, cut out of the rule by a 4px Ground ring). 40px below it, one row that wraps (24px across, 16px down) when it runs out of room: the home header's identity (40px avatar, name underlined in full ink, role in Muted Ink) as one link back home, focus 4px offset with 14px corners; Share at the row's end.
 
 ### Ask AI
-A row that opens a prompt in ChatGPT, Claude, Perplexity and Grok (`src/components/ask-ai.tsx`, each reading `?q=`). A Muted Ink label, 12px gap, then four 32px tiles 8px apart: Tile Grey fill, inset Hairline ring, 8px corners, the assistant's 16px mark in Muted Ink rising to full ink on hover over 150ms, presses at 0.96. The label is hidden from assistive tech and folded into each link's name ("Summarize with Claude"). Home ends on "Ask about Luan on", 80px below Writing; an article carries "Summarize with" 16px under its meta line, entering at 400ms, half the 32px gap to the figure so it reads with the header. Prompts link the canonical URL so they work from any host.
+A row that opens a prompt in ChatGPT, Claude, Perplexity and Grok (`src/components/ask-ai.tsx`, each reading `?q=`). A Muted Ink label, 12px gap, then four 32px tiles 8px apart: Tile Grey fill, inset Hairline ring, 8px corners, the assistant's 16px mark in Muted Ink rising to full ink on hover over 150ms, presses at 0.96. The label is hidden from assistive tech and folded into each link's name ("Summarize with Claude"). Home ends on "Ask about me on", 80px below Writing; an article carries "Summarize with" 16px under its meta line, entering at 400ms, half the 32px gap to the figure so it reads with the header. Prompts link the canonical URL so they work from any host.
 
 ### Avatar
 40px circle with a 1px white-at-10% outline inset by 1px; sits 12px left of the name and role.
