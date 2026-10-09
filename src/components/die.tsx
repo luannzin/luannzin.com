@@ -18,41 +18,12 @@ const FACES: { n: V; u: V; v: V; turn: [number, number] }[] = [
   { n: [0, 1, 0], u: [1, 0, 0], v: [0, 0, -1], turn: [90, 0] },
   { n: [0, 0, -1], u: [-1, 0, 0], v: [0, 1, 0], turn: [0, 180] },
 ];
-// Pips for one to six, across and down a face two units wide.
+// Pips for one to six: cells of a 3 by 3 grid (0 top left, 8 bottom right),
+// across and down a face two units wide.
 const A = 0.48;
-const PIPS: [number, number][][] = [
-  [[0, 0]],
-  [
-    [-A, -A],
-    [A, A],
-  ],
-  [
-    [-A, -A],
-    [0, 0],
-    [A, A],
-  ],
-  [
-    [-A, -A],
-    [A, -A],
-    [-A, A],
-    [A, A],
-  ],
-  [
-    [-A, -A],
-    [A, -A],
-    [0, 0],
-    [-A, A],
-    [A, A],
-  ],
-  [
-    [-A, -A],
-    [A, -A],
-    [-A, 0],
-    [A, 0],
-    [-A, A],
-    [A, A],
-  ],
-];
+const PIPS = ["4", "08", "048", "0268", "02468", "023568"].map((cells) =>
+  [...cells].map((k) => [((+k % 3) - 1) * A, (Math.floor(+k / 3) - 1) * A]),
+);
 const PIP = 0.15; // a pip's radius
 const VIEW = 6; // how far we stand from the die, in half-edges
 const TILT: [number, number] = [-24, -36]; // at rest it shows three faces
