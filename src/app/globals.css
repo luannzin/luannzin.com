@@ -289,6 +289,34 @@
     }
   }
 }
+/* The cover's dice stays out of sight (and out of reach) until it is ready:
+   just after the morph from the home tile, or as the hint arrow finishes. */
+@layer components {
+  .cover-dice {
+    visibility: hidden;
+
+    &[data-ready] {
+      visibility: visible;
+      animation: dice-in 280ms 500ms backwards cubic-bezier(0.2, 0, 0, 1);
+    }
+    &[data-ready="now"] {
+      animation-delay: 0ms;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      &[data-ready] {
+        animation: none;
+      }
+    }
+  }
+}
+@keyframes dice-in {
+  from {
+    opacity: 0;
+    scale: 0.9;
+    filter: blur(2px);
+  }
+}
 @keyframes hint-draw {
   /* hidden until it starts, so a round cap never shows early as a dot */
   from {

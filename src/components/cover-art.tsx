@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect, useState, ViewTransition } from "react";
-import { DiceIcon } from "@/components/icons";
+import { useEffect, useRef, useState, ViewTransition } from "react";
+import { Die } from "@/components/die";
 import { SceneArt } from "@/components/scene-art";
 import { enter } from "@/lib/classes";
+import { type Melt, melt } from "@/lib/melt";
 import { createScene } from "@/lib/scene";
 
 const SEEN = "cover-dice-hint";
+const remember = () => {
+  try {
+    localStorage.setItem(SEEN, "1");
+  } catch {
+    // storage is blocked: the arrow shows again next time
+  }
+};
 // The hint arrow, in a 132 by 64 box: its line, its head, and the head's
 // hatching, which draws stroke by stroke as one dash.
 const LINE =
@@ -17,26 +25,55 @@ const HATCH =
   "M108 40L118 62M111 40L121 62M114 40L124 62M117 40L127 62M120 40L130 62";
 
 // A post's cover: its scene, with a dice that draws another for this visit
-// only (a reload brings the post's own back). The first cover anyone sees
-// draws an arrow to the dice, which goes once the dice is rolled.
+// only (a reload brings the post's own back). The dice waits out the morph
+// from the home tile; the first cover anyone sees draws an arrow to it first,
+// and the dice arrives as the arrow is finished. The arrow goes once rolled.
 export function CoverArt({ seed: own, slug }: { seed: number; slug: string }) {
   const [seed, setSeed] = useState(own);
   const [rolls, setRolls] = useState(0);
   const [hint, setHint] = useState(false);
+  const [ready, setReady] = useState(false);
+  const art = useRef<HTMLDivElement>(null);
+  const melting = useRef<Melt | null>(null);
   const { name } = createScene(seed);
 
+  // Only reads, so running twice changes nothing; the arrow is remembered as
+  // seen once it has been drawn in full.
   useEffect(() => {
+    let first = false;
     try {
-      if (localStorage.getItem(SEEN)) return;
-      localStorage.setItem(SEEN, "1");
-      setHint(true);
+      first = !localStorage.getItem(SEEN);
     } catch {
       // storage is blocked: no hint, nothing else lost
     }
+    if (first) setHint(true);
+    // the dice comes now, unless an arrow is about to be drawn to it
+    if (!first || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setReady(true);
+      remember();
+    }
   }, []);
 
+  useEffect(() => () => melting.current?.stop(), []);
+
+  // The old scene melts into the new one while the die tumbles; a throw
+  // mid-melt melts onward from wherever the picture has got to.
   const roll = () => {
-    setSeed(Math.floor(Math.random() * 2 ** 32));
+    const next = Math.floor(Math.random() * 2 ** 32);
+    const host = art.current;
+    const canvas = host?.querySelector("canvas");
+    if (host && canvas) {
+      const prev = melting.current;
+      melting.current = melt(
+        host,
+        prev?.running ? prev.capture() : canvas,
+        canvas,
+        next,
+        matchMedia("(prefers-reduced-motion: reduce)").matches,
+      );
+      prev?.stop();
+    }
+    setSeed(next);
     setRolls((n) => n + 1);
   };
 
@@ -44,9 +81,10 @@ export function CoverArt({ seed: own, slug }: { seed: number; slug: string }) {
     <figure className="relative -mx-6 mt-8 sm:mx-0 lg:-mx-16">
       <ViewTransition name={`art-${slug}`} share="morph" default="none">
         <div
+          ref={art}
           role="img"
           aria-label={`An animated scene drawn in dots: ${name}`}
-          className="overflow-hidden sm:rounded-[14px] sm:outline sm:-outline-offset-1 sm:outline-white/10"
+          className="relative overflow-hidden sm:rounded-[14px] sm:outline sm:-outline-offset-1 sm:outline-white/10"
         >
           <SceneArt seed={seed} stir />
         </div>
@@ -55,12 +93,10 @@ export function CoverArt({ seed: own, slug }: { seed: number; slug: string }) {
         type="button"
         onClick={roll}
         aria-label="Draw another scene"
-        className="absolute end-2 top-2 grid size-8 place-items-center rounded-md bg-black/40 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] backdrop-blur-sm transition-[color,scale] duration-150 hover:text-white active:scale-[0.96]"
+        data-ready={ready ? (hint ? "now" : "late") : undefined}
+        className="cover-dice absolute end-2 top-2 grid size-8 place-items-center rounded-md bg-black/40 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] backdrop-blur-sm transition-[color,scale] duration-150 hover:text-white active:scale-[0.96]"
       >
-        <DiceIcon
-          className="size-[18px] transition-[rotate] duration-300 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none"
-          style={{ rotate: `${rolls * 90}deg` }}
-        />
+        <Die seed={seed} className="size-[22px] overflow-visible" />
       </button>
       {hint && (
         // a hand-drawn arrow: a swoop, a loop, then a hatched head at the dice
@@ -72,7 +108,7 @@ export function CoverArt({ seed: own, slug }: { seed: number; slug: string }) {
           strokeLinejoin="round"
           aria-hidden="true"
           data-gone={rolls > 0 || undefined}
-          className="dice-hint pointer-events-none absolute end-[42px] -top-[27px] h-16 w-[132px] text-muted-foreground"
+          className="dice-hint pointer-events-none absolute end-[51px] -top-[27px] h-16 w-[132px] text-muted-foreground"
         >
           <defs>
             <clipPath id="dice-hint-head">
@@ -103,6 +139,10 @@ export function CoverArt({ seed: own, slug }: { seed: number; slug: string }) {
             strokeWidth="1"
             clipPath="url(#dice-hint-head)"
             pathLength={1}
+            onAnimationEnd={() => {
+              setReady(true);
+              remember();
+            }}
           />
         </svg>
       )}
