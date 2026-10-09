@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-08T00:00:00Z",
+  "generatedAt": "2026-10-08T12:00:00Z",
   "title": "Design System: Luan Fabri",
   "extensions": {
     "colorMeta": {
@@ -113,7 +113,7 @@
     "typographyMeta": {
       "title": {
         "displayName": "Title",
-        "purpose": "Name in the header and section headings; weight 500 is the only difference from body."
+        "purpose": "Name in the header, section headings, article title, article h2/h3, 'On this page'; weight 500 is the only difference from body."
       },
       "body": {
         "displayName": "Body",
@@ -121,7 +121,11 @@
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Role line and project name/description pairs, snug leading."
+        "purpose": "Role line, project and post name/description pairs, article meta, contents entries; snug leading."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Geist Mono at 14px in code blocks and 0.875em inline; optically matches Inter 16px. The one deliberate exception to the One Size Rule."
       }
     },
     "shadows": [
@@ -134,6 +138,16 @@
         "name": "avatar-edge",
         "value": "outline: 1px solid rgb(255 255 255 / 0.1); outline-offset: -1px",
         "purpose": "Keeps the avatar photo from bleeding into the ground."
+      },
+      {
+        "name": "art-edge",
+        "value": "outline: 1px solid rgb(255 255 255 / 0.1); outline-offset: -1px",
+        "purpose": "Scene tile always, and the scene figure from sm up; the full-bleed phone figure has none."
+      },
+      {
+        "name": "code-block-phone",
+        "value": "inset 0 1px 0 var(--border), inset 0 -1px 0 var(--border)",
+        "purpose": "Full-bleed code block on phones: top and bottom hairlines only; from sm it takes inset-hairline."
       }
     ],
     "motion": [
@@ -148,20 +162,53 @@
         "purpose": "One staged entrance for top-level blocks."
       },
       {
-        "name": "enter-stagger",
-        "value": "words 0 + 50ms step (name), 150ms + 50ms step (role); blocks 0 / 400 / 500ms",
-        "purpose": "TextReveal (motion) on name and role, word by word; avatar, bio, projects as CSS blocks; new sections take the next 100ms step."
-      },
-      {
         "name": "state",
         "value": "150ms",
         "purpose": "Underline color, tile icon color, arrow opacity and translate on hover."
+      },
+      {
+        "name": "enter-stagger",
+        "value": "home: words 0 + 50ms step (name), 150ms + 50ms step (role); blocks 0 / 400 / 500 / 600ms (avatar, bio, projects, writing). article: breadcrumb 0, title words from 100ms, meta 300, caption + article 400, contents 500",
+        "purpose": "TextReveal on the focal line, CSS blocks for the rest; new sections take the next 100ms step."
+      },
+      {
+        "name": "morph",
+        "value": "450ms cubic-bezier(0.32, 0.72, 0, 1); image pair blurs 3px at 30%",
+        "purpose": "Home scene tile grows into the article figure (React ViewTransition share=morph). Off under reduced motion."
+      },
+      {
+        "name": "disclosure",
+        "value": "block-size 220ms cubic-bezier(0.23, 1, 0.32, 1), opacity 160ms ease-out; chevron rotate 90deg 200ms",
+        "purpose": "Contents disclosure grows open via ::details-content. Instant under reduced motion."
+      },
+      {
+        "name": "action-swap",
+        "value": "letters spring (stiffness 460, damping 30, mass 0.55), 25ms stagger, 3px blur; exit 160ms cubic-bezier(0.16, 1, 0.3, 1) at half stagger; resets after 2s",
+        "purpose": "Copy link label and icon roll on copy (beUI Action Swap, vendored)."
+      },
+      {
+        "name": "press",
+        "value": "scale 0.96, 150ms",
+        "purpose": "Copy link press feedback."
+      },
+      {
+        "name": "scene",
+        "value": "15fps canvas, only while visible; tile plays only on row hover/focus; still frame under reduced motion",
+        "purpose": "Seeded halftone scene animation, pointer light and tap effects on the article."
       }
     ],
     "breakpoints": [
       {
         "name": "sm",
         "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
       }
     ]
   },
@@ -189,32 +236,69 @@
       "description": "40px avatar with inset edge beside name (weight 500) and muted role line.",
       "html": "<header class=\"ds-header\"><span class=\"ds-avatar\"></span><div class=\"ds-header-text\"><h1 class=\"ds-name\">Luan Fabri</h1><p class=\"ds-role\">Front-end engineer at Loopscape</p></div></header>",
       "css": ".ds-header { display: flex; align-items: center; gap: 12px; font: 400 16px/1.375 Inter, ui-sans-serif, system-ui, sans-serif; } .ds-avatar { width: 40px; height: 40px; border-radius: 9999px; background: #404040; outline: 1px solid rgb(255 255 255 / 0.1); outline-offset: -1px; } .ds-name { margin: 0; font-size: 16px; font-weight: 500; color: var(--foreground, #f5f5f5); } .ds-role { margin: 0; color: var(--muted-foreground, #818181); }"
+    },
+    {
+      "name": "Writing Row",
+      "kind": "custom",
+      "refersTo": "writing-row",
+      "description": "Row link to a post: 44px square crop of its seeded scene, underlined title, muted description, hover arrow-right; the tile morphs into the article figure.",
+      "html": "<a class=\"ds-wrow\" href=\"#\"><span class=\"ds-scene-tile\"></span><span class=\"ds-wrow-text\"><span class=\"ds-wrow-name\"><span class=\"ds-wrow-underline\">Art from a seed</span><svg class=\"ds-wrow-arrow\" viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M4.75 12H19.25M19.25 12L13.75 6.5M19.25 12L13.75 17.5\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></span><span class=\"ds-wrow-desc\">Drawing a whole scene from one number</span></span></a>",
+      "css": ".ds-wrow { display: flex; align-items: center; gap: 16px; border-radius: 14px; outline-offset: 4px; text-decoration: none; font: 400 16px/1.375 Inter, ui-sans-serif, system-ui, sans-serif; } .ds-wrow:focus-visible { outline: 2px solid var(--ring, #737373); } .ds-scene-tile { display: block; flex-shrink: 0; width: 44px; height: 44px; border-radius: 10px; overflow: hidden; outline: 1px solid rgb(255 255 255 / 0.1); outline-offset: -1px; background: radial-gradient(circle, #f2c46d 0 1.2px, transparent 1.6px) 0 0 / 5px 5px, #0d0811; } .ds-wrow-name { display: flex; align-items: center; gap: 4px; color: var(--foreground, #f5f5f5); } .ds-wrow-underline { text-decoration: underline 1px; text-decoration-color: color-mix(in oklab, var(--foreground, #f5f5f5) 25%, transparent); text-underline-offset: 3px; transition: text-decoration-color 150ms; } .ds-wrow:hover .ds-wrow-underline { text-decoration-color: color-mix(in oklab, var(--foreground, #f5f5f5) 60%, transparent); } .ds-wrow-arrow { width: 14px; height: 14px; color: var(--muted-foreground, #818181); opacity: 0; translate: -4px 0; transition: opacity 150ms, translate 150ms; } .ds-wrow:hover .ds-wrow-arrow { opacity: 1; translate: 0 0; } .ds-wrow-desc { display: block; color: var(--muted-foreground, #818181); }"
+    },
+    {
+      "name": "Article Breadcrumb",
+      "kind": "nav",
+      "refersTo": "breadcrumb-link",
+      "description": "Writing > title row with Copy link at the end edge; Copy link rolls its label letter by letter on copy.",
+      "html": "<nav class=\"ds-crumbs\" aria-label=\"Breadcrumb\"><ol class=\"ds-crumb-list\"><li><a class=\"ds-crumb\" href=\"#\">Writing</a></li><li aria-hidden=\"true\" class=\"ds-crumb-sep\"><svg class=\"ds-ico\" viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M10 7L15 12L10 17\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></li><li class=\"ds-crumb-current\" aria-current=\"page\">Art from a seed</li></ol><button type=\"button\" class=\"ds-copy\">Copy link<svg class=\"ds-ico\" viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M10.75 13.25C11.85 14.6 13.95 14.75 15.25 13.45L18.45 10.25C19.75 8.95 19.75 6.85 18.45 5.55C17.15 4.25 15.05 4.25 13.75 5.55L12.75 6.55M13.25 10.75C12.15 9.4 10.05 9.25 8.75 10.55L5.55 13.75C4.25 15.05 4.25 17.15 5.55 18.45C6.85 19.75 8.95 19.75 10.25 18.45L11.25 17.45\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></button></nav>",
+      "css": ".ds-crumbs { display: flex; align-items: center; justify-content: space-between; gap: 24px; font: 400 16px/1.625 Inter, ui-sans-serif, system-ui, sans-serif; color: var(--foreground, #f5f5f5); } .ds-crumb-list { display: flex; align-items: center; gap: 6px; min-width: 0; margin: 0; padding: 0; list-style: none; } .ds-crumb { color: var(--muted-foreground, #818181); text-decoration: none; border-radius: 6px; outline-offset: 2px; transition: color 150ms; } .ds-crumb:hover { color: var(--foreground, #f5f5f5); } .ds-crumb:focus-visible, .ds-copy:focus-visible { outline: 2px solid var(--ring, #737373); } .ds-crumb-sep { display: flex; color: var(--muted-foreground, #818181); } .ds-ico { width: 16px; height: 16px; } .ds-crumb-current { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-copy { display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin: -4px -8px -4px 0; padding: 4px 8px; border: 0; border-radius: 6px; background: none; font: inherit; color: var(--muted-foreground, #818181); white-space: nowrap; cursor: pointer; transition: color 150ms, scale 150ms; } .ds-copy:hover { color: var(--foreground, #f5f5f5); } .ds-copy:active { scale: 0.96; }"
+    },
+    {
+      "name": "Contents Disclosure",
+      "kind": "custom",
+      "refersTo": "contents-disclosure",
+      "description": "Below-xl table of contents: inset-ringed 14px container that grows open; the xl rail uses the same list without the box.",
+      "html": "<details class=\"ds-toc\"><summary class=\"ds-toc-sum\">On this page<svg class=\"ds-toc-chev\" viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M10 7L15 12L10 17\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></summary><ol class=\"ds-toc-list\"><li><a href=\"#\" aria-current=\"location\">A number becomes a place</a></li><li class=\"ds-toc-sub\"><a href=\"#\">Time of day</a></li><li><a href=\"#\">Drawing in dots</a></li></ol></details>",
+      "css": ".ds-toc { border-radius: 14px; box-shadow: inset 0 0 0 1px var(--border, #242424); font: 400 16px/1.375 Inter, ui-sans-serif, system-ui, sans-serif; color: var(--foreground, #f5f5f5); interpolate-size: allow-keywords; } .ds-toc::details-content { block-size: 0; overflow-y: clip; opacity: 0; transition: block-size 220ms cubic-bezier(0.23, 1, 0.32, 1), opacity 160ms ease-out, content-visibility 220ms allow-discrete; } .ds-toc[open]::details-content { block-size: auto; opacity: 1; } .ds-toc-sum { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 14px; font-weight: 500; list-style: none; cursor: pointer; outline-offset: 2px; } .ds-toc-sum::-webkit-details-marker { display: none; } .ds-toc-sum:focus-visible { outline: 2px solid var(--ring, #737373); } .ds-toc-chev { width: 16px; height: 16px; color: var(--muted-foreground, #818181); transition: rotate 200ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-toc[open] .ds-toc-chev { rotate: 90deg; } .ds-toc-list { display: grid; gap: 8px; margin: 0; padding: 0 16px 16px; list-style: none; } .ds-toc-sub { padding-inline-start: 16px; } .ds-toc-list a { display: block; color: var(--muted-foreground, #818181); text-decoration: none; border-radius: 6px; transition: color 150ms; } .ds-toc-list a:hover, .ds-toc-list a[aria-current] { color: var(--foreground, #f5f5f5); }"
+    },
+    {
+      "name": "Prose",
+      "kind": "custom",
+      "refersTo": "code-block",
+      "description": "Article body: soft-ink prose, hover-gated '#' heading anchors, inline code, a gutter-hanging code block in Geist Mono 14px highlighted on the neutral axis, hairline table rules.",
+      "html": "<div class=\"ds-art\"><h2><a href=\"#\">Drawing in dots</a></h2><p>Each cell picks a dot size from its <code>brightness</code>, then a <strong>colour</strong> from the <a href=\"#\">scene palette</a>.</p><pre><code><span class=\"k\">const</span> <span class=\"i\">size</span> <span class=\"p\">=</span> <span class=\"i\">RADIUS</span><span class=\"p\">[</span><span class=\"i\">step</span><span class=\"p\">];</span> <span class=\"p\">// dithered</span></code></pre><table><thead><tr><th>Time</th><th>Words</th></tr></thead><tbody><tr><td>dusk</td><td>ember, amber</td></tr></tbody></table></div>",
+      "css": ".ds-art { font: 400 16px/1.625 Inter, ui-sans-serif, system-ui, sans-serif; color: color-mix(in oklab, var(--foreground, #f5f5f5) 70%, transparent); padding-inline: 24px; } .ds-art > * + * { margin-top: 16px; } .ds-art h2 { margin: 0; font-size: 16px; font-weight: 500; line-height: 1.375; color: var(--foreground, #f5f5f5); } .ds-art h2 + * { margin-top: 12px; } .ds-art h2 a { position: relative; color: inherit; text-decoration: none; border-radius: 6px; outline-offset: 2px; } .ds-art h2 a::before { content: '#'; position: absolute; right: 100%; padding-right: 8px; color: var(--muted-foreground, #818181); opacity: 0; transition: opacity 150ms; } .ds-art h2 a:hover::before, .ds-art h2 a:focus-visible::before { opacity: 1; } .ds-art strong { color: var(--foreground, #f5f5f5); font-weight: 500; } .ds-art p a { color: var(--foreground, #f5f5f5); text-decoration: underline 1px color-mix(in oklab, var(--foreground, #f5f5f5) 25%, transparent); text-underline-offset: 3px; transition: text-decoration-color 150ms; } .ds-art p a:hover { text-decoration-color: color-mix(in oklab, var(--foreground, #f5f5f5) 60%, transparent); } .ds-art :not(pre) > code { padding: 2px 6px; border-radius: 6px; background: var(--muted, #1f1f1f); box-shadow: inset 0 0 0 1px var(--border, #242424); color: var(--foreground, #f5f5f5); font-family: 'Geist Mono', ui-monospace, monospace; font-size: 0.875em; } .ds-art pre { margin-inline: -24px; padding: 16px 24px; overflow-x: auto; background: var(--muted, #1f1f1f); border-radius: 14px; box-shadow: inset 0 0 0 1px var(--border, #242424); font: 400 14px/1.7 'Geist Mono', ui-monospace, monospace; } .ds-art .k { color: var(--foreground, #f5f5f5); } .ds-art .i { color: color-mix(in oklab, var(--foreground, #f5f5f5) 80%, transparent); } .ds-art .p { color: var(--muted-foreground, #818181); } .ds-art table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; } .ds-art th { color: var(--foreground, #f5f5f5); font-weight: 500; text-align: start; } .ds-art th, .ds-art td { padding: 8px 16px 8px 0; border-bottom: 1px solid var(--border, #242424); vertical-align: top; }"
     }
   ],
   "narrative": {
     "northStar": "The Quiet Column",
-    "overview": "One narrow column of text on a near-black neutral ground. The copy and the work carry the page; the interface recedes until a link or a row is touched. Hierarchy comes from weight and tone, never from size: everything is Inter at 16px, separated into three ink tiers and set apart by generous vertical space.\n\nThe world is brief-pinned. Its form follows the user's four reference sites (Jakub Krehel, Lee Robinson, Emil Kowalski, interfaces.dev); no concept roll ran, seed key \"none (pinned)\". It is dark only and carries no accent color. Detail lives in small, deliberate touches: hairline underlines, 1.5px stroke icons in currentColor, faint inset rings, one staggered blur-up entrance.",
+    "overview": "One narrow column of text on a near-black neutral ground. The copy and the work carry the page; the interface recedes until a link or a row is touched. Hierarchy comes from weight and tone, never from size: everything is Inter at 16px, separated into three ink tiers and set apart by generous vertical space.\n\nThe world is brief-pinned. Its form follows the user's four reference sites (Jakub Krehel, Lee Robinson, Emil Kowalski, interfaces.dev); no concept roll ran, seed key \"none (pinned)\". It is dark only and carries no accent color. Detail lives in small, deliberate touches: hairline underlines, 1.5px stroke icons in currentColor, faint inset rings, one staggered blur-up entrance.\n\nWriting extends the column without changing it. A post is the same column plus one living figure: a seeded halftone scene (time of day, place, landmark) drawn as dithered dots on a canvas. That figure is the only colour in the world, and it is art, not interface. Everything around it (breadcrumb, title, contents, prose, code) stays in the ink tiers at one size.",
     "keyCharacteristics": [
-      "Single 576px column, top-left aligned.",
-      "One type size (16px); hierarchy by weight (500 vs 400) and ink tier.",
-      "Neutral greys only; no accent hue anywhere.",
+      "Single 576px column, top-left aligned; the article figure and the contents rail are the only things allowed outside it.",
+      "One type size (16px); hierarchy by weight (500 vs 400) and ink tier. Code is the one deliberate step down (Geist Mono 14px).",
+      "Neutral greys only in the interface; full colour lives inside the seeded scene art and nowhere else.",
       "Hairline underlines and inset 1px rings instead of borders and shadows.",
-      "Motion is one staged entrance plus 150ms hover state changes."
+      "Motion is one staged entrance, 150ms hover state changes, and one shared-element morph from tile to figure."
     ],
     "rules": [
       {
         "name": "The No Accent Rule",
-        "body": "The palette has no hue. Emphasis is earned by moving up an ink tier (muted, soft, full), never by color.",
+        "body": "The interface has no hue. Emphasis is earned by moving up an ink tier (muted, soft, full), never by color.",
+        "section": "colors"
+      },
+      {
+        "name": "The Art Exception",
+        "body": "The seeded scene is the one place full colour is allowed, and it stays inside the art. Scene colour never reaches text, links, rings, or fills outside the canvas. The seed is never shown; the scene is captioned only by its generated two-word name (time word plus place word, first letter capitalised) in Muted Ink.",
         "section": "colors"
       },
       {
         "name": "The Three Tiers Rule",
-        "body": "Text uses exactly three tones: full ink for things you can act on or name, soft ink for prose, muted ink for supporting lines. A fourth tone is drift.",
+        "body": "Text uses exactly three tones: full ink for things you can act on or name, soft ink for prose, muted ink for supporting lines. A fourth tone is drift. Syntax highlighting in code is the scoped case: it stays on the same neutral axis (keywords, classes and entities full ink; identifiers, properties and JSX text at 80%; strings at 60%; punctuation and comments muted), never hued.",
         "section": "colors"
       },
       {
         "name": "The One Size Rule",
-        "body": "All text is 16px. New sections get hierarchy from weight 500, ink tier, and space, not from a larger size.",
+        "body": "All text is 16px, article titles included (user-confirmed). New sections get hierarchy from weight 500, ink tier, and space, not from a larger size. The only exception is code, set at 14px / 0.875em so it matches Inter optically.",
         "section": "typography"
       },
       {
@@ -228,11 +312,15 @@
       "Do use the three ink tiers: full for names and links, 70% for prose, muted for supporting lines.",
       "Do draw icons from Central Icons (round-outlined, radius 2, 1.5px stroke) in currentColor.",
       "Do signal interactivity with the 25% to 60% underline shift and 150ms transitions.",
-      "Do gate entrance motion behind reduced-motion and keep it to one staged reveal."
+      "Do gate entrance motion behind reduced-motion and keep it to one staged reveal.",
+      "Do keep scene colour inside the canvas, and caption a scene with its generated name only.",
+      "Do set code in Geist Mono at 14px (0.875em inline) so it matches Inter 16px optically.",
+      "Do let full-bleed elements on phones go square and edge-to-edge; give them 14px corners and an inset edge once they sit inside the column."
     ],
     "donts": [
-      "Don't introduce an accent color; the palette is neutral by commitment.",
-      "Don't raise font size for hierarchy; the system is one size.",
+      "Don't introduce an accent color; the interface is neutral by commitment, and the scene art is the only exception.",
+      "Don't raise font size for hierarchy; the system is one size, article titles included.",
+      "Don't show a post's seed or any technical scene parameter to the reader.",
       "Don't use drop shadows or solid borders on containers; use the 1px inset ring.",
       "Don't ship a light theme; the system is dark only."
     ]

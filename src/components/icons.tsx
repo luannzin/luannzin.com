@@ -60,6 +60,46 @@ export function ArrowUpRightIcon(props: IconProps) {
   );
 }
 
+function Stroke({ d, ...props }: IconProps & { d: string }) {
+  return (
+    <Svg {...props}>
+      <path
+        d={d}
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+export function ArrowRightIcon(props: IconProps) {
+  return (
+    <Stroke
+      d="M19.25 12H4.75M19.25 12L13.75 6.5M19.25 12L13.75 17.5"
+      {...props}
+    />
+  );
+}
+
+export function ChevronRightIcon(props: IconProps) {
+  return <Stroke d="M10 7L15 12L10 17" {...props} />;
+}
+
+export function LinkIcon(props: IconProps) {
+  return (
+    <Stroke
+      d="M10.75 13.25C11.85 14.6 13.95 14.75 15.25 13.45L18.45 10.25C19.75 8.95 19.75 6.85 18.45 5.55C17.15 4.25 15.05 4.25 13.75 5.55L12.75 6.55M13.25 10.75C12.15 9.4 10.05 9.25 8.75 10.55L5.55 13.75C4.25 15.05 4.25 17.15 5.55 18.45C6.85 19.75 8.95 19.75 10.25 18.45L11.25 17.45"
+      {...props}
+    />
+  );
+}
+
+export function CheckIcon(props: IconProps) {
+  return <Stroke d="M5.75 12.75L10 17L18.25 7" {...props} />;
+}
+
 export function GlobeIcon(props: IconProps) {
   return (
     <Svg {...props}>

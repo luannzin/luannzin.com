@@ -1,7 +1,14 @@
 import Image from "next/image";
-import type { ComponentType, ReactNode, SVGProps } from "react";
+import Link from "next/link";
+import {
+  type ComponentType,
+  type ReactNode,
+  type SVGProps,
+  ViewTransition,
+} from "react";
 import echoLogo from "@/assets/echo.png";
 import {
+  ArrowRightIcon,
   ArrowUpRightIcon,
   GitHubIcon,
   GlobeIcon,
@@ -9,6 +16,9 @@ import {
   LoopscapeIcon,
 } from "@/components/icons";
 import { TextReveal } from "@/components/motion/text-reveal";
+import { SceneArt } from "@/components/scene-art";
+import { enter, underline } from "@/lib/classes";
+import { getPosts } from "@/lib/writing";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -34,12 +44,6 @@ const projects = [
     mark: <GlobeIcon className="size-5" />,
   },
 ];
-
-const enter =
-  "motion-safe:animate-in fade-in blur-in-4 slide-in-from-bottom-3 fill-mode-both duration-500 ease-[cubic-bezier(0.2,0,0,1)]";
-
-const underline =
-  "underline decoration-foreground/25 decoration-1 underline-offset-[3px] transition-[text-decoration-color] duration-150 group-hover:decoration-foreground/60";
 
 export default function Home() {
   return (
@@ -109,6 +113,8 @@ export default function Home() {
               <a
                 href={href}
                 className="group flex items-center gap-4 rounded-[14px] outline-offset-4"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <span className="grid size-11 shrink-0 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors duration-150 group-hover:text-foreground">
                   {mark}
@@ -123,6 +129,42 @@ export default function Home() {
                   </span>
                 </span>
               </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="writing" className={`${enter} mt-20 delay-600`}>
+        <h2 id="writing" className="scroll-mt-12 font-medium">
+          Writing
+        </h2>
+        <ul className="mt-4 grid gap-6">
+          {getPosts().map(({ slug, title, description, seed }) => (
+            <li key={slug}>
+              <Link
+                href={`/writing/${slug}`}
+                prefetch
+                className="group flex items-center gap-4 rounded-[14px] outline-offset-4"
+              >
+                <ViewTransition
+                  name={`art-${slug}`}
+                  share="morph"
+                  default="none"
+                >
+                  <span className="block size-11 shrink-0 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-white/10">
+                    <SceneArt seed={seed} crop />
+                  </span>
+                </ViewTransition>
+                <span className="leading-snug">
+                  <span className="flex items-center gap-1 text-foreground">
+                    <span className={underline}>{title}</span>
+                    <ArrowRightIcon className="size-3.5 -translate-x-1 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:opacity-100" />
+                  </span>
+                  <span className="block text-muted-foreground">
+                    {description}
+                  </span>
+                </span>
+              </Link>
             </li>
           ))}
         </ul>

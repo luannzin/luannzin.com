@@ -248,3 +248,223 @@
     font-family: var(--font-mono);
   }
 }
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Article body, rendered from markdown. One size, three ink tiers: headings
+   and links in full ink, prose in soft ink, supporting marks muted. */
+@layer components {
+  .prose {
+    color: --alpha(var(--foreground) / 70%);
+    text-wrap: pretty;
+
+    & > * + * {
+      margin-top: 1rem;
+    }
+
+    & :where(h2, h3) {
+      color: var(--foreground);
+      font-weight: 500;
+      line-height: 1.375;
+      text-wrap: balance;
+      scroll-margin-top: 3rem;
+    }
+    & > h2 {
+      margin-top: 3rem;
+    }
+    & > h3 {
+      margin-top: 2rem;
+    }
+    & > :where(h2, h3) + * {
+      margin-top: 0.75rem;
+    }
+
+    /* The heading is its own link; a "#" hangs in the gutter on hover. */
+    & :where(h2, h3) > a {
+      position: relative;
+      border-radius: 6px;
+      outline-offset: 2px;
+
+      &::before {
+        content: "#" / "";
+        position: absolute;
+        inset-inline-end: 100%;
+        padding-inline-end: 0.5rem;
+        color: var(--muted-foreground);
+        opacity: 0;
+        transition: opacity 150ms;
+      }
+      &:focus-visible::before {
+        opacity: 1;
+      }
+      @media (hover: hover) {
+        &:hover::before {
+          opacity: 1;
+        }
+      }
+      /* No hover on touch: keep the "#" faintly in view as the affordance. */
+      @media (hover: none) {
+        &::before {
+          opacity: 0.4;
+        }
+      }
+    }
+
+    & strong {
+      color: var(--foreground);
+      font-weight: 500;
+    }
+
+    & a:not(:where(h2, h3) > a) {
+      color: var(--foreground);
+      text-decoration: underline 1px --alpha(var(--foreground) / 25%);
+      text-underline-offset: 3px;
+      border-radius: 6px;
+      outline-offset: 2px;
+      transition: text-decoration-color 150ms;
+
+      @media (hover: hover) {
+        &:hover {
+          text-decoration-color: --alpha(var(--foreground) / 60%);
+        }
+      }
+    }
+
+    & :where(ul, ol) {
+      padding-inline-start: 1.25rem;
+    }
+    & ul {
+      list-style: disc;
+    }
+    & ol {
+      list-style: decimal;
+    }
+    & li + li {
+      margin-top: 0.5rem;
+    }
+    & li::marker {
+      color: var(--muted-foreground);
+      font-variant-numeric: tabular-nums;
+    }
+
+    & blockquote {
+      padding-inline-start: 1rem;
+      border-inline-start: 1px solid --alpha(var(--foreground) / 20%);
+      color: var(--foreground);
+    }
+
+    & :not(pre) > code {
+      padding: 0.125rem 0.375rem;
+      border-radius: 6px;
+      background: var(--muted);
+      box-shadow: inset 0 0 0 1px var(--border);
+      color: var(--foreground);
+      /* Mono runs large; 0.875em matches Inter's x-height at 16px. */
+      font-size: 0.875em;
+    }
+
+    & pre {
+      margin-inline: -1.5rem;
+      padding: 1rem 1.5rem;
+      overflow-x: auto;
+      background: var(--muted);
+      box-shadow:
+        inset 0 1px 0 var(--border),
+        inset 0 -1px 0 var(--border);
+      font-size: 0.875rem;
+      line-height: 1.7;
+      tab-size: 2;
+      scrollbar-width: thin;
+      scrollbar-color: --alpha(var(--foreground) / 15%) transparent;
+
+      /* From sm up the box hangs into the gutter so code lines up with the
+         prose beside it. */
+      @variant sm {
+        border-radius: 14px;
+        box-shadow: inset 0 0 0 1px var(--border);
+      }
+    }
+
+    & hr {
+      margin-block: 3rem;
+      border: 0;
+      border-top: 1px solid var(--border);
+    }
+
+    & table {
+      width: 100%;
+      font-variant-numeric: tabular-nums;
+      text-align: start;
+    }
+    & th {
+      color: var(--foreground);
+      font-weight: 500;
+    }
+    & :where(th, td) {
+      padding-block: 0.5rem;
+      padding-inline-end: 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    /* sugar-high tokens, in the same three tiers. */
+    --sh-keyword: var(--foreground);
+    --sh-class: var(--foreground);
+    --sh-entity: var(--foreground);
+    --sh-identifier: --alpha(var(--foreground) / 80%);
+    --sh-property: --alpha(var(--foreground) / 80%);
+    --sh-jsxliterals: --alpha(var(--foreground) / 80%);
+    --sh-string: --alpha(var(--foreground) / 60%);
+    --sh-sign: var(--muted-foreground);
+    --sh-comment: var(--muted-foreground);
+  }
+}
+
+/* A disclosure that opens by growing to its content, not by jumping. */
+.disclosure {
+  interpolate-size: allow-keywords;
+
+  &::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    opacity: 0;
+    transition:
+      block-size 220ms cubic-bezier(0.23, 1, 0.32, 1),
+      opacity 160ms ease-out,
+      content-visibility 220ms allow-discrete;
+  }
+  &[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+}
+
+/* The art tile on the home page grows into the article's figure: the iOS
+   sheet curve, quick off the mark and soft into place. */
+::view-transition-group(.morph) {
+  animation-duration: 450ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: via-blur;
+}
+@keyframes via-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No travelling shapes: pages and the art swap in place. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+  .disclosure::details-content {
+    transition: none;
+  }
+}
