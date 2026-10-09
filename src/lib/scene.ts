@@ -8,7 +8,7 @@
 
 type RGB = [number, number, number];
 
-type Time = {
+export type Time = {
   words: string[];
   top: RGB;
   mid: RGB;
@@ -149,6 +149,13 @@ const PLACES = {
 };
 type Place = keyof typeof PLACES;
 type Landmark = "lighthouse" | "cabin" | "windmill" | "boat" | "none";
+const LANDMARKS: Record<Place, Partial<Record<Landmark, number>>> = {
+  coast: { lighthouse: 3, cabin: 2 },
+  fjord: { cabin: 1 },
+  lake: { boat: 1, cabin: 1 },
+  valley: { windmill: 1, cabin: 1 },
+  dunes: { none: 1 },
+};
 
 type Range = {
   base: number;
@@ -163,7 +170,6 @@ type Range = {
 export type Scene = {
   seed: number;
   name: string;
-  ground: string;
   // Where the eye lands, for the square crop of the home page tile.
   focus: number;
   focusY: number;
@@ -204,11 +210,14 @@ function pick<T>(random: () => number, items: readonly T[]): T {
   return items[Math.floor(random() * items.length)];
 }
 
+// One key, by weight. A single choice takes no roll, so it leaves the stream
+// (and every pick after it) as it was.
 function weighted<T extends string>(
   random: () => number,
-  weights: Record<T, number>,
+  weights: Partial<Record<T, number>>,
 ): T {
   const entries = Object.entries(weights) as [T, number][];
+  if (entries.length === 1) return entries[0][0];
   let roll = random() * entries.reduce((sum, [, w]) => sum + w, 0);
   for (const [key, w] of entries) {
     roll -= w;
@@ -238,22 +247,7 @@ export function createScene(seed: number): Scene {
   const horizon = water ? 0.6 + random() * 0.08 : 0.62 + random() * 0.06;
   const side = random() < 0.5 ? -1 : 1;
 
-  const landmark: Landmark =
-    place === "coast"
-      ? random() < 0.6
-        ? "lighthouse"
-        : "cabin"
-      : place === "fjord"
-        ? "cabin"
-        : place === "lake"
-          ? random() < 0.5
-            ? "boat"
-            : "cabin"
-          : place === "valley"
-            ? random() < 0.5
-              ? "windmill"
-              : "cabin"
-            : "none";
+  const landmark = weighted<Landmark>(random, LANDMARKS[place]);
 
   // The landmark sits on a third; the sun or moon balances it on the other.
   const third = side < 0 ? 0.38 + random() * 0.18 : 1.44 + random() * 0.18;
@@ -306,7 +300,6 @@ export function createScene(seed: number): Scene {
   return {
     seed,
     name,
-    ground: time.ground,
     focus: landmark === "none" ? bodyX : mark,
     focusY: landmark === "none" ? body.y : horizon - 0.08,
     time,
@@ -397,7 +390,7 @@ export type Frame = { step: Uint8Array; color: Uint32Array };
 
 // Dot area for each step, against the largest, and the radius each step is
 // drawn at, in cells: a pinprick, a bead, a full dot.
-export const COVER = [0, 0.3, 0.6, 1];
+const COVER = [0, 0.3, 0.6, 1];
 export const RADIUS = [0, 0.13, 0.26, 0.42];
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(
   (v) => v / 16 - 0.47,
@@ -408,6 +401,17 @@ const SOLID = 1;
 const WATER = 2;
 
 type Light = { x: number; y: number; power: number; beam?: boolean };
+
+const LAMP = 3; // a cell lit per frame: a lamp or a window
+const WHITE: RGB = [1, 1, 1];
+const STAR: RGB = [0.92, 0.94, 1];
+const TRAIL: RGB = [1, 0.95, 0.85];
+const BEAM: RGB = [0.95, 0.92, 0.8];
+const RIPPLE: RGB = [0.5, 0.55, 0.6];
+const AURORA_LOW: RGB = [0.18, 1, 0.55];
+const AURORA_HIGH: RGB = [0.55, 0.32, 0.9];
+const HUB: RGB = [0.3, 0.25, 0.22];
+const SAIL: RGB = [0.8, 0.76, 0.68];
 
 export function renderer(scene: Scene, cols: number, rows: number, view: View) {
   const { time, horizon: H, body } = scene;
@@ -624,19 +628,17 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
   const lampY = markBase - towerH - 0.02;
   const cabin = { w: 0.05, h: 0.036, roof: 0.036 };
   const boatY = H + 0.06;
+  const boatDark = time.shade.map((v) => v * 1.4);
+  const smokeColor = time.light.map((v) => v * 0.55);
   if (scene.landmark === "lighthouse") {
     lights.push({ x: mx, y: lampY, power: 1, beam: true });
   } else if (scene.landmark === "cabin") {
-    lights.push({
-      x: mx - cabin.w * 0.45,
-      y: markBase - cabin.h * 0.5,
-      power: 0.55,
-    });
-    lights.push({
-      x: mx + cabin.w * 0.45,
-      y: markBase - cabin.h * 0.5,
-      power: 0.55,
-    });
+    for (const side of [-1, 1])
+      lights.push({
+        x: mx + side * cabin.w * 0.45,
+        y: markBase - cabin.h * 0.5,
+        power: 0.55,
+      });
   } else if (scene.landmark === "windmill") {
     lights.push({ x: mx, y: markBase - 0.03, power: 0.45 });
   } else if (scene.landmark === "boat") {
@@ -674,7 +676,7 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
           y < top - 0.006 &&
           Math.abs(dx) <= Math.max(0.018, cw * 1.1)
         )
-          kind[k] = 3; // lamp, lit per frame
+          kind[k] = LAMP;
         if (
           y >= top - 0.054 &&
           y < top - 0.034 &&
@@ -691,7 +693,7 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
             y > top + 0.008 &&
             y < markBase - 0.007
           )
-            kind[k] = 3;
+            kind[k] = LAMP;
         }
         const ry = top - y;
         if (
@@ -726,7 +728,7 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
               y > markBase - 0.04 &&
               y < markBase - 0.02
             )
-              kind[k] = 3;
+              kind[k] = LAMP;
           }
         }
       }
@@ -765,6 +767,23 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
 
   const rgb = new Float32Array(n * 3);
   const out: Frame = { step: new Uint8Array(n), color: new Uint32Array(n) };
+  // The cell being shaded, and the three ways colour lands on it.
+  const p = [0, 0, 0];
+  const put = (col: ArrayLike<number>) => {
+    p[0] = col[0];
+    p[1] = col[1];
+    p[2] = col[2];
+  };
+  const add = (col: ArrayLike<number>, s: number) => {
+    p[0] += col[0] * s;
+    p[1] += col[1] * s;
+    p[2] += col[2] * s;
+  };
+  const blend = (col: ArrayLike<number>, a: number) => {
+    p[0] = mix(p[0], col[0], a);
+    p[1] = mix(p[1], col[1], a);
+    p[2] = mix(p[2], col[2], a);
+  };
 
   return (t: number, pointer?: Pointer, taps: Tap[] = []): Frame => {
     // The beam turns every fourteen seconds and, at START, sweeps out across
@@ -782,41 +801,30 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
         const x = X[c];
         const k = r * cols + c;
         const kk = kind[k];
-        let cr = 0;
-        let cg = 0;
-        let cb2 = 0;
         if (kk === WATER) continue; // second pass, once the sky is known
+        p[0] = p[1] = p[2] = 0;
 
         const dbx = x - body.x;
         const dby = y - body.y;
         const dm = Math.sqrt(dbx * dbx + dby * dby);
 
         if (kk === SKY) {
-          const v = clamp((y - 0.0) / H);
-          const veil = 0.88 + 0.24 * haze[k];
-          const lo = smooth(0, 0.6, v);
-          const hi = smooth(0.55, 1, v);
-          cr =
-            mix(mix(time.top[0], time.mid[0], lo), time.horizon[0], hi) * veil;
-          cg =
-            mix(mix(time.top[1], time.mid[1], lo), time.horizon[1], hi) * veil;
-          cb2 =
-            mix(mix(time.top[2], time.mid[2], lo), time.horizon[2], hi) * veil;
-          if (time.band) {
-            const b = Math.exp(-(((H - y) / 0.035) ** 2)) * 0.55;
-            cr += time.band[0] * b;
-            cg += time.band[1] * b;
-            cb2 += time.band[2] * b;
-          }
+          const v = clamp(y / H);
+          const sky = tint(
+            tint(time.top, time.mid, smooth(0, 0.6, v)),
+            time.horizon,
+            smooth(0.55, 1, v),
+          );
+          add(sky, 0.88 + 0.24 * haze[k]);
+          if (time.band)
+            add(time.band, Math.exp(-(((H - y) / 0.035) ** 2)) * 0.55);
           // the glow round the sun or moon, wide and low for a setting sun
           const halo =
             time.body === "sun"
               ? Math.exp(-((dbx / 0.7) ** 2) - (dby / 0.2) ** 2) * 0.5 +
                 Math.exp(-dm / 0.09) * 0.6
               : Math.exp(-dm / 0.25) * 0.3 + Math.exp(-dm / 0.08) * 0.45;
-          cr += time.halo[0] * halo;
-          cg += time.halo[1] * halo;
-          cb2 += time.halo[2] * halo;
+          add(time.halo, halo);
 
           if (time.aurora) {
             for (let a = 0; a < 2; a++) {
@@ -844,10 +852,8 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
                 rays *
                 (a ? 0.55 : 0.95) *
                 smooth(H, H - 0.18, y);
-              const up = smooth(0, 0.14, above);
-              cr += g * mix(0.18, 0.55, up);
-              cg += g * mix(1, 0.32, up);
-              cb2 += g * mix(0.55, 0.9, up);
+              // green at the lower edge, violet up in the rays
+              add(tint(AURORA_LOW, AURORA_HIGH, smooth(0, 0.14, above)), g);
             }
           }
 
@@ -871,16 +877,18 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
               let a = (1 - cov * 0.8) * smooth(body.r, body.r * 0.85, dm);
               if (body.phase && time.body === "moon") {
                 // a crescent: the shadowed part of the disc
-                const sx2 = dbx - body.r * (0.4 + body.phase) * lightDir * -1;
+                const sx2 = dbx + body.r * (0.4 + body.phase) * lightDir;
                 if (Math.sqrt(sx2 * sx2 + dby * dby) < body.r * 0.95) a *= 0.06;
               }
-              const warmBottom =
+              const warm =
                 time.body === "sun" ? smooth(-body.r, body.r, dby) * 0.25 : 0;
-              cr = mix(cr, time.bodyColor[0] * face, a);
-              cg = mix(cg, time.bodyColor[1] * face * (1 - warmBottom), a);
-              cb2 = mix(
-                cb2,
-                time.bodyColor[2] * face * (1 - warmBottom * 1.6),
+              const [br, bg, bb] = time.bodyColor;
+              blend(
+                [
+                  br * face,
+                  bg * face * (1 - warm),
+                  bb * face * (1 - warm * 1.6),
+                ],
                 a,
               );
             } else if (
@@ -897,9 +905,7 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
                 (0.45 + 0.55 * tw) *
                 smooth(H, 0.2, y) *
                 (1 - Math.min(1, halo));
-              cr = Math.max(cr, s * 0.92);
-              cg = Math.max(cg, s * 0.94);
-              cb2 = Math.max(cb2, s);
+              for (let i = 0; i < 3; i++) p[i] = Math.max(p[i], s * STAR[i]);
             }
 
             if (cov > 0.01) {
@@ -908,40 +914,24 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
                 l * (0.45 + 0.6 * near) + 0.25 * smooth(H - 0.25, H, y),
               );
               const [s0, s1, s2] = time.cloud;
-              const kr =
-                b < 0.5
-                  ? mix(s0[0], s1[0], b * 2)
-                  : mix(s1[0], s2[0], (b - 0.5) * 2);
-              const kg =
-                b < 0.5
-                  ? mix(s0[1], s1[1], b * 2)
-                  : mix(s1[1], s2[1], (b - 0.5) * 2);
-              const kb =
-                b < 0.5
-                  ? mix(s0[2], s1[2], b * 2)
-                  : mix(s1[2], s2[2], (b - 0.5) * 2);
-              const a = Math.min(1, cov * 1.1);
-              cr = mix(cr, kr, a);
-              cg = mix(cg, kg, a);
-              cb2 = mix(cb2, kb, a);
+              blend(
+                b < 0.5 ? tint(s0, s1, b * 2) : tint(s1, s2, b * 2 - 1),
+                Math.min(1, cov * 1.1),
+              );
             }
           }
         } else if (kk === SOLID) {
-          cr = base[k * 3];
-          cg = base[k * 3 + 1];
-          cb2 = base[k * 3 + 2];
+          put(base.subarray(k * 3, k * 3 + 3));
         } else {
-          // a lamp or window, flickering a little
+          // a lamp or window, flickering a little; the lighthouse lamp burns
+          // white-hot at its core
           const g =
             0.82 +
             0.12 * Math.sin(t * 3.1 + c * 1.7) +
             0.06 * Math.sin(t * 7.3 + r) +
             0.25 * flash;
-          // the lighthouse lamp burns white-hot at its core
           const hot = scene.landmark === "lighthouse" ? 0.45 : 0;
-          cr = mix(time.warm[0], 1, hot) * g * (1 + hot * 0.3);
-          cg = mix(time.warm[1], 1, hot) * g * (1 + hot * 0.3);
-          cb2 = mix(time.warm[2], 1, hot) * g * (1 + hot * 0.3);
+          put(tint(time.warm, WHITE, hot).map((v) => v * g * (1 + hot * 0.3)));
         }
 
         // the windmill's sails, turning
@@ -956,12 +946,8 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
                 Math.PI / 4,
             );
             const width = d * Math.sin(Math.PI / 4 - arm);
-            if (width < 0.006 + (d > 0.025 ? 0.008 : 0)) {
-              const s: RGB = d < 0.01 ? [0.3, 0.25, 0.22] : [0.8, 0.76, 0.68];
-              cr = mix(time.shade[0], s[0], 0.55);
-              cg = mix(time.shade[1], s[1], 0.55);
-              cb2 = mix(time.shade[2], s[2], 0.55);
-            }
+            if (width < 0.006 + (d > 0.025 ? 0.008 : 0))
+              put(tint(time.shade, d < 0.01 ? HUB : SAIL, 0.55));
           }
         }
 
@@ -977,15 +963,12 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
               Math.exp(-((off / (0.006 + rise * 0.12)) ** 2)) *
               smooth(0.16, 0.02, rise) *
               smooth(0.35, 0.75, puff);
-            const smoke = 0.3 * s;
-            cr = mix(cr, time.light[0] * 0.55, smoke);
-            cg = mix(cg, time.light[1] * 0.55, smoke);
-            cb2 = mix(cb2, time.light[2] * 0.55, smoke);
+            blend(smokeColor, 0.3 * s);
           }
         }
 
         // lamps glow into the air round them; the lighthouse sweeps its beam
-        if (kk !== 3) {
+        if (kk !== LAMP) {
           for (const light of lights) {
             const lx = x - light.x;
             const ly = y - light.y;
@@ -999,24 +982,19 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
               light.power;
             if (light.beam) {
               g *= 1 + flash * 0.8;
-              if (lx * cb > 0) {
-                const along = Math.abs(lx) / (Math.abs(cb) * 1.1 + 0.01);
-                if (along < 1) {
-                  // a pale wedge, white enough to read against a lit sky
-                  const spread = 0.02 + Math.abs(lx) * 0.2;
-                  const b =
-                    (1 - along) ** 1.6 *
+              const along = Math.abs(lx) / (Math.abs(cb) * 1.1 + 0.01);
+              if (lx * cb > 0 && along < 1) {
+                // a pale wedge, white enough to read against a lit sky
+                const spread = 0.02 + Math.abs(lx) * 0.2;
+                add(
+                  BEAM,
+                  (1 - along) ** 1.6 *
                     Math.exp(-((ly / spread) ** 2)) *
-                    (dark ? 0.6 : 0.5);
-                  cr += b * 0.95;
-                  cg += b * 0.92;
-                  cb2 += b * 0.8;
-                }
+                    (dark ? 0.6 : 0.5),
+                );
               }
             }
-            cr += time.warm[0] * g;
-            cg += time.warm[1] * g;
-            cb2 += time.warm[2] * g;
+            add(time.warm, g);
           }
         }
 
@@ -1024,43 +1002,37 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
           const px = x - pointer.x;
           const py = y - pointer.y;
           const dp = Math.sqrt(px * px + py * py);
-          const g =
+          add(
+            time.warm,
             (Math.exp(-dp / Math.max(0.012, ch * 1.2)) * 0.75 +
               Math.exp(-dp / 0.07) * 0.2) *
-            pointer.strength;
-          cr += time.warm[0] * g;
-          cg += time.warm[1] * g;
-          cb2 += time.warm[2] * g;
+              pointer.strength,
+          );
         }
 
         for (const tap of taps) {
           if (tap.y >= H && scene.water) continue;
           // a shooting star from where the sky was touched
           const age = t - tap.t;
-          const hx = tap.x - lightDir * age * 0.9;
-          const hy = tap.y + age * 0.35;
           const len = 0.14;
           const ux = -lightDir * 0.93;
           const uy = 0.36;
-          const qx = x - hx;
-          const qy = y - hy;
+          const qx = x - (tap.x - lightDir * age * 0.9);
+          const qy = y - (tap.y + age * 0.35);
           const along = -(qx * ux + qy * uy);
           if (along > -0.01 && along < len) {
             const across = Math.abs(qx * uy - qy * ux);
-            const s =
+            add(
+              TRAIL,
               Math.exp(-across / (ch * 0.6)) *
-              1.2 *
-              (1 - Math.max(0, along) / len) *
-              smooth(1.1, 0.6, age);
-            cr += s;
-            cg += s * 0.95;
-            cb2 += s * 0.85;
+                1.2 *
+                (1 - Math.max(0, along) / len) *
+                smooth(1.1, 0.6, age),
+            );
           }
         }
 
-        rgb[k * 3] = cr;
-        rgb[k * 3 + 1] = cg;
-        rgb[k * 3 + 2] = cb2;
+        rgb.set(p, k * 3);
       }
     }
 
@@ -1086,64 +1058,52 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
               Math.exp(-(((d - age * 0.05) / ch) ** 2)) * Math.exp(-age * 1.4);
           }
           const sway = (w - 0.5) * (0.012 + depth * 0.15) + ripple * 0.01;
-          const my = 2 * H - y - depth * 0.15;
-          const mr = Math.round((my - view.y) / ch - 0.5);
+          const mr = Math.round((2 * H - y - depth * 0.15 - view.y) / ch - 0.5);
           const mc = Math.round((x + sway - view.x) / cw - 0.5);
-          let fr = time.horizon[0];
-          let fg = time.horizon[1];
-          let fb = time.horizon[2];
-          if (mr >= 0 && mr < rows && mc >= 0 && mc < cols) {
-            const m = (mr * cols + mc) * 3;
-            fr = rgb[m];
-            fg = rgb[m + 1];
-            fb = rgb[m + 2];
-          }
+          const above =
+            mr >= 0 && mr < rows && mc >= 0 && mc < cols
+              ? rgb.subarray((mr * cols + mc) * 3, (mr * cols + mc) * 3 + 3)
+              : time.horizon;
           const swell = 0.5 + 0.9 * w;
-          const mirror =
-            (0.62 - 0.3 * smooth(0, 0.35, depth)) * (0.7 + 0.5 * w);
-          let cr = mix(time.water[0] * swell, fr, mirror);
-          let cg = mix(time.water[1] * swell, fg, mirror);
-          let cb2 = mix(time.water[2] * swell, fb, mirror);
+          put(time.water);
+          p[0] *= swell;
+          p[1] *= swell;
+          p[2] *= swell;
+          blend(above, (0.62 - 0.3 * smooth(0, 0.35, depth)) * (0.7 + 0.5 * w));
           // the road of light under the sun or moon
-          const roadW = 0.02 + depth * 0.5;
           const road =
-            Math.exp(-(((x - body.x) / roadW) ** 2)) * smooth(0.5, 0.82, w);
-          const glint = road * (time.body === "sun" ? 0.8 : 0.7);
-          cr += time.bodyColor[0] * glint;
-          cg += time.bodyColor[1] * glint * (time.body === "sun" ? 0.8 : 1);
-          cb2 += time.bodyColor[2] * glint * (time.body === "sun" ? 0.6 : 1);
+            Math.exp(-(((x - body.x) / (0.02 + depth * 0.5)) ** 2)) *
+            smooth(0.5, 0.82, w);
+          const sun = time.body === "sun";
+          const glint = road * (sun ? 0.8 : 0.7);
+          p[0] += time.bodyColor[0] * glint;
+          p[1] += time.bodyColor[1] * glint * (sun ? 0.8 : 1);
+          p[2] += time.bodyColor[2] * glint * (sun ? 0.6 : 1);
           // lamps drawn down the water as broken streaks
           for (const light of lights) {
             const lw = 0.004 + depth * 0.06;
-            const s =
+            add(
+              time.warm,
               Math.exp(-(((x - light.x) / lw) ** 2)) *
-              smooth(0.45, 0.8, w) *
-              light.power *
-              smooth(0.3, 0, depth) *
-              (light.beam ? 0.8 + 0.6 * flash : 0.9);
-            cr += time.warm[0] * s;
-            cg += time.warm[1] * s;
-            cb2 += time.warm[2] * s;
+                smooth(0.45, 0.8, w) *
+                light.power *
+                smooth(0.3, 0, depth) *
+                (light.beam ? 0.8 + 0.6 * flash : 0.9),
+            );
           }
           if (pointer && pointer.strength > 0.01 && pointer.y < H) {
-            const s =
+            add(
+              time.warm,
               Math.exp(-(((x - pointer.x) / (0.006 + depth * 0.05)) ** 2)) *
-              smooth(0.45, 0.8, w) *
-              pointer.strength *
-              0.6 *
-              smooth(0.25, 0, depth);
-            cr += time.warm[0] * s;
-            cg += time.warm[1] * s;
-            cb2 += time.warm[2] * s;
+                smooth(0.45, 0.8, w) *
+                pointer.strength *
+                0.6 *
+                smooth(0.25, 0, depth),
+            );
           }
-          cr += ripple * 0.5;
-          cg += ripple * 0.55;
-          cb2 += ripple * 0.6;
+          add(RIPPLE, ripple);
           // mist on the water at the horizon
-          const mist = Math.exp(-depth / 0.025) * 0.14;
-          cr += hazeColor[0] * mist;
-          cg += hazeColor[1] * mist;
-          cb2 += hazeColor[2] * mist;
+          add(hazeColor, Math.exp(-depth / 0.025) * 0.14);
           // the boat, riding the swell
           if (scene.landmark === "boat") {
             const by = boatY + Math.sin(t * 1.3) * 0.003;
@@ -1159,20 +1119,17 @@ export function renderer(scene: Scene, cols: number, rows: number, view: View) {
               Math.abs(bx) < (y - (by - 0.085)) * 0.55;
             const mast =
               Math.abs(bx) < 0.0025 && y > by - 0.09 && y < by - 0.012;
-            if (hull || mast) {
-              cr = time.shade[0] * 1.4;
-              cg = time.shade[1] * 1.4;
-              cb2 = time.shade[2] * 1.4;
-            } else if (sail) {
-              const s = 0.35 + 0.35 * smooth(by - 0.085, by - 0.02, y);
-              cr = mix(time.shade[0], time.light[0], s);
-              cg = mix(time.shade[1], time.light[1], s);
-              cb2 = mix(time.shade[2], time.light[2], s);
-            }
+            if (hull || mast) put(boatDark);
+            else if (sail)
+              put(
+                tint(
+                  time.shade,
+                  time.light,
+                  0.35 + 0.35 * smooth(by - 0.085, by - 0.02, y),
+                ),
+              );
           }
-          rgb[k * 3] = cr;
-          rgb[k * 3 + 1] = cg;
-          rgb[k * 3 + 2] = cb2;
+          rgb.set(p, k * 3);
         }
       }
     }

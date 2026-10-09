@@ -19,10 +19,6 @@ const FRAME = 1000 / 15;
 // Target cell size in CSS pixels: finer on phones, where the frame is small.
 const cellSize = (width: number) => (width < 500 ? 3.4 : 4.5);
 
-// One post's scene on a canvas. The full scene is 2:1; `crop` shows a square
-// around its landmark, for the home page tile. `stir` lets the pointer carry a
-// small light and taps drop shooting stars or ripples; otherwise the scene only
-// plays while the link around it is hovered or focused.
 function viewOf(scene: Scene, crop: boolean): View {
   // the tile is a close square round the landmark, so it still reads at 44px
   const size = 0.45;
@@ -36,6 +32,10 @@ function viewOf(scene: Scene, crop: boolean): View {
     : { x: 0, y: 0, w: 2, h: 1 };
 }
 
+// One post's scene on a canvas. The full scene is 2:1; `crop` shows a square
+// around its landmark, for the home page tile. `stir` lets the pointer carry a
+// small light and taps drop shooting stars or ripples; otherwise the scene only
+// plays while the link or card around it is hovered or focused.
 export function SceneArt({
   seed,
   crop = false,
@@ -82,7 +82,7 @@ export function SceneArt({
 
     const paint = (next: Frame, full: boolean) => {
       const groups = new Map<number, number[]>();
-      ctx.fillStyle = scene.ground;
+      ctx.fillStyle = scene.time.ground;
       if (full) ctx.fillRect(0, 0, canvas.width, canvas.height);
       for (let k = 0; k < next.step.length; k++) {
         const step = next.step[k];
@@ -198,36 +198,31 @@ export function SceneArt({
       taps.push({ x: aim.x, y: aim.y, t: clock });
       if (taps.length > 4) taps.shift();
     };
-    const link = canvas.closest("a");
+    // plays while its link, or a card marked to play on hover, is touched
+    const link = canvas.closest<HTMLElement>("a, [data-hover-play]");
     const engage = (on: boolean) => () => {
       engaged = on;
       sync();
     };
-    const on = engage(true);
-    const off = engage(false);
+    const listening = new AbortController();
+    const { signal } = listening;
 
     if (stir && !still) {
-      canvas.addEventListener("pointermove", move);
-      canvas.addEventListener("pointerleave", leave);
-      canvas.addEventListener("pointerdown", tap);
+      canvas.addEventListener("pointermove", move, { signal });
+      canvas.addEventListener("pointerleave", leave, { signal });
+      canvas.addEventListener("pointerdown", tap, { signal });
     } else if (link) {
-      link.addEventListener("pointerenter", on);
-      link.addEventListener("pointerleave", off);
-      link.addEventListener("focus", on);
-      link.addEventListener("blur", off);
+      link.addEventListener("pointerenter", engage(true), { signal });
+      link.addEventListener("pointerleave", engage(false), { signal });
+      link.addEventListener("focus", engage(true), { signal });
+      link.addEventListener("blur", engage(false), { signal });
     }
 
     return () => {
       cancelAnimationFrame(raf);
       resize.disconnect();
       seen.disconnect();
-      canvas.removeEventListener("pointermove", move);
-      canvas.removeEventListener("pointerleave", leave);
-      canvas.removeEventListener("pointerdown", tap);
-      link?.removeEventListener("pointerenter", on);
-      link?.removeEventListener("pointerleave", off);
-      link?.removeEventListener("focus", on);
-      link?.removeEventListener("blur", off);
+      listening.abort();
     };
   }, [scene, crop, stir]);
 
@@ -238,7 +233,7 @@ export function SceneArt({
       className={cn("block w-full", className)}
       style={{
         aspectRatio: `${view.w} / ${view.h}`,
-        backgroundColor: scene.ground,
+        backgroundColor: scene.time.ground,
       }}
     />
   );

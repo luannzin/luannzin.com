@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense, ViewTransition } from "react";
+import { ArticleIslands } from "@/components/article-islands";
 import { CopyLink } from "@/components/copy-link";
 import { ChevronRightIcon } from "@/components/icons";
 import { TextReveal } from "@/components/motion/text-reveal";
@@ -125,10 +126,12 @@ async function Post({
           </>
         )}
         <article
+          id="article"
           className={`${enter} prose delay-400`}
           // biome-ignore lint/security/noDangerouslySetInnerHtml: posts are markdown files in this repo, rendered at build time
           dangerouslySetInnerHTML={{ __html: html }}
         />
+        <ArticleIslands root="article" />
       </div>
 
       <footer className="mt-20">

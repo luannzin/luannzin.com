@@ -108,6 +108,21 @@
           "#d4d4d4",
           "#f5f5f5"
         ]
+      },
+      "well": {
+        "role": "neutral",
+        "displayName": "Well Grey",
+        "canonical": "--alpha(var(--foreground) / 2.5%)",
+        "tonalRamp": [
+          "#0a0a0a",
+          "#161616",
+          "#262626",
+          "#404040",
+          "#737373",
+          "#a3a3a3",
+          "#d4d4d4",
+          "#f5f5f5"
+        ]
       }
     },
     "typographyMeta": {
@@ -125,7 +140,11 @@
       },
       "code": {
         "displayName": "Code",
-        "purpose": "Geist Mono at 14px in code blocks and 0.875em inline; optically matches Inter 16px. The one deliberate exception to the One Size Rule."
+        "purpose": "Geist Mono at 14px in code boxes and 0.875em inline; optically matches Inter 16px. The one deliberate exception to the One Size Rule."
+      },
+      "mono-label": {
+        "displayName": "Mono Label",
+        "purpose": "Geist Mono 14px at 1.5: code box header and all flow diagram text. The language badge (9px, 600, in a 16px tile) is a mark, not this role."
       }
     },
     "shadows": [
@@ -142,12 +161,17 @@
       {
         "name": "art-edge",
         "value": "outline: 1px solid rgb(255 255 255 / 0.1); outline-offset: -1px",
-        "purpose": "Scene tile always, and the scene figure from sm up; the full-bleed phone figure has none."
+        "purpose": "Scene tile, gallery scenes and framed images always; the scene figure from sm up; the full-bleed phone figure has none."
       },
       {
         "name": "code-block-phone",
         "value": "inset 0 1px 0 var(--border), inset 0 -1px 0 var(--border)",
-        "purpose": "Full-bleed code block on phones: top and bottom hairlines only; from sm it takes inset-hairline."
+        "purpose": "Full-bleed code box and framed image on phones: top and bottom hairlines only; from sm they take inset-hairline."
+      },
+      {
+        "name": "lit-ring",
+        "value": "inset 0 0 0 1px color-mix(in oklab, var(--foreground) 18%, transparent); background ink at 7%",
+        "purpose": "Lit flow node: emphasis by a stronger ring and fill on the neutral axis, never a hue."
       }
     ],
     "motion": [
@@ -184,16 +208,16 @@
       {
         "name": "action-swap",
         "value": "letters spring (stiffness 460, damping 30, mass 0.55), 25ms stagger, 3px blur; exit 160ms cubic-bezier(0.16, 1, 0.3, 1) at half stagger; resets after 2s",
-        "purpose": "Copy link label and icon roll on copy (beUI Action Swap, vendored)."
+        "purpose": "Copy link label and icon roll on copy; the code box copy button rolls its icon copy to check (beUI Action Swap, vendored)."
       },
       {
         "name": "press",
         "value": "scale 0.96, 150ms",
-        "purpose": "Copy link press feedback."
+        "purpose": "Copy link and code copy button press feedback."
       },
       {
         "name": "scene",
-        "value": "15fps canvas, only while visible; tile plays only on row hover/focus; still frame under reduced motion",
+        "value": "15fps canvas, only while visible; inside a link or a [data-hover-play] card (home tile, gallery scenes) it plays only on hover/focus; still frame under reduced motion",
         "purpose": "Seeded halftone scene animation, pointer light and tap effects on the article."
       }
     ],
@@ -267,14 +291,46 @@
       "refersTo": "code-block",
       "description": "Article body: soft-ink prose, hover-gated '#' heading anchors, inline code, a gutter-hanging code block in Geist Mono 14px highlighted on the neutral axis, hairline table rules.",
       "html": "<div class=\"ds-art\"><h2><a href=\"#\">Drawing in dots</a></h2><p>Each cell picks a dot size from its <code>brightness</code>, then a <strong>colour</strong> from the <a href=\"#\">scene palette</a>.</p><pre><code><span class=\"k\">const</span> <span class=\"i\">size</span> <span class=\"p\">=</span> <span class=\"i\">RADIUS</span><span class=\"p\">[</span><span class=\"i\">step</span><span class=\"p\">];</span> <span class=\"p\">// dithered</span></code></pre><table><thead><tr><th>Time</th><th>Words</th></tr></thead><tbody><tr><td>dusk</td><td>ember, amber</td></tr></tbody></table></div>",
-      "css": ".ds-art { font: 400 16px/1.625 Inter, ui-sans-serif, system-ui, sans-serif; color: color-mix(in oklab, var(--foreground, #f5f5f5) 70%, transparent); padding-inline: 24px; } .ds-art > * + * { margin-top: 16px; } .ds-art h2 { margin: 0; font-size: 16px; font-weight: 500; line-height: 1.375; color: var(--foreground, #f5f5f5); } .ds-art h2 + * { margin-top: 12px; } .ds-art h2 a { position: relative; color: inherit; text-decoration: none; border-radius: 6px; outline-offset: 2px; } .ds-art h2 a::before { content: '#'; position: absolute; right: 100%; padding-right: 8px; color: var(--muted-foreground, #818181); opacity: 0; transition: opacity 150ms; } .ds-art h2 a:hover::before, .ds-art h2 a:focus-visible::before { opacity: 1; } .ds-art strong { color: var(--foreground, #f5f5f5); font-weight: 500; } .ds-art p a { color: var(--foreground, #f5f5f5); text-decoration: underline 1px color-mix(in oklab, var(--foreground, #f5f5f5) 25%, transparent); text-underline-offset: 3px; transition: text-decoration-color 150ms; } .ds-art p a:hover { text-decoration-color: color-mix(in oklab, var(--foreground, #f5f5f5) 60%, transparent); } .ds-art :not(pre) > code { padding: 2px 6px; border-radius: 6px; background: var(--muted, #1f1f1f); box-shadow: inset 0 0 0 1px var(--border, #242424); color: var(--foreground, #f5f5f5); font-family: 'Geist Mono', ui-monospace, monospace; font-size: 0.875em; } .ds-art pre { margin-inline: -24px; padding: 16px 24px; overflow-x: auto; background: var(--muted, #1f1f1f); border-radius: 14px; box-shadow: inset 0 0 0 1px var(--border, #242424); font: 400 14px/1.7 'Geist Mono', ui-monospace, monospace; } .ds-art .k { color: var(--foreground, #f5f5f5); } .ds-art .i { color: color-mix(in oklab, var(--foreground, #f5f5f5) 80%, transparent); } .ds-art .p { color: var(--muted-foreground, #818181); } .ds-art table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; } .ds-art th { color: var(--foreground, #f5f5f5); font-weight: 500; text-align: start; } .ds-art th, .ds-art td { padding: 8px 16px 8px 0; border-bottom: 1px solid var(--border, #242424); vertical-align: top; }"
+      "css": ".ds-art { font: 400 16px/1.625 Inter, ui-sans-serif, system-ui, sans-serif; color: color-mix(in oklab, var(--foreground, #f5f5f5) 70%, transparent); padding-inline: 24px; } .ds-art > * + * { margin-top: 16px; } .ds-art h2 { margin: 0; font-size: 16px; font-weight: 500; line-height: 1.375; color: var(--foreground, #f5f5f5); } .ds-art h2 + * { margin-top: 12px; } .ds-art h2 a { position: relative; color: inherit; text-decoration: none; border-radius: 6px; outline-offset: 2px; } .ds-art h2 a::before { content: '#'; position: absolute; right: 100%; padding-right: 8px; color: var(--muted-foreground, #818181); opacity: 0; transition: opacity 150ms; } .ds-art h2 a:hover::before, .ds-art h2 a:focus-visible::before { opacity: 1; } .ds-art strong { color: var(--foreground, #f5f5f5); font-weight: 500; } .ds-art p a { color: var(--foreground, #f5f5f5); text-decoration: underline 1px color-mix(in oklab, var(--foreground, #f5f5f5) 25%, transparent); text-underline-offset: 3px; transition: text-decoration-color 150ms; } .ds-art p a:hover { text-decoration-color: color-mix(in oklab, var(--foreground, #f5f5f5) 60%, transparent); } .ds-art :not(pre) > code { padding: 2px 6px; border-radius: 6px; background: var(--muted, #1f1f1f); box-shadow: inset 0 0 0 1px var(--border, #242424); color: var(--foreground, #f5f5f5); font-family: 'Geist Mono', ui-monospace, monospace; font-size: 0.875em; } .ds-art pre { margin-inline: -24px; padding: 16px 24px; overflow-x: auto; background: color-mix(in oklab, var(--foreground, #f5f5f5) 2.5%, transparent); border-radius: 14px; box-shadow: inset 0 0 0 1px var(--border, #242424); font: 400 14px/1.7 'Geist Mono', ui-monospace, monospace; } .ds-art .k { color: var(--foreground, #f5f5f5); } .ds-art .i { color: color-mix(in oklab, var(--foreground, #f5f5f5) 80%, transparent); } .ds-art .p { color: var(--muted-foreground, #818181); } .ds-art table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; } .ds-art th { color: var(--foreground, #f5f5f5); font-weight: 500; text-align: start; } .ds-art th, .ds-art td { padding: 8px 16px 8px 0; border-bottom: 1px solid var(--border, #242424); vertical-align: top; }"
+    },
+    {
+      "name": "Code Box",
+      "kind": "custom",
+      "refersTo": "code-block",
+      "description": "Fenced code with a header: language badge (a mark, 9px mono in a 16px tile), file name, icon-only copy button; line numbers from two lines; marked lines as a full-width band. Well Grey fill, hangs into the gutter from sm.",
+      "html": "<figure class=\"ds-code\"><figcaption class=\"ds-code-head\"><span class=\"ds-code-badge\" aria-hidden=\"true\">TS</span><span class=\"ds-code-title\">src/lib/scene.ts</span><button type=\"button\" class=\"ds-code-copy\" aria-label=\"Copy code\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8.75 8.75V6.75C8.75 5.64543 9.64543 4.75 10.75 4.75H17.25C18.3546 4.75 19.25 5.64543 19.25 6.75V13.25C19.25 14.3546 18.3546 15.25 17.25 15.25H15.25M6.75 8.75H13.25C14.3546 8.75 15.25 9.64543 15.25 10.75V17.25C15.25 18.3546 14.3546 19.25 13.25 19.25H6.75C5.64543 19.25 4.75 18.3546 4.75 17.25V10.75C4.75 9.64543 5.64543 8.75 6.75 8.75Z\"/></svg></button></figcaption><pre class=\"ds-code-pre\"><code><span class=\"ds-line\"><span class=\"k\">export</span> <span class=\"k\">function</span> <span class=\"i\">createScene</span><span class=\"p\">(</span><span class=\"i\">seed</span><span class=\"p\">)</span> <span class=\"p\">{</span></span>\n<span class=\"ds-line\" data-mark>  <span class=\"k\">const</span> <span class=\"i\">rand</span> <span class=\"p\">=</span> <span class=\"i\">mulberry32</span><span class=\"p\">(</span><span class=\"i\">seed</span><span class=\"p\">);</span></span>\n<span class=\"ds-line\">  <span class=\"k\">return</span> <span class=\"i\">pick</span><span class=\"p\">(</span><span class=\"i\">rand</span><span class=\"p\">);</span></span>\n<span class=\"ds-line\"><span class=\"p\">}</span></span></code></pre></figure>",
+      "css": ".ds-code { margin: 0; background: color-mix(in oklab, var(--foreground, #f5f5f5) 2.5%, transparent); border-radius: 14px; box-shadow: inset 0 0 0 1px var(--border, #242424); } .ds-code-head { display: flex; align-items: center; gap: 8px; padding: 12px 24px 0; color: var(--muted-foreground, #818181); font: 400 14px/1.5 'Geist Mono', ui-monospace, monospace; } .ds-code-badge { display: inline-grid; place-items: center; flex: none; min-width: 16px; height: 16px; padding-inline: 3px; border-radius: 4px; background: color-mix(in oklab, var(--foreground, #f5f5f5) 12%, transparent); color: var(--foreground, #f5f5f5); font-size: 9px; font-weight: 600; line-height: 1; } .ds-code-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-code-copy { display: grid; place-items: center; width: 28px; height: 28px; margin: -6px; padding: 0; border: 0; border-radius: 8px; background: none; color: var(--muted-foreground, #818181); cursor: pointer; transition: color 150ms, scale 150ms; } .ds-code-copy svg { width: 16px; height: 16px; } .ds-code-copy:hover { color: var(--foreground, #f5f5f5); } .ds-code-copy:active { scale: 0.96; } .ds-code-copy:focus-visible { outline: 2px solid var(--ring, #737373); } .ds-code-pre { margin: 0; padding: 12px 24px 16px; overflow-x: auto; font: 400 14px/1.7 'Geist Mono', ui-monospace, monospace; } .ds-code-pre code { display: inline-block; min-width: 100%; counter-reset: line; } .ds-line::before { counter-increment: line; content: counter(line); display: inline-block; width: 2ch; margin-inline-end: 20px; color: color-mix(in oklab, var(--foreground, #f5f5f5) 28%, transparent); text-align: end; } .ds-line[data-mark] { display: inline-block; min-width: calc(100% + 48px); margin-inline: -24px; padding-inline: 24px; background: color-mix(in oklab, var(--foreground, #f5f5f5) 6%, transparent); } .ds-code .k { color: var(--foreground, #f5f5f5); } .ds-code .i { color: color-mix(in oklab, var(--foreground, #f5f5f5) 80%, transparent); } .ds-code .p { color: var(--muted-foreground, #818181); }"
+    },
+    {
+      "name": "Flow Diagram",
+      "kind": "custom",
+      "refersTo": "flow-node",
+      "description": "Mono nodes two per row joined by hairline arrows (dot to chevron), an optional label on the arrow; lit nodes step up the neutral axis. Node radius 14 = icon radius 6 + padding 8. One column on phones.",
+      "html": "<figure class=\"ds-flow\" role=\"img\" aria-label=\"Diagram: seed, then createScene\"><div class=\"ds-flow-row\"><div class=\"ds-flow-node\" data-lit><span class=\"ds-flow-icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9.75 4.75L8.25 19.25M15.75 4.75L14.25 19.25M5.75 9.25H19.25M4.75 14.75H18.25\"/></svg></span><span class=\"ds-flow-text\"><span class=\"ds-flow-title\">seed</span><span class=\"ds-flow-note\">one number</span></span></div><span class=\"ds-flow-arrow\" aria-hidden=\"true\"><span class=\"ds-flow-label\">once</span></span><div class=\"ds-flow-node\"><span class=\"ds-flow-icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 4.75L19.25 8.5L12 12.25L4.75 8.5L12 4.75Z\"/><path d=\"M4.75 12L12 15.75L19.25 12\"/><path d=\"M4.75 15.5L12 19.25L19.25 15.5\"/></svg></span><span class=\"ds-flow-text\"><span class=\"ds-flow-title\">createScene</span><span class=\"ds-flow-note\">picks every part</span></span></div></div></figure>",
+      "css": ".ds-flow { margin: 0; font: 400 14px/1.5 'Geist Mono', ui-monospace, monospace; } .ds-flow-row { display: grid; grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr); align-items: center; } .ds-flow-node { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 8px; border-radius: 14px; background: var(--muted, #1f1f1f); box-shadow: inset 0 0 0 1px var(--border, #242424); } .ds-flow-node[data-lit] { background: color-mix(in oklab, var(--foreground, #f5f5f5) 7%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground, #f5f5f5) 18%, transparent); } .ds-flow-icon { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 6px; background: color-mix(in oklab, var(--foreground, #f5f5f5) 6%, transparent); box-shadow: inset 0 0 0 1px var(--border, #242424); color: var(--muted-foreground, #818181); } .ds-flow-icon svg { width: 18px; height: 18px; } .ds-flow-node[data-lit] .ds-flow-icon { background: color-mix(in oklab, var(--foreground, #f5f5f5) 12%, transparent); color: var(--foreground, #f5f5f5); } .ds-flow-text { display: flex; flex-direction: column; min-width: 0; } .ds-flow-title, .ds-flow-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-flow-title { color: var(--foreground, #f5f5f5); font-weight: 500; } .ds-flow-note { color: var(--muted-foreground, #818181); } .ds-flow-arrow { position: relative; height: 1px; margin-inline: 8px; background: color-mix(in oklab, var(--foreground, #f5f5f5) 25%, transparent); } .ds-flow-arrow::before { content: ''; position: absolute; top: -2px; left: -2px; width: 5px; height: 5px; border-radius: 9999px; background: color-mix(in oklab, var(--foreground, #f5f5f5) 60%, transparent); } .ds-flow-arrow::after { content: ''; position: absolute; top: -3px; right: 1px; width: 7px; height: 7px; border-right: 1px solid color-mix(in oklab, var(--foreground, #f5f5f5) 45%, transparent); border-bottom: 1px solid color-mix(in oklab, var(--foreground, #f5f5f5) 45%, transparent); rotate: -45deg; } .ds-flow-label { position: absolute; top: 50%; left: 50%; translate: -50% -50%; padding-inline: 8px; border-radius: 6px; background: var(--background, #161616); box-shadow: inset 0 0 0 1px var(--border, #242424); color: var(--muted-foreground, #818181); white-space: nowrap; }"
+    },
+    {
+      "name": "Framed Image",
+      "kind": "custom",
+      "refersTo": "frame",
+      "description": "An image alone in its paragraph: centred in a Well Grey frame (40px padding from sm, 14px corners, inset ring), image at 10px with the art edge, Muted Ink caption 12px below. 2x PNGs drawn at half their pixel size.",
+      "html": "<figure class=\"ds-frame\"><div class=\"ds-frame-media\"><span class=\"ds-frame-img\" role=\"img\" aria-label=\"Screenshot\"></span></div><figcaption class=\"ds-frame-cap\">The tile is the same scene, cropped close round its landmark.</figcaption></figure>",
+      "css": ".ds-frame { margin: 0; font: 400 16px/1.625 Inter, ui-sans-serif, system-ui, sans-serif; } .ds-frame-media { display: grid; place-items: center; padding: 40px; border-radius: 14px; background: color-mix(in oklab, var(--foreground, #f5f5f5) 2.5%, transparent); box-shadow: inset 0 0 0 1px var(--border, #242424); } .ds-frame-img { display: block; width: 100%; max-width: 320px; aspect-ratio: 16 / 10; border-radius: 10px; background: #1f1f1f; outline: 1px solid rgb(255 255 255 / 0.1); outline-offset: -1px; } .ds-frame-cap { margin-top: 12px; color: var(--muted-foreground, #818181); }"
+    },
+    {
+      "name": "Scene Gallery",
+      "kind": "custom",
+      "refersTo": "scene-card",
+      "description": "Two-column grid of live 2:1 scenes from other seeds, each named below in Muted Ink; a scene plays only while its card is hovered. Breaks out 64px each side at lg.",
+      "html": "<div class=\"ds-scenes\"><figure class=\"ds-scene-card\"><div class=\"ds-scene-slot\" role=\"img\" aria-label=\"An animated scene drawn in dots: Dusk fjord\" style=\"background: radial-gradient(circle, #f2c46d 0 1.2px, transparent 1.6px) 0 0 / 5px 5px, #0d0811\"></div><figcaption>dusk fjord</figcaption></figure><figure class=\"ds-scene-card\"><div class=\"ds-scene-slot\" role=\"img\" aria-label=\"An animated scene drawn in dots: Night coast\" style=\"background: radial-gradient(circle, #8fb3ff 0 1.2px, transparent 1.6px) 0 0 / 5px 5px, #070a12\"></div><figcaption>night coast</figcaption></figure></div>",
+      "css": ".ds-scenes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; font: 400 16px/1.625 Inter, ui-sans-serif, system-ui, sans-serif; } .ds-scene-card { margin: 0; } .ds-scene-slot { aspect-ratio: 2 / 1; overflow: hidden; border-radius: 10px; outline: 1px solid rgb(255 255 255 / 0.1); outline-offset: -1px; } .ds-scene-card figcaption { margin-top: 8px; color: var(--muted-foreground, #818181); } .ds-scene-card figcaption::first-letter { text-transform: uppercase; }"
     }
   ],
   "narrative": {
     "northStar": "The Quiet Column",
-    "overview": "One narrow column of text on a near-black neutral ground. The copy and the work carry the page; the interface recedes until a link or a row is touched. Hierarchy comes from weight and tone, never from size: everything is Inter at 16px, separated into three ink tiers and set apart by generous vertical space.\n\nThe world is brief-pinned. Its form follows the user's four reference sites (Jakub Krehel, Lee Robinson, Emil Kowalski, interfaces.dev); no concept roll ran, seed key \"none (pinned)\". It is dark only and carries no accent color. Detail lives in small, deliberate touches: hairline underlines, 1.5px stroke icons in currentColor, faint inset rings, one staggered blur-up entrance.\n\nWriting extends the column without changing it. A post is the same column plus one living figure: a seeded halftone scene (time of day, place, landmark) drawn as dithered dots on a canvas. That figure is the only colour in the world, and it is art, not interface. Everything around it (breadcrumb, title, contents, prose, code) stays in the ink tiers at one size.",
+    "overview": "One narrow column of text on a near-black neutral ground. The copy and the work carry the page; the interface recedes until a link or a row is touched. Hierarchy comes from weight and tone, never from size: everything is Inter at 16px, separated into three ink tiers and set apart by generous vertical space.\n\nThe world is brief-pinned. Its form follows the user's four reference sites (Jakub Krehel, Lee Robinson, Emil Kowalski, interfaces.dev); no concept roll ran, seed key \"none (pinned)\". It is dark only and carries no accent color. Detail lives in small, deliberate touches: hairline underlines, 1.5px stroke icons in currentColor, faint inset rings, one staggered blur-up entrance.\n\nWriting extends the column without changing it. A post is the same column plus one living figure: a seeded halftone scene (time of day, place, landmark) drawn as dithered dots on a canvas. That figure is the only colour in the world, and it is art, not interface. Everything around it (breadcrumb, title, contents, prose, code) stays in the ink tiers at one size.\n\nArticles also carry four richer blocks, all authored in markdown and rendered to static HTML at build time: a code box with a file header, a flow diagram, a framed image, and a gallery of live scenes. They stay in the same neutral tiers; the gallery is the Art Exception repeated, not a new one. The few parts that need the client (copy buttons, live scenes) mount into placeholders the HTML leaves.",
     "keyCharacteristics": [
-      "Single 576px column, top-left aligned; the article figure and the contents rail are the only things allowed outside it.",
+      "Single 576px column, top-left aligned; the article figure, framed images, scene galleries, code boxes and the contents rail are the only things allowed outside it.",
       "One type size (16px); hierarchy by weight (500 vs 400) and ink tier. Code is the one deliberate step down (Geist Mono 14px).",
       "Neutral greys only in the interface; full colour lives inside the seeded scene art and nowhere else.",
       "Hairline underlines and inset 1px rings instead of borders and shadows.",
@@ -293,7 +349,12 @@
       },
       {
         "name": "The Three Tiers Rule",
-        "body": "Text uses exactly three tones: full ink for things you can act on or name, soft ink for prose, muted ink for supporting lines. A fourth tone is drift. Syntax highlighting in code is the scoped case: it stays on the same neutral axis (keywords, classes and entities full ink; identifiers, properties and JSX text at 80%; strings at 60%; punctuation and comments muted), never hued.",
+        "body": "Text uses exactly three tones: full ink for things you can act on or name, soft ink for prose, muted ink for supporting lines. A fourth tone is drift. Syntax highlighting in code is the scoped case: it stays on the same neutral axis (keywords, classes and entities full ink; identifiers, properties and JSX text at 80%; strings at 60%; punctuation and comments muted), never hued. Code line numbers are the other scoped case: gutter marks at ink 28%, below muted, because they are a ruler, not text.",
+        "section": "colors"
+      },
+      {
+        "name": "The Lit Node Rule",
+        "body": "Inside article blocks, emphasis is a step up the same neutral axis, never a hue. A lit flow node takes a stronger fill (ink at 7%) and ring (ink at 18%), and its icon goes to full ink on an ink-at-12% tile; a marked code line takes a full-width ink-at-6% band.",
         "section": "colors"
       },
       {
@@ -305,6 +366,11 @@
         "name": "The Inset Edge Rule",
         "body": "Containers are defined by a 1px inset ring, never by an outer shadow or a solid border.",
         "section": "elevation"
+      },
+      {
+        "name": "The Concentric Corner Rule",
+        "body": "A rounded thing inside a rounded thing takes the outer radius minus the gap between them: a flow node is 14px because its 6px icon tile sits 8px in; a row's focus outline is 14px because it sits 4px outside a 10px tile.",
+        "section": "shapes"
       }
     ],
     "dos": [
@@ -315,14 +381,17 @@
       "Do gate entrance motion behind reduced-motion and keep it to one staged reveal.",
       "Do keep scene colour inside the canvas, and caption a scene with its generated name only.",
       "Do set code in Geist Mono at 14px (0.875em inline) so it matches Inter 16px optically.",
-      "Do let full-bleed elements on phones go square and edge-to-edge; give them 14px corners and an inset edge once they sit inside the column."
+      "Do let full-bleed elements on phones go square and edge-to-edge; give them 14px corners and an inset edge once they sit inside the column.",
+      "Do mark what matters in an article block by stepping up the neutral axis (a lit node, a marked line), never with a hue.",
+      "Do nest corners concentrically: inner radius equals outer radius minus the gap."
     ],
     "donts": [
       "Don't introduce an accent color; the interface is neutral by commitment, and the scene art is the only exception.",
       "Don't raise font size for hierarchy; the system is one size, article titles included.",
       "Don't show a post's seed or any technical scene parameter to the reader.",
       "Don't use drop shadows or solid borders on containers; use the 1px inset ring.",
-      "Don't ship a light theme; the system is dark only."
+      "Don't ship a light theme; the system is dark only.",
+      "Don't set readable text below 14px; the 9px language badge is a mark, hidden from assistive tech, and the only exception."
     ]
   }
 }

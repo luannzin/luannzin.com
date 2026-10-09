@@ -100,6 +100,15 @@ export function CheckIcon(props: IconProps) {
   return <Stroke d="M5.75 12.75L10 17L18.25 7" {...props} />;
 }
 
+export function CopyIcon(props: IconProps) {
+  return (
+    <Stroke
+      d="M8.75 8.75V6.75C8.75 5.64543 9.64543 4.75 10.75 4.75H17.25C18.3546 4.75 19.25 5.64543 19.25 6.75V13.25C19.25 14.3546 18.3546 15.25 17.25 15.25H15.25M6.75 8.75H13.25C14.3546 8.75 15.25 9.64543 15.25 10.75V17.25C15.25 18.3546 14.3546 19.25 13.25 19.25H6.75C5.64543 19.25 4.75 18.3546 4.75 17.25V10.75C4.75 9.64543 5.64543 8.75 6.75 8.75Z"
+      {...props}
+    />
+  );
+}
+
 export function GlobeIcon(props: IconProps) {
   return (
     <Svg {...props}>

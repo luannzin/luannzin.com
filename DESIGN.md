@@ -7,6 +7,7 @@ colors:
   ink-soft: "#b2b2b2"
   ink-muted: "#818181"
   tile: "#1f1f1f"
+  well: "#1c1c1c"
   hairline: "#242424"
   focus-ring: "#737373"
 typography:
@@ -33,6 +34,12 @@ typography:
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.7
+    letterSpacing: "normal"
+  mono-label:
+    fontFamily: "Geist Mono, ui-monospace, monospace"
+    fontSize: "14px"
+    fontWeight: 400
+    lineHeight: 1.5
     letterSpacing: "normal"
 rounded:
   sm: "6px"
@@ -96,10 +103,57 @@ components:
     rounded: "{rounded.sm}"
     padding: "2px 6px"
   code-block:
-    backgroundColor: "{colors.tile}"
+    backgroundColor: "{colors.well}"
     typography: "{typography.code}"
     rounded: "{rounded.row}"
-    padding: "16px 24px"
+    padding: "12px 24px 16px"
+  code-header:
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.mono-label}"
+    padding: "12px 24px 0"
+  code-badge:
+    backgroundColor: "#323232"
+    textColor: "{colors.ink}"
+    rounded: "4px"
+    size: "16px"
+  code-copy:
+    textColor: "{colors.ink-muted}"
+    rounded: "8px"
+    size: "28px"
+  code-copy-hover:
+    textColor: "{colors.ink}"
+  flow-node:
+    backgroundColor: "{colors.tile}"
+    textColor: "{colors.ink}"
+    typography: "{typography.mono-label}"
+    rounded: "{rounded.row}"
+    padding: "8px"
+  flow-node-lit:
+    backgroundColor: "#262626"
+  flow-icon:
+    backgroundColor: "#242424"
+    textColor: "{colors.ink-muted}"
+    rounded: "{rounded.sm}"
+    size: "36px"
+  flow-icon-lit:
+    backgroundColor: "#323232"
+    textColor: "{colors.ink}"
+  flow-label:
+    backgroundColor: "{colors.ground}"
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.mono-label}"
+    rounded: "{rounded.sm}"
+    padding: "0 8px"
+  frame:
+    backgroundColor: "{colors.well}"
+    rounded: "{rounded.row}"
+    padding: "40px"
+  frame-image:
+    rounded: "{rounded.tile}"
+  scene-card:
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.body}"
+    rounded: "{rounded.tile}"
   avatar:
     rounded: "{rounded.full}"
     size: "40px"
@@ -117,8 +171,10 @@ The world is brief-pinned. Its form follows the user's four reference sites (Jak
 
 Writing extends the column without changing it. A post is the same column plus one living figure: a seeded halftone scene (time of day, place, landmark) drawn as dithered dots on a canvas. That figure is the only colour in the world, and it is art, not interface. Everything around it (breadcrumb, title, contents, prose, code) stays in the ink tiers at one size.
 
+Articles also carry four richer blocks, all authored in markdown and rendered to static HTML at build time: a code box with a file header, a flow diagram, a framed image, and a gallery of live scenes. They stay in the same neutral tiers; the gallery is the Art Exception repeated, not a new one. The few parts that need the client (copy buttons, live scenes) mount into placeholders the HTML leaves.
+
 **Key Characteristics:**
-- Single 576px column, top-left aligned; the article figure and the contents rail are the only things allowed outside it.
+- Single 576px column, top-left aligned; the article figure, framed images, scene galleries, code boxes and the contents rail are the only things allowed outside it.
 - One type size (16px); hierarchy by weight (500 vs 400) and ink tier. Code is the one deliberate step down (Geist Mono 14px).
 - Neutral greys only in the interface; full colour lives inside the seeded scene art and nowhere else.
 - Hairline underlines and inset 1px rings instead of borders and shadows.
@@ -133,8 +189,9 @@ A strictly neutral, near-black palette resolved from the coss UI dark tokens (`.
 - **Paper White Ink** (`--foreground`): names, headings, link text, the current breadcrumb crumb, the active contents entry; the only full-strength text.
 - **Soft Ink** (`--foreground` at 70%): long-form bio and article prose, so links and bold in it stand forward.
 - **Muted Ink** (`--muted-foreground`): role line, project and post descriptions, article meta and scene caption, breadcrumb parent, Copy link at rest, contents entries at rest, list markers, heading "#" anchors, resting tile icons, the hover arrows.
-- **Tile Grey** (`--muted`, white at 4%): fill of project icon tiles, inline code, and code blocks.
-- **Hairline** (`--border`, white at 6%): inset 1px ring on tiles, inline code, code blocks, and the contents disclosure; also the rule under table rows and the `hr`.
+- **Tile Grey** (`--muted`, white at 4%): fill of project icon tiles, inline code, and flow diagram nodes.
+- **Well Grey** (white at 2.5%): the recessed fill behind code boxes and framed images; a shade quieter than Tile Grey so the content inside, not the box, is what reads.
+- **Hairline** (`--border`, white at 6%): inset 1px ring on tiles, inline code, code boxes, framed images, flow nodes, flow icon tiles and arrow labels, and the contents disclosure; also the rule under table rows and the `hr`.
 - **Focus Grey** (`--ring`): 2px keyboard focus outline.
 
 ### Scene Art
@@ -145,7 +202,9 @@ Each post's scene picks its own palette from its seed (a time of day: night, twi
 
 **The Art Exception.** The seeded scene is the one place full colour is allowed, and it stays inside the art. Scene colour never reaches text, links, rings, or fills outside the canvas. The seed is never shown; the scene is captioned only by its generated two-word name (time word plus place word, first letter capitalised) in Muted Ink.
 
-**The Three Tiers Rule.** Text uses exactly three tones: full ink for things you can act on or name, soft ink for prose, muted ink for supporting lines. A fourth tone is drift. Syntax highlighting in code is the scoped case: it stays on the same neutral axis (keywords, classes and entities full ink; identifiers, properties and JSX text at 80%; strings at 60%; punctuation and comments muted), never hued.
+**The Three Tiers Rule.** Text uses exactly three tones: full ink for things you can act on or name, soft ink for prose, muted ink for supporting lines. A fourth tone is drift. Syntax highlighting in code is the scoped case: it stays on the same neutral axis (keywords, classes and entities full ink; identifiers, properties and JSX text at 80%; strings at 60%; punctuation and comments muted), never hued. Code line numbers are the other scoped case: gutter marks at ink 28%, below muted, because they are a ruler, not text.
+
+**The Lit Node Rule.** Inside article blocks, emphasis is a step up the same neutral axis, never a hue. A lit flow node takes a stronger fill (ink at 7%) and ring (ink at 18%), and its icon goes to full ink on an ink-at-12% tile; a marked code line takes a full-width ink-at-6% band.
 
 ## Typography
 
@@ -159,6 +218,8 @@ Each post's scene picks its own palette from its seed (a time of day: night, twi
 - **Body** (400, 16px, 1.625): bio and article prose in Soft Ink, `text-wrap: pretty`, within the 576px column (about 65-70ch).
 - **Label** (400, 16px, 1.375): header role line, project and post row name/description pairs, article meta line ("date · N min read"), contents entries; tighter so pairs read as one unit.
 - **Code** (400, Geist Mono 14px, 1.7): code blocks at 14px; inline code at 0.875em of its surroundings. Mono runs large, so 14px Geist Mono optically matches 16px Inter. This is a deliberate step, not an off-ramp size.
+- **Mono Label** (400, Geist Mono 14px, 1.5): the code box header (file name) and all flow diagram text (node titles at 500 in full ink, notes and arrow labels in Muted Ink). The code step at a tighter leading, for one-line labels.
+- **Language badge** (600, Geist Mono 9px, in a 16px tile): not text but a mark, treated as an icon and hidden from assistive tech; the file name beside it carries the meaning. No other text goes below 14px.
 
 ### Named Rules
 **The One Size Rule.** All text is 16px, article titles included (user-confirmed). New sections get hierarchy from weight 500, ink tier, and space, not from a larger size. The only exception is code, set at 14px / 0.875em so it matches Inter optically.
@@ -171,16 +232,23 @@ Vertical rhythm on home, as built: avatar to name/role 12px apart horizontally; 
 
 Article, as built: top padding 24px (40px from sm); the breadcrumb row; title and meta 64px below (80px from sm); the scene figure 32px below the meta, its caption 12px under it; the body 48px below the figure; the author footer 80px below the body; bottom padding 96px. Inside the prose: blocks 16px apart, 48px above an h2, 32px above an h3, 12px from a heading to its first block, list items 8px apart, 48px around an `hr`. Headings scroll into place with a 48px top margin; smooth scrolling only under `prefers-reduced-motion: no-preference`.
 
+Article blocks get more air than paragraphs: 24px above and below a code box, 32px above and below a flow diagram, a framed image, or a scene gallery.
+
 Breakouts are the only departures from the column:
 - **Scene figure:** full-bleed (column gutters cancelled) below sm; inside the column from sm; breaking out 64px each side at lg. Its caption realigns with the column text at each step.
-- **Code blocks:** hang 24px into each gutter at every width, so code text lines up with the prose beside it.
+- **Code boxes:** full-bleed on phones (the 24px gutters cancelled); from sm they hang 24px into each gutter as a rounded box, so code text lines up with the prose beside it.
+- **Framed images:** full-bleed on phones, inside the column from sm, breaking out 64px each side at lg like the scene figure; the caption realigns with the column text at each step.
+- **Scene galleries:** two columns at every width (20px between rows, 12px between columns), inside the column on phones, breaking out 64px each side at lg with 16px columns.
+- **Flow diagrams:** stay in the column. From sm, two nodes per row with a 64px arrow track between them, and a turn connector (40px on phones, 56px from sm) leading down to the next row; on phones every node stacks in one column joined by vertical arrows.
 - **Contents rail:** from xl, a 240px sticky rail (48px from the top) sits 64px left of the column. Below xl it becomes a disclosure 40px above the prose.
 
 Breakpoints in use: sm 640px, lg 1024px, xl 1280px.
 
 ## Elevation & Depth
 
-Flat. There are no drop shadows. Depth is tonal: a tile sits on the ground as a 4% white fill with a 1px inset ring in Hairline (`box-shadow: inset 0 0 0 1px var(--border)`), which reads as an edge rather than a lift. Inline code, code blocks (from sm), and the contents disclosure use the same ring. Images and art (avatar, project marks, scene tile, scene figure from sm) use a 1px white-at-10% outline drawn 1px inside the edge so they never bleed into the ground. On phones the full-bleed code block keeps only top and bottom inset hairlines, and the full-bleed figure carries no outline at all.
+Flat. There are no drop shadows. Depth is tonal: a tile sits on the ground as a 4% white fill with a 1px inset ring in Hairline (`box-shadow: inset 0 0 0 1px var(--border)`), which reads as an edge rather than a lift. Inline code, flow nodes, code boxes and framed images (from sm), and the contents disclosure use the same ring; code boxes and frames sit in Well Grey, flow nodes in Tile Grey. Images and art (avatar, project marks, scene tile, scene figure from sm) use a 1px white-at-10% outline drawn 1px inside the edge so they never bleed into the ground. On phones the full-bleed code box and framed image keep only top and bottom inset hairlines, and the full-bleed figure carries no outline at all. Images inside a frame and scenes in a gallery take the art edge.
+
+Flow diagram connectors are drawn in hairline strokes too: a 1px line at ink 25%, starting from a 5px dot at ink 60% and ending in a 7px open chevron at ink 45%. Turns between rows bend with 8px rounded elbows. An arrow label sits on the line as a small Ground-filled tag with a Hairline ring, so the line appears to pass behind it.
 
 Text-level rules are hairlines too: table rows and `hr` take a 1px Hairline rule; blockquotes a 1px ink-at-20% bar at their start edge. These mark text, not containers.
 
@@ -189,7 +257,9 @@ Text-level rules are hairlines too: table rows and `hr` take a 1px Hairline rule
 
 ## Shapes
 
-Soft, small corners. Tiles use 10px (the coss `--radius`, 0.625rem); larger containers (scene figure from sm, code blocks from sm, contents disclosure) and row focus outlines use 14px, concentric with the tile at its 4px offset; inline-link, inline-code, breadcrumb, Copy link, contents entry and heading-anchor focus use 6px. The avatar is a full circle. Anything full-bleed on a phone (scene figure, code block) has square corners, because it meets the screen edge. Icons are Central Icons, round-outlined, radius 2, 1.5px stroke, always `currentColor`, never filled glyphs; the set includes arrow-up-right, arrow-right, chevron-right, link and check.
+Soft, small corners. Tiles use 10px (the coss `--radius`, 0.625rem); larger containers (scene figure from sm, code blocks from sm, contents disclosure) and row focus outlines use 14px, concentric with the tile at its 4px offset; inline-link, inline-code, breadcrumb, Copy link, contents entry, heading-anchor focus, flow icon tiles and arrow labels use 6px. The code copy button uses 8px; the language badge 4px. The avatar is a full circle. Anything full-bleed on a phone (scene figure, code block) has square corners, because it meets the screen edge. Icons are Central Icons, round-outlined, radius 2, 1.5px stroke, always `currentColor`, never filled glyphs; the set includes arrow-up-right, arrow-right, chevron-right, link, check and copy. Flow diagrams draw Central-style strokes inline in the static HTML (hash, layers, grid, image, file), falling back to file.
+
+**The Concentric Corner Rule.** A rounded thing inside a rounded thing takes the outer radius minus the gap between them: a flow node is 14px because its 6px icon tile sits 8px in; a row's focus outline is 14px because it sits 4px outside a 10px tile.
 
 ## Components
 
@@ -218,6 +288,7 @@ The living figure, the world's one exception.
 - **Form:** a 2:1 canvas of dithered dots in the seed's full colour, on its own sky ground.
 - **Life:** animates at 15fps (clouds, stars, water, beam, lamps) only while on screen. On the article, a mouse pointer carries a small warm light the water reflects, and a tap drops a shooting star in the sky or a ripple on the water (up to 4 at once, each fading over 2.5s).
 - **Still:** under reduced motion it draws one frame and stays still; no pointer light, no taps.
+- **Hover play:** inside a link (the home tile) or a card marked to play on hover (the scene gallery), it holds still until that container is hovered or focused.
 - **Label:** the wrapper is `role="img"` with "An animated scene drawn in dots: [name]"; the caption shows the name only.
 
 ### Article Breadcrumb
@@ -246,7 +317,36 @@ The article body, rendered from markdown, in the three ink tiers.
 - **Blockquote:** full ink, 16px start padding, 1px ink-at-20% bar.
 - **Tables:** full width, tabular numerals, 8px vertical cell padding, 16px end padding, a Hairline rule under every row; no fills, no vertical rules.
 - **Inline code:** Geist Mono at 0.875em, full ink, Tile Grey fill, inset Hairline ring, 6px corners, 2px by 6px padding.
-- **Code block:** Geist Mono 14px at 1.7, Tile Grey fill, 16px by 24px padding, 2-space tabs, horizontal scroll with a thin ink-at-15% scrollbar, hanging 24px into each gutter. Phones: square corners, top and bottom hairlines only. From sm: 14px corners and a full inset ring. Highlighting per the Three Tiers Rule.
+- **Code:** every fenced block renders as a Code Box (below), unless it is a flow or scenes block.
+
+### Code Box
+A fenced code block with a header. Authored as ```` ```lang title="file" {marked lines} ````.
+- **Box:** Well Grey fill; full-bleed on phones with top and bottom hairlines, from sm a 14px-corner box with an inset Hairline ring, hanging 24px into the gutters.
+- **Header:** Mono Label in Muted Ink, 12px by 24px padding above the code, 8px gaps: the language badge, the file name (or the language name when untitled, truncated to one line), and the copy button at the end edge.
+- **Language badge:** a 16px tile, 4px corners, ink-at-12% fill, the short language name (TS, TSX, CSS, SH...) in 9px Geist Mono 600 full ink. It is an icon, not a label.
+- **Copy:** an icon-only button (16px copy icon in a 28px hit area, 8px corners), Muted Ink rising to full ink in 150ms, pressing to 0.96. On copy the icon rolls to check with the Action Swap motion and returns after 2s; it is labelled "Copy code" / "Copied" and a polite live region announces the result.
+- **Code:** Geist Mono 14px at 1.7, 12px top and 16px bottom padding, 24px sides, 2-space tabs, horizontal scroll with a thin ink-at-15% scrollbar. Highlighting per the Three Tiers Rule.
+- **Line numbers:** only when the block has two or more lines; right-aligned in 2ch, 20px before the code, ink at 28%.
+- **Marked lines:** a band of ink at 6% across the full width of the box, reaching the end edge even when the code scrolls.
+
+### Flow Diagram
+A small process diagram, authored as ```` ```flow ````: one node per line as "title | note | icon | lit"; a line without a pipe labels the next arrow.
+- **Node:** Tile Grey fill, inset Hairline ring, 14px corners, 8px padding, 12px gap; a 36px icon tile (6px corners, ink-at-6% fill, Hairline ring, 18px icon in Muted Ink) beside the title (Mono Label 500, full ink) over the note (Muted Ink). Both lines truncate rather than wrap.
+- **Lit node:** per the Lit Node Rule; use it for the start and the end, or the one step the prose is about.
+- **Arrows:** per Elevation & Depth; labels centred on the arrow from sm, set beside the stem on phones.
+- **Reading order:** left to right, two per row, then a turn down to the next row's first node, like reading text. One column on phones.
+- **Accessibility:** the whole figure is one image named "Diagram: A, then B, then C"; connectors are hidden.
+
+### Framed Image
+An image alone in its paragraph becomes a figure; its markdown title is the caption.
+- **Frame:** Well Grey, 24px padding on phones (full-bleed, top and bottom hairlines), 40px from sm with 14px corners and an inset ring; 64px breakout at lg.
+- **Image:** centred, never wider than the frame, 10px corners with the art edge. Screenshots are exported at 2x; their PNG size is read at build time and halved, so the frame reserves its space and the image draws at 1x.
+- **Caption:** Muted Ink, 12px below, aligned with the column text.
+
+### Scene Gallery
+A grid of live scenes from other seeds, authored as ```` ```scenes ```` with a list of seeds.
+- **Card:** a 2:1 Scene Art slot, 10px corners, art edge, painted in its sky ground until the live scene mounts; the generated name below in Muted Ink, 8px under, first letter capitalised.
+- **Life:** each scene holds still and plays only while its card is hovered, the same rule as the home tile.
 
 ### Author Footer
 The article ends on the home header's identity row (40px avatar, name underlined in full ink, role in Muted Ink) as one link back home, 80px below the body; focus 4px offset, 14px corners.
@@ -273,6 +373,8 @@ On an article the same grammar runs once: breadcrumb at 0ms, title words (TextRe
 - **Do** keep scene colour inside the canvas, and caption a scene with its generated name only.
 - **Do** set code in Geist Mono at 14px (0.875em inline) so it matches Inter 16px optically.
 - **Do** let full-bleed elements on phones go square and edge-to-edge; give them 14px corners and an inset edge once they sit inside the column.
+- **Do** mark what matters in an article block by stepping up the neutral axis (a lit node, a marked line), never with a hue.
+- **Do** nest corners concentrically: inner radius equals outer radius minus the gap.
 
 ### Don't:
 - **Don't** introduce an accent color; the interface is neutral by commitment, and the scene art is the only exception.
@@ -280,3 +382,4 @@ On an article the same grammar runs once: breadcrumb at 0ms, title words (TextRe
 - **Don't** show a post's seed or any technical scene parameter to the reader.
 - **Don't** use drop shadows or solid borders on containers; use the 1px inset ring.
 - **Don't** ship a light theme; the system is dark only.
+- **Don't** set readable text below 14px; the 9px language badge is a mark, hidden from assistive tech, and the only exception.

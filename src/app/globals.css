@@ -366,25 +366,365 @@
       font-size: 0.875em;
     }
 
+    /* Blocks get more air than paragraphs. */
+    & > :is(.code, pre) {
+      margin-top: 1.5rem;
+    }
+    & > :is(.code, pre) + * {
+      margin-top: 1.5rem;
+    }
+    & > :is(.flow, .scenes, .frame) {
+      margin-top: 2rem;
+    }
+    & > :is(.flow, .scenes, .frame) + * {
+      margin-top: 2rem;
+    }
+
     & pre {
-      margin-inline: -1.5rem;
-      padding: 1rem 1.5rem;
       overflow-x: auto;
-      background: var(--muted);
-      box-shadow:
-        inset 0 1px 0 var(--border),
-        inset 0 -1px 0 var(--border);
       font-size: 0.875rem;
       line-height: 1.7;
       tab-size: 2;
       scrollbar-width: thin;
       scrollbar-color: --alpha(var(--foreground) / 15%) transparent;
+    }
 
-      /* From sm up the box hangs into the gutter so code lines up with the
-         prose beside it. */
+    /* Code: a box with its file name, a copy button and line numbers. Full
+       bleed on phones; from sm it hangs into the gutter so the code lines up
+       with the prose beside it. */
+    & .code {
+      margin-inline: -1.5rem;
+      background: --alpha(var(--foreground) / 2.5%);
+      box-shadow:
+        inset 0 1px 0 var(--border),
+        inset 0 -1px 0 var(--border);
+
       @variant sm {
         border-radius: 14px;
         box-shadow: inset 0 0 0 1px var(--border);
+      }
+
+      & figcaption {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem 0;
+        color: var(--muted-foreground);
+        font-family: var(--font-mono);
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+      /* The language, set as a small mark like a file icon. */
+      & .code-badge {
+        display: inline-grid;
+        place-items: center;
+        flex: none;
+        min-width: 1rem;
+        height: 1rem;
+        padding-inline: 0.1875rem;
+        border-radius: 4px;
+        background: --alpha(var(--foreground) / 12%);
+        color: var(--foreground);
+        font-size: 0.5625rem;
+        font-weight: 600;
+        line-height: 1;
+      }
+      & .code-title {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      & [data-island="copy"] {
+        display: grid;
+        flex: none;
+        width: 1rem;
+        height: 1rem;
+      }
+      & pre {
+        padding: 0.75rem 1.5rem 1rem;
+      }
+      /* as wide as its longest line, so marks reach the end on scroll */
+      & code {
+        display: inline-block;
+        min-width: 100%;
+        counter-reset: line;
+      }
+      &[data-lines] .sh__line::before {
+        counter-increment: line;
+        content: counter(line);
+        display: inline-block;
+        width: 2ch;
+        margin-inline-end: 1.25rem;
+        color: --alpha(var(--foreground) / 28%);
+        text-align: end;
+      }
+      /* A marked line runs the full width of the box. */
+      & .sh__line[data-mark] {
+        display: inline-block;
+        min-width: calc(100% + 3rem);
+        margin-inline: -1.5rem;
+        padding-inline: 1.5rem;
+        background: --alpha(var(--foreground) / 6%);
+      }
+    }
+
+    /* Diagrams: nodes in mono, two a row, joined by arrows that turn down to
+       the next row. On phones they run in one column. */
+    & .flow {
+      --line: --alpha(var(--foreground) / 25%);
+      --stem: 1.625rem; /* the icon's centre, from a node's edge */
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    & .flow-row {
+      display: grid;
+
+      @variant sm {
+        grid-template-columns: minmax(0, 1fr) 4rem minmax(0, 1fr);
+        align-items: center;
+      }
+    }
+    & .flow-node {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+      padding: 0.5rem;
+      border-radius: 14px;
+      background: var(--muted);
+      box-shadow: inset 0 0 0 1px var(--border);
+
+      &[data-lit] {
+        background: --alpha(var(--foreground) / 7%);
+        box-shadow: inset 0 0 0 1px --alpha(var(--foreground) / 18%);
+      }
+    }
+    & .flow-icon {
+      display: grid;
+      place-items: center;
+      flex: none;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 6px;
+      background: --alpha(var(--foreground) / 6%);
+      box-shadow: inset 0 0 0 1px var(--border);
+      color: var(--muted-foreground);
+
+      & svg {
+        width: 1.125rem;
+        height: 1.125rem;
+      }
+    }
+    & .flow-node[data-lit] .flow-icon {
+      background: --alpha(var(--foreground) / 12%);
+      color: var(--foreground);
+    }
+    & .flow-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    & :is(.flow-title, .flow-note) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    & .flow-title {
+      color: var(--foreground);
+      font-weight: 500;
+    }
+    & .flow-note {
+      color: var(--muted-foreground);
+    }
+    & .flow-label {
+      position: absolute;
+      top: 50%;
+      inset-inline-start: calc(var(--stem) + 1rem);
+      translate: 0 -50%;
+      padding-inline: 0.5rem;
+      border-radius: 6px;
+      background: var(--background);
+      box-shadow: inset 0 0 0 1px var(--border);
+      color: var(--muted-foreground);
+      white-space: nowrap;
+
+      @variant sm {
+        inset-inline-start: 50%;
+        translate: -50% -50%;
+      }
+    }
+    /* every connector starts at a dot and ends in a chevron */
+    & :is(.flow-dot, .flow-head) {
+      position: absolute;
+    }
+    & .flow-dot {
+      top: -2px;
+      left: -2px;
+      width: 5px;
+      height: 5px;
+      border-radius: 9999px;
+      background: --alpha(var(--foreground) / 60%);
+    }
+    & .flow-head {
+      bottom: 1px;
+      left: -3px;
+      width: 7px;
+      height: 7px;
+      border-right: 1px solid --alpha(var(--foreground) / 45%);
+      border-bottom: 1px solid --alpha(var(--foreground) / 45%);
+      rotate: 45deg;
+    }
+    /* an arrow inside a row: down on phones, across from sm */
+    & .flow-arrow {
+      position: relative;
+      width: 1px;
+      height: 1.75rem;
+      margin-inline-start: var(--stem);
+      background: var(--line);
+
+      @variant sm {
+        width: auto;
+        height: 1px;
+        margin-inline: 0.5rem;
+
+        & .flow-head {
+          top: -3px;
+          right: 1px;
+          bottom: auto;
+          left: auto;
+          rotate: -45deg;
+        }
+      }
+    }
+    /* the turn between rows: down from the node above, across, and down
+       into the first node of the next row */
+    & .flow-turn {
+      position: relative;
+      height: 2.5rem;
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: var(--stem);
+        border-inline-start: 1px solid var(--line);
+      }
+      & .flow-dot {
+        left: calc(var(--stem) - 2px);
+      }
+      & .flow-head {
+        left: calc(var(--stem) - 3px);
+      }
+
+      @variant sm {
+        height: 3.5rem;
+        /* from the centre of the right-hand node to the left-hand one */
+        margin-inline: calc((100% - 4rem) / 4);
+
+        &::before {
+          inset-block: 0 50%;
+          inset-inline: 0.5rem 0;
+          border-inline-start: 0;
+          border-right: 1px solid var(--line);
+          border-bottom: 1px solid var(--line);
+          border-bottom-right-radius: 0.5rem;
+        }
+        &::after {
+          content: "";
+          position: absolute;
+          top: calc(50% - 1px);
+          bottom: 0;
+          left: 0;
+          width: calc(0.5rem + 1px);
+          border-top: 1px solid var(--line);
+          border-left: 1px solid var(--line);
+          border-top-left-radius: 0.5rem;
+        }
+        & .flow-dot {
+          left: auto;
+          right: -2px;
+        }
+        & .flow-head {
+          left: -3px;
+        }
+      }
+    }
+
+    /* Images: framed, breaking out of the column like the scene at the top. */
+    & .frame {
+      margin-inline: -1.5rem;
+
+      @variant sm {
+        margin-inline: 0;
+      }
+      @variant lg {
+        margin-inline: -4rem;
+      }
+
+      & figcaption {
+        margin-top: 0.75rem;
+        padding-inline: 1.5rem;
+        color: var(--muted-foreground);
+
+        @variant sm {
+          padding-inline: 0;
+        }
+        @variant lg {
+          padding-inline: 4rem;
+        }
+      }
+    }
+    & .frame-media {
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
+      background: --alpha(var(--foreground) / 2.5%);
+      box-shadow:
+        inset 0 1px 0 var(--border),
+        inset 0 -1px 0 var(--border);
+
+      @variant sm {
+        padding: 2.5rem;
+        border-radius: 14px;
+        box-shadow: inset 0 0 0 1px var(--border);
+      }
+
+      & img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        outline: 1px solid rgb(255 255 255 / 0.1);
+        outline-offset: -1px;
+      }
+    }
+
+    /* A gallery of live scenes from other seeds. */
+    & .scenes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.25rem 0.75rem;
+
+      @variant lg {
+        margin-inline: -4rem;
+        gap: 1.25rem 1rem;
+      }
+    }
+    & .scene-slot {
+      aspect-ratio: 2 / 1;
+      overflow: hidden;
+      border-radius: 10px;
+      outline: 1px solid rgb(255 255 255 / 0.1);
+      outline-offset: -1px;
+    }
+    & .scene-card figcaption {
+      margin-top: 0.5rem;
+      color: var(--muted-foreground);
+
+      &::first-letter {
+        text-transform: uppercase;
       }
     }
 

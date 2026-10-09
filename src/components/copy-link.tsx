@@ -9,13 +9,8 @@ import {
 
 type State = "idle" | "copied" | "failed";
 
-const label: Record<State, string> = {
-  idle: "Copy link",
-  copied: "Copied",
-  failed: "Copy failed",
-};
-
-export function CopyLink() {
+// Copies text and reports how it went for two seconds, then settles.
+export function useCopy() {
   const [state, setState] = useState<State>("idle");
 
   useEffect(() => {
@@ -24,22 +19,28 @@ export function CopyLink() {
     return () => clearTimeout(timer);
   }, [state]);
 
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(
-        window.location.origin + window.location.pathname,
-      );
-      setState("copied");
-    } catch {
-      setState("failed");
-    }
-  }
+  const copy = (text: string) =>
+    navigator.clipboard.writeText(text).then(
+      () => setState("copied"),
+      () => setState("failed"),
+    );
+  return [state, copy] as const;
+}
+
+const label: Record<State, string> = {
+  idle: "Copy link",
+  copied: "Copied",
+  failed: "Copy failed",
+};
+
+export function CopyLink() {
+  const [state, copy] = useCopy();
 
   return (
     <>
       <button
         type="button"
-        onClick={copy}
+        onClick={() => copy(window.location.origin + window.location.pathname)}
         className="-my-1 -me-2 flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm px-2 py-1 text-muted-foreground transition-[color,scale] duration-150 hover:text-foreground active:scale-[0.96]"
       >
         <ActionSwapText value={state}>{label[state]}</ActionSwapText>

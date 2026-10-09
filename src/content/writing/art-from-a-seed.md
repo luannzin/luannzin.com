@@ -13,7 +13,7 @@ I wanted the pictures to belong to the posts without making cover images I would
 
 The seed comes from the post's frontmatter, or from a hash of its slug when the post leaves it out. A tiny random number generator, mulberry32, turns it into a stream of numbers between 0 and 1, and every decision the scene makes reads the next one from that stream:
 
-```ts
+```ts title="src/lib/scene.ts" {11-13}
 function mulberry32(a: number) {
   return () => {
     a = (a + 0x6d2b79f5) | 0;
@@ -25,7 +25,7 @@ function mulberry32(a: number) {
 
 const random = mulberry32(seed);
 const time = weighted(random, {
-  night: 3, twilight: 2, dusk: 2, dawn: 1.5, aurora: 2,
+  night: 2, twilight: 1.5, dusk: 2.5, dawn: 2, aurora: 2,
 });
 const side = random() < 0.5 ? -1 : 1;
 ```
@@ -42,9 +42,25 @@ A scene is put together from a few kinds of parts, and the seed picks one of eac
 | Place | Coast, fjord, lake, valley, dunes | Which ranges rise, and whether there is water |
 | Landmark | Lighthouse, cabin, windmill, boat | What stands in it, and which lights it holds |
 
+The same code, four other seeds. Hover one to set it moving:
+
+```scenes
+4 13 16 10
+```
+
 The name under the picture comes from the same choices: a word for the time and a word for the place, like the one above.
 
 ## Shading every cell
+
+From the seed to the screen, a scene passes through four steps. The first two run once; the last two run every frame:
+
+```flow
+seed | one number | hash | lit
+createScene | picks every part | layers
+renderer(cols, rows)
+frame(t) | shades every cell | grid
+canvas | redraws changed dots | image | lit
+```
 
 The frame is a grid of cells, about one for every four and a half pixels of width, and each cell is shaded in full colour before anything is drawn.
 
@@ -58,7 +74,7 @@ Water is shaded last. For each cell below the horizon, the scene looks up at the
 
 Each cell becomes one dot, in one of three sizes or none, the way a printed halftone does it. The brightest cells get the largest dots. A four-by-four ordered dither decides between neighbouring sizes, so a smooth gradient turns into an even texture instead of hard bands:
 
-```ts
+```ts title="src/lib/scene.ts" {2}
 const level = floor + (1 - floor) * peak ** 0.85 * 0.95;
 const dither = bayer[(row & 3) * 4 + (col & 3)];
 const step = Math.round(level * 3 + dither);
@@ -77,6 +93,8 @@ The scene draws on a canvas, fifteen frames a second. Every cell owns a whole-pi
 - **Rest:** the scene stops drawing when it scrolls out of view, and it holds still if your system asks for reduced motion.
 
 On the home page, the same seed draws a square crop of the scene inside each post's tile, around its landmark, still until you hover it. Open the post and the tile grows into the picture at the top.
+
+![The Writing list on the home page, with this post's tile](/writing/art-from-a-seed/home-tile.png "The tile is the same scene, cropped close round its landmark.")
 
 ## Where it comes from
 
