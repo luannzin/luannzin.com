@@ -1,0 +1,110 @@
+{
+  "summary": {
+    "health_score": 58,
+    "business_type": "Personal brand / portfolio with engineering blog (Publisher, very small)",
+    "top_findings": [
+      "No robots.txt or sitemap.xml (both 404); site not submitted to Search Console or Bing Webmaster Tools",
+      "No metadataBase or canonical tags; four text/plain twins return 200 without a canonical signal",
+      "No JSON-LD (Person, ProfilePage, BlogPosting) and no rel=\"me\"; off-site profiles don't tie the name 'Luan Fabri' to 'luannzin'",
+      "No Open Graph or Twitter metadata and no og:image, despite Share and Ask AI buttons",
+      "Post content ships inside <div hidden id=\"S:1\">: blank without JS, mobile lab LCP about 4.1 s"
+    ],
+    "quick_wins": [
+      "Add src/app/robots.ts and src/app/sitemap.ts",
+      "Add metadataBase plus per-page alternates.canonical",
+      "Home title: 'Luan Fabri · Front-end engineer'",
+      "Link rel=canonical headers on the Markdown twins in next.config.ts",
+      "GitHub profile name 'Luan Fabri' with the website field set; npm author and homepage for better-intl"
+    ]
+  },
+  "categories": [
+    {
+      "name": "Technical SEO",
+      "score": 60,
+      "what_works": ["308 redirects to the canonical www host", "SSR/SSG, not an SPA", "TTFB 60-75 ms with Vercel cache HIT", "Correct viewport meta", "Real 404 with noindex"],
+      "findings": [
+        {"title": "robots.txt and sitemap.xml return 404", "severity": "High", "description": "No app/robots.ts or app/sitemap.ts; sitemap_discovery found none.", "recommendation": "Add src/app/robots.ts with a Sitemap line, and src/app/sitemap.ts listing / and each post from getPosts()."},
+        {"title": "No metadataBase or canonical tags", "severity": "High", "description": "layout.tsx and the post generateMetadata set no canonical.", "recommendation": "Add metadataBase in layout.tsx; set alternates.canonical in page.tsx and the post generateMetadata, not in the layout."},
+        {"title": "Markdown twins lack a canonical signal", "severity": "Medium", "description": "/index.md, /llms.txt, /writing/<slug>.md and /writing/<slug>/md return 200 text/plain with no Link or X-Robots-Tag header.", "recommendation": "Send Link: <html-url>; rel=\"canonical\" headers from next.config.ts headers()."},
+        {"title": "Only HSTS among security headers", "severity": "Medium", "description": "No nosniff, Referrer-Policy, X-Frame-Options or Permissions-Policy.", "recommendation": "Add them in next.config.ts headers()."},
+        {"title": "External favicon", "severity": "Low", "description": "github.com/luannzin.png?size=64 302-redirects; it is 64 px, not a multiple of 48; /favicon.ico is 404.", "recommendation": "Add a self-hosted src/app/icon.png and apple-icon.png."},
+        {"title": "404 page has two <title> tags", "severity": "Low", "description": "The default not-found page plus layout metadata.", "recommendation": "Add src/app/not-found.tsx with its own metadata."},
+        {"title": "/writing returns 404", "severity": "Low", "description": "The breadcrumb label suggests an index page that doesn't exist.", "recommendation": "Redirect /writing to /#writing until there are about 5 posts."}
+      ]
+    },
+    {
+      "name": "Content Quality",
+      "score": 68,
+      "what_works": ["First-hand, clearly human-written post (Flesch about 80)", "No filler or AI-content markers", "Post scored alone: 86"],
+      "findings": [
+        {"title": "Homepage is thin", "severity": "Medium", "description": "About 110 words, with no contact route or location.", "recommendation": "Add 3-5 true facts and an email link; keep index.md/route.ts in step."},
+        {"title": "Only one post", "severity": "Medium", "description": "better-intl and echo each get only a one-line card.", "recommendation": "Publish a better-intl vs next-intl post, echo build notes, and multi-tenant Next.js lessons."},
+        {"title": "No answer-first summary", "severity": "Low", "description": "The post doesn't open with a quotable statement of the technique.", "recommendation": "Open with 2-3 self-contained sentences."},
+        {"title": "Comma splice in bio", "severity": "Low", "description": "\"front-end engineer at Loopscape, I build...\"", "recommendation": "\"...at Loopscape, where I build...\" in both page.tsx and index.md/route.ts."}
+      ]
+    },
+    {
+      "name": "On-Page SEO",
+      "score": 52,
+      "what_works": ["One H1 per page", "Descriptive internal links between home and the post"],
+      "findings": [
+        {"title": "Post title and description miss search terms", "severity": "High", "description": "The description is 43 characters; 'generative', 'PRNG' and 'javascript' appear 0 times in the prose.", "recommendation": "Add an SEO title, a 140-155 character description, and name each technique in the prose and headings."},
+        {"title": "Home title is the name only", "severity": "Medium", "description": "<title>Luan Fabri</title>", "recommendation": "'Luan Fabri · Front-end engineer'"},
+        {"title": "Byline only in the footer", "severity": "Low", "description": "Author not shown near the post title.", "recommendation": "Add 'By Luan Fabri' to the date line."}
+      ]
+    },
+    {
+      "name": "Schema / Structured Data",
+      "score": 10,
+      "what_works": [],
+      "findings": [
+        {"title": "No Person, ProfilePage or WebSite on home", "severity": "High", "description": "0 JSON-LD, Microdata or RDFa blocks.", "recommendation": "Add a @graph with WebSite and ProfilePage; mainEntity is a Person with @id, alternateName, worksFor and sameAs."},
+        {"title": "No BlogPosting on the post", "severity": "High", "description": "No author, headline or datePublished markup.", "recommendation": "Add BlogPosting with author referencing the Person @id, plus image from the OG image."},
+        {"title": "No BreadcrumbList", "severity": "Medium", "description": "The breadcrumb is visible but not marked up.", "recommendation": "Add a two-item BreadcrumbList."}
+      ]
+    },
+    {
+      "name": "Performance (CWV)",
+      "score": 75,
+      "what_works": ["CLS 0 in every run", "Desktop Lighthouse 100 (home) and 90 (post)", "Home unthrottled LCP 0.22-0.39 s"],
+      "findings": [
+        {"title": "Post content hidden behind a Suspense boundary", "severity": "High", "description": "All of <main> sits in <div hidden id=\"S:1\">, revealed by $RC about 83 KB into the HTML. Post FCP 0.52 s vs home 0.22 s; mobile lab LCP 4.09-4.15 s.", "recommendation": "Await params outside the Suspense (or remove it) with dynamicParams = false; read the Next 16 docs first."},
+        {"title": "High TBT and JS weight", "severity": "Medium", "description": "Mobile TBT 465-514 ms (home) and 668-1248 ms (post); WebGL scene code and full motion on home; 8 canvases hydrate on the post.", "recommendation": "Static thumbnail on home, lazy-init canvases, LazyMotion."},
+        {"title": "Text and enter animations start hidden", "severity": "Medium", "description": "TextReveal writes inline opacity:0 and blur; 12-15 non-composited blur animations with 400-800 ms delays.", "recommendation": "CSS-first reveal behind prefers-reduced-motion; drop the blur; cap delays above the fold."},
+        {"title": "Remote avatar is the home LCP element", "severity": "Medium", "description": "Served from github.com, with a fade-in.", "recommendation": "Self-host the avatar in src/assets."}
+      ]
+    },
+    {
+      "name": "AI Search Readiness",
+      "score": 62,
+      "what_works": ["All tested AI crawlers get 200 with full HTML", "llms.txt plus .md twins with rel=alternate", "Lighthouse Agentic Browsing 3/3; agent UX 100"],
+      "findings": [
+        {"title": "Name not tied to handle or domain off-site", "severity": "High", "description": "GitHub name is 'luan' with no blog field; better-intl on npm has no author or homepage; useecho.dev doesn't name him; no Wikidata.", "recommendation": "Update the profiles, add npm author and homepage, add rel=\"me\" links."},
+        {"title": "Not submitted to Bing", "severity": "Medium", "description": "Bing's index feeds ChatGPT Search and Copilot.", "recommendation": "Submit the sitemap to Bing Webmaster Tools."},
+        {"title": "No community footprint", "severity": "Medium", "description": "No Reddit, Hacker News or YouTube mentions.", "recommendation": "Share the post on r/generative, HN and dev.to."},
+        {"title": "llms.txt summary too thin", "severity": "Low", "description": "The summary line doesn't identify the person.", "recommendation": "Expand it with name, handle, role and projects (confirm facts first)."}
+      ]
+    },
+    {
+      "name": "Images",
+      "score": 84,
+      "what_works": ["Correct decorative alt text", "Canvas hero has role=img and an aria-label", "No overflow at 375 px", "Images have dimensions"],
+      "findings": [
+        {"title": "No og:image or twitter:image", "severity": "High", "description": "The post cover is runtime canvas art, so there's no raster to share.", "recommendation": "Add opengraph-image.tsx at the root and under writing/[slug]."},
+        {"title": "echo logo lazy-loaded in the first viewport", "severity": "Low", "description": "It's small, so the impact is minor.", "recommendation": "Mark it as priority or leave it."}
+      ]
+    }
+  ],
+  "action_plan": {
+    "phases": [
+      {"name": "Phase 1: Foundations", "timeframe": "Week 1", "items": ["metadataBase + per-page canonicals", "robots.ts + sitemap.ts", "Link rel=canonical headers on Markdown twins", "Deploy; submit to Search Console and Bing Webmaster Tools", "Home title + off-site identity + rel=\"me\""]},
+      {"name": "Phase 2: High-Impact Improvements", "timeframe": "Weeks 2-3", "items": ["JSON-LD: WebSite, ProfilePage/Person, BlogPosting, BreadcrumbList", "Open Graph, Twitter and opengraph-image.tsx", "Ship post HTML visible (no hidden Suspense boundary)", "Post SEO title, description and wording", "CSS-first entrance animations; self-host the avatar"]},
+      {"name": "Phase 3: Content & Authority", "timeframe": "Month 2", "items": ["Homepage depth + contact", "2-3 posts: better-intl vs next-intl, echo build notes, multi-tenant Next.js", "JS weight: static thumbnail, lazy canvases, LazyMotion", "Hygiene: security headers, icon.png, not-found.tsx, byline, pre tabindex", "Off-site sharing: r/generative, HN, dev.to"]},
+      {"name": "Phase 4: Monitoring & Iteration", "timeframe": "Ongoing", "items": ["Drift baseline after Phase 1", "Weekly Search Console review", "Configure a Google API key for CrUX field data", "Re-audit after Phase 2; target 80+"]}
+    ]
+  },
+  "artifacts": {
+    "findings_dir": "findings/",
+    "screenshots_dir": null
+  }
+}

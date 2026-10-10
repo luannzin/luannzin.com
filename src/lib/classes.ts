@@ -1,7 +1,9 @@
 // Shared motion and link treatments; DESIGN.md names both.
 
+// Blocks fade and rise only: a blur over a whole section can't run on the
+// compositor, and the staged title keeps the one blur-up.
 export const enter =
-  "motion-safe:animate-in fade-in blur-in-4 slide-in-from-bottom-3 fill-mode-both duration-500 ease-[cubic-bezier(0.2,0,0,1)]";
+  "motion-safe:animate-in fade-in slide-in-from-bottom-3 fill-mode-both duration-500 ease-[cubic-bezier(0.2,0,0,1)]";
 
 // Frame around a 10px list tile: 4px gap, so 14px corners (Concentric Corner Rule).
 export const bezel =

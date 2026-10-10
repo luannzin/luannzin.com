@@ -1,16 +1,15 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import { dots } from "@/lib/dots";
+import { type Dots, dots } from "@/lib/dots";
 import {
   createScene,
   type Frame,
   type Pointer,
   renderer,
-  type Scene,
   START,
   type Tap,
-  type View,
+  viewOf,
 } from "@/lib/scene";
 import { cn } from "@/lib/utils";
 
@@ -22,19 +21,6 @@ const cellSize = (width: number, dpr: number, fine: boolean) =>
   fine ? Math.min(3, 4.5 / dpr) : width < 500 ? 3.4 : 4.5;
 // A frame that takes longer than this, eight in a row, and cells grow.
 const SLOW = 30;
-
-function viewOf(scene: Scene, crop: boolean): View {
-  // the tile is a close square round the landmark, so it still reads at 44px
-  const size = 0.45;
-  return crop
-    ? {
-        x: Math.min(2 - size, Math.max(0, scene.focus - size / 2)),
-        y: Math.min(1 - size, Math.max(0, scene.focusY - size * 0.6)),
-        w: size,
-        h: size,
-      }
-    : { x: 0, y: 0, w: 2, h: 1 };
-}
 
 // One post's scene on a canvas. The full scene is 2:1; `crop` shows a square
 // around its landmark, for the home page tile. `stir` lets the pointer carry a
@@ -55,13 +41,15 @@ export function SceneArt({
   const scene = createScene(seed);
   const view = viewOf(scene, crop);
 
-  // A layout effect, so the first frame is on the canvas before the browser
-  // paints, and before a view transition takes its snapshot.
+  // A layout effect, so a canvas already on screen has its first frame before
+  // the browser paints, and before a view transition takes its snapshot. One
+  // further down takes its GPU context and shades only once it comes near,
+  // so an article's scenes below the fold cost nothing at load.
   useLayoutEffect(() => {
     const canvas = ref.current;
     const view = viewOf(scene, crop);
     if (!canvas) return;
-    const painter = dots(canvas);
+    let painter: Dots | null = null;
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const pointer: Pointer = { x: 0, y: 0, strength: 0 };
     const aim = { x: 0, y: 0, inside: false };
@@ -77,14 +65,17 @@ export function SceneArt({
     let last = 0;
     let raf = 0;
     let visible = false;
-    let engaged = stir;
+    // plays while its link, or a card marked to play on hover, is touched; a
+    // canvas mounted by that touch (the home page tile) starts out playing
+    const link = canvas.closest<HTMLElement>("a, [data-hover-play]");
+    let engaged = stir || !!link?.matches(":hover, :focus-visible");
 
     const paint = () =>
-      painter.draw(frame(clock, pointer, taps), cols, rows, scene.time.ground);
+      painter?.draw(frame(clock, pointer, taps), cols, rows, scene.time.ground);
 
     const layout = () => {
       const width = canvas.clientWidth;
-      if (!width) return;
+      if (!width || !painter) return;
       // a GPU canvas takes every device pixel there is; a 2D one stops at two
       const dpr = Math.min(painter.fine ? 3 : 2, window.devicePixelRatio || 1);
       const height = (width * view.h) / view.w;
@@ -141,13 +132,23 @@ export function SceneArt({
       }
     };
 
-    layout();
+    const wake = () => {
+      if (painter) return;
+      painter = dots(canvas);
+      layout();
+    };
+    const box = canvas.getBoundingClientRect();
+    if (box.bottom > 0 && box.top < window.innerHeight) wake();
     const resize = new ResizeObserver(layout);
     resize.observe(canvas);
-    const seen = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      sync();
-    });
+    const seen = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible) wake();
+        sync();
+      },
+      { rootMargin: "200px 0px" },
+    );
     seen.observe(canvas);
 
     const locate = (event: PointerEvent) => {
@@ -171,8 +172,6 @@ export function SceneArt({
       taps.push({ x: aim.x, y: aim.y, t: clock });
       if (taps.length > 4) taps.shift();
     };
-    // plays while its link, or a card marked to play on hover, is touched
-    const link = canvas.closest<HTMLElement>("a, [data-hover-play]");
     const engage = (on: boolean) => () => {
       engaged = on;
       sync();

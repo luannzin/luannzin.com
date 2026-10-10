@@ -2,17 +2,31 @@ import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
-import { site } from "@/lib/site";
+import { description, openGraph, site } from "@/lib/site";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
+// Mono only sets code and the footer's index.md link, never above the fold,
+// so it loads when used instead of competing with Inter for the first paint.
+const mono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  preload: false,
+});
 
+// Canonicals and the markdown alternates are set by each page: a child's
+// `alternates` replaces the layout's whole, and the 404 page must have none.
 export const metadata: Metadata = {
-  alternates: { types: { "text/markdown": `${site}/index.md` } },
+  metadataBase: new URL(site),
   title: { default: "Luan Fabri", template: "%s · Luan Fabri" },
-  description:
-    "Front-end engineer at Loopscape. Building ERPs and multi-tenant platforms with React and Next.js, plus open source tools like echo and better-intl.",
-  icons: { icon: "https://github.com/luannzin.png?size=64" },
+  description,
+  openGraph: {
+    ...openGraph,
+    type: "website",
+    url: "/",
+    title: "Luan Fabri",
+    description,
+  },
+  twitter: { card: "summary_large_image", creator: "@__luannzin" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -2,6 +2,9 @@
 title: Art from a seed
 description: Every post’s picture, grown from one number
 date: 2026-10-08
+updated: 2026-10-10
+metaTitle: Art from a seed: seeded generative art in TypeScript
+metaDescription: How each post’s generative cover art grows from one seed: a mulberry32 PRNG picks the scene, and WebGL draws it as Bayer-dithered halftone dots.
 seed: 16
 ---
 
@@ -11,7 +14,7 @@ I wanted the pictures to belong to the posts without making cover images I would
 
 ## One number, every choice
 
-The seed comes from the post's frontmatter, or from a hash of its slug when the post leaves it out. A tiny random number generator, mulberry32, turns it into a stream of numbers between 0 and 1, and every decision the scene makes reads the next one from that stream:
+The seed comes from the post's frontmatter, or from a hash of its slug when the post leaves it out. A tiny seeded pseudo-random number generator (PRNG), mulberry32, turns it into a stream of numbers between 0 and 1, and every decision the scene makes reads the next one from that stream:
 
 ```ts title="src/lib/scene.ts"
 function mulberry32(a: number) {
@@ -126,9 +129,9 @@ The reef is the sky turned upside down. The gradient runs from the bright surfac
 - **Lights:** sky lanterns rise at their own depths, the near ones big, low and quick, and the water mirrors the ones above it. Lamps float down the river, and the lighthouse turns its beam.
 - **Life:** petals fall from the cherry tree, a flag streams from the temple, a windmill turns, and a manta ray glides past the reef, its wings rising and falling.
 
-## From colour to dots
+## From colour to halftone dots
 
-Each cell becomes one dot, in one of three sizes or none, the way a printed halftone does it. The brightest cells get the largest dots. A four-by-four ordered dither decides between neighbouring sizes, so a smooth gradient turns into an even texture instead of hard bands. Trimmed down, it is three lines:
+Each cell becomes one dot, in one of three sizes or none, the way a printed halftone does it. The brightest cells get the largest dots. A four-by-four ordered dither, the Bayer matrix, decides between neighbouring sizes, so a smooth gradient turns into an even texture instead of hard bands. Trimmed down, it is three lines:
 
 ```ts title="src/lib/scene.ts" {2}
 const level = floor + (1 - floor) * peak ** 0.75;
@@ -142,7 +145,7 @@ Then the colour makes up what the size could not: a small dot is drawn a little 
 
 The scene draws fifteen frames a second. Light that never moves, like the sky's gradient, the glow round the moon, lamplight in the air and the road of light on the water, is worked out once, and a cloud only when it drifts into view. A frame shades what is left: clouds, stars, rain and water.
 
-Then the GPU draws the dots. The frame goes up as a small texture, one texel a cell, its colour and its dot size. One triangle covers the canvas, and every pixel works out which cell it falls in and how far it is from the middle, so every dot comes out round, with a pixel's worth of soft edge, and a frame costs the same however many dots there are.
+Then the GPU draws the dots, in a WebGL shader. The frame goes up as a small texture, one texel a cell, its colour and its dot size. One triangle covers the canvas, and every pixel works out which cell it falls in and how far it is from the middle, so every dot comes out round, with a pixel's worth of soft edge, and a frame costs the same however many dots there are.
 
 If frames start running slow, eight in a row over 30 milliseconds, the cells grow and there are fewer to shade. Past 320 columns they grow rather than multiply, and without WebGL the dots are filled on a plain canvas, fewer and larger.
 

@@ -26,7 +26,11 @@ ${plainMarkdown(post.body).trim()}
 `;
   // text/plain, not text/markdown: some agents' fetchers (ChatGPT's) refuse
   // text/markdown, and every one of them reads plain text.
+  // the page is the copy to index; this one is for reading
   return new Response(text, {
-    headers: { "Content-Type": "text/plain; charset=utf-8" },
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      Link: `<${site}/writing/${slug}>; rel="canonical"`,
+    },
   });
 }

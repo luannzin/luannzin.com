@@ -755,6 +755,21 @@ function signPixel(i: number, j: number, w: number, h: number, glyph: number) {
 export const START = 12;
 
 export type View = { x: number; y: number; w: number; h: number };
+
+// The window a frame draws: the whole 2:1 scene, or, for a post's tile on the
+// home page, a close square round its landmark, so it still reads at 44px.
+export function viewOf(scene: Scene, crop: boolean): View {
+  const size = 0.45;
+  return crop
+    ? {
+        x: Math.min(2 - size, Math.max(0, scene.focus - size / 2)),
+        y: Math.min(1 - size, Math.max(0, scene.focusY - size * 0.6)),
+        w: size,
+        h: size,
+      }
+    : { x: 0, y: 0, w: 2, h: 1 };
+}
+
 export type Pointer = { x: number; y: number; strength: number };
 export type Tap = { x: number; y: number; t: number };
 

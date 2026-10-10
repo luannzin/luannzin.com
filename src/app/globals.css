@@ -254,6 +254,38 @@
   }
 }
 
+/* TextReveal (text-reveal.tsx): each word rises 20% from a 6px blur, its own
+   --delay after the last. All CSS, so the words are visible in the HTML to
+   anything that reads it, and the motion needs no script. Reduced motion
+   keeps only a short fade. */
+@layer components {
+  .text-reveal {
+    display: inline-block;
+    white-space: pre;
+
+    @media (prefers-reduced-motion: no-preference) {
+      animation: text-reveal 800ms var(--delay, 0s) both
+        cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      animation: text-fade 250ms calc(var(--delay, 0s) * 0.3) both
+        cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+}
+@keyframes text-reveal {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    translate: 0 20%;
+  }
+}
+@keyframes text-fade {
+  from {
+    opacity: 0;
+  }
+}
+
 /* The first cover anyone sees draws an arrow to its dice, as if by hand: the
    line swoops and loops, then the head is outlined and hatched. It fades once
    the dice is rolled. */

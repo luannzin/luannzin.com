@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -16,13 +17,19 @@ import {
   LinkedInIcon,
   LoopscapeIcon,
 } from "@/components/icons";
+import { LiveTile } from "@/components/live-tile";
 import { TextReveal } from "@/components/motion/text-reveal";
-import { SceneArt } from "@/components/scene-art";
 import { bezel, enter, underline } from "@/lib/classes";
-import { site } from "@/lib/site";
+import { home, JsonLd } from "@/lib/json-ld";
+import { profiles, site } from "@/lib/site";
 import { getPosts } from "@/lib/writing";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
+
+export const metadata: Metadata = {
+  title: { absolute: "Luan Fabri · Front-end engineer" },
+  alternates: { canonical: "/", types: { "text/markdown": "/index.md" } },
+};
 
 const projects = [
   {
@@ -50,9 +57,10 @@ const projects = [
 export default function Home() {
   return (
     <main className="mx-auto w-full max-w-xl px-6 pt-20 pb-24 leading-relaxed sm:pt-28">
+      <JsonLd data={home} />
       <header className="flex items-center gap-3">
         <Image
-          src="https://github.com/luannzin.png"
+          src="/avatar.jpg"
           alt=""
           width={40}
           height={40}
@@ -79,23 +87,22 @@ export default function Home() {
           <InlineLink href="https://loopscape.com.br" icon={LoopscapeIcon}>
             Loopscape
           </InlineLink>
-          , I build ERPs and multi-tenant platforms with React and Next.js:
-          software people spend their whole workday in. I care about the details
-          that make it fast and clear to use.
+          , where since 2023 I’ve built ERPs and multi-tenant platforms with
+          React and Next.js: software people spend their whole workday in. I
+          care about the details that make it fast and clear to use.
         </p>
         <p>
           On the side, I build open source tools for problems I keep running
           into. You can see my code on{" "}
-          <InlineLink href="https://github.com/luannzin" icon={GitHubIcon}>
+          <InlineLink href={profiles.github} icon={GitHubIcon} me>
             GitHub
           </InlineLink>
           , follow along on{" "}
-          <InlineLink href="https://x.com/__luannzin">X</InlineLink>, or find me
-          on{" "}
-          <InlineLink
-            href="https://linkedin.com/in/luannzin"
-            icon={LinkedInIcon}
-          >
+          <InlineLink href={profiles.x} me>
+            X
+          </InlineLink>
+          , or find me on{" "}
+          <InlineLink href={profiles.linkedin} icon={LinkedInIcon} me>
             LinkedIn
           </InlineLink>
           .
@@ -156,8 +163,16 @@ export default function Home() {
                     share="morph"
                     default="none"
                   >
-                    <span className="block size-11 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-white/10">
-                      <SceneArt seed={seed} crop />
+                    <span className="relative block size-11 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-white/10">
+                      <Image
+                        src={`/writing/${slug}/tile.png`}
+                        alt=""
+                        width={44}
+                        height={44}
+                        unoptimized
+                        className="block size-full"
+                      />
+                      <LiveTile seed={seed} />
                     </span>
                   </ViewTransition>
                 </span>
@@ -194,18 +209,22 @@ export default function Home() {
   );
 }
 
+// `me` marks a profile that is also the author's, for rel="me".
 function InlineLink({
   href,
   icon: Icon,
+  me,
   children,
 }: {
   href: string;
   icon?: Icon;
+  me?: boolean;
   children: ReactNode;
 }) {
   return (
     <a
       href={href}
+      rel={me ? "me" : undefined}
       className="group whitespace-nowrap rounded-sm text-foreground outline-offset-2"
     >
       {Icon && (

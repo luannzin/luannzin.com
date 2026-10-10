@@ -55,7 +55,8 @@ function ranges(spec?: string) {
 }
 
 // ```ts title="src/lib/scene.ts" {3-5}: a file name, marked lines, a copy
-// button (mounted on the client into its placeholder) and line numbers.
+// button (mounted on the client into its placeholder) and line numbers. The
+// <pre> takes focus, so a keyboard can scroll a line wider than the column.
 function codeBlock(text: string, info: string) {
   const [fence = "", ...rest] = info.trim().split(/\s+/);
   const meta = rest.join(" ");
@@ -74,7 +75,7 @@ function codeBlock(text: string, info: string) {
   );
   const badge =
     fence && fence.length <= 4 ? fence.toUpperCase() : (BADGE[name] ?? "TXT");
-  return `<figure class="code"${line > 1 ? " data-lines" : ""}><figcaption><span class="code-badge" aria-hidden="true">${escapeHtml(badge)}</span><span class="code-title">${escapeHtml(title ?? LANGUAGE[name] ?? fence)}</span><span data-island="copy"></span></figcaption><pre><code>${html}</code></pre></figure>`;
+  return `<figure class="code"${line > 1 ? " data-lines" : ""}><figcaption><span class="code-badge" aria-hidden="true">${escapeHtml(badge)}</span><span class="code-title">${escapeHtml(title ?? LANGUAGE[name] ?? fence)}</span><span data-island="copy"></span></figcaption><pre tabindex="0"><code>${html}</code></pre></figure>`;
 }
 
 // --- flow diagrams -------------------------------------------------------
@@ -229,9 +230,7 @@ export function renderMarkdown(source: string) {
     },
   });
 
-  const html = marked.parse(source, { async: false });
-  const words = source.split(/\s+/).filter(Boolean).length;
-  return { html, toc, minutes: Math.max(1, Math.round(words / 220)) };
+  return { html: marked.parse(source, { async: false }), toc };
 }
 
 // The post as plain markdown for agents (`/writing/[slug].md`): the blocks

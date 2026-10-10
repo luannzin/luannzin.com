@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { ArticleIslands } from "@/components/article-islands";
 import { AskAI } from "@/components/ask-ai";
 import { CoverArt } from "@/components/cover-art";
@@ -11,8 +10,9 @@ import { TextReveal } from "@/components/motion/text-reveal";
 import { Share } from "@/components/share";
 import { Toc } from "@/components/toc";
 import { enter, underline } from "@/lib/classes";
+import { article, JsonLd } from "@/lib/json-ld";
 import { renderMarkdown } from "@/lib/markdown";
-import { site } from "@/lib/site";
+import { openGraph, site } from "@/lib/site";
 import { formatDate, getPost, getPosts } from "@/lib/writing";
 
 export function generateStaticParams() {
@@ -23,41 +23,55 @@ export async function generateMetadata({
   params,
 }: PageProps<"/writing/[slug]">): Promise<Metadata> {
   const post = getPost((await params).slug);
-  return post
-    ? {
-        title: post.title,
-        description: post.description,
-        alternates: {
-          types: { "text/markdown": `${site}/writing/${post.slug}.md` },
-        },
-      }
-    : {};
+  if (!post) return {};
+  const url = `/writing/${post.slug}`;
+  const title = post.metaTitle ?? post.title;
+  const description = post.metaDescription ?? post.description;
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+      types: { "text/markdown": `${url}.md` },
+    },
+    openGraph: {
+      ...openGraph,
+      type: "article",
+      url,
+      title,
+      description,
+      publishedTime: post.date,
+      modifiedTime: post.updated ?? post.date,
+      authors: [site],
+    },
+  };
 }
 
-// `params` is URL data, so the article streams inside Suspense; links to it
-// prefetch with `prefetch={true}`, which resolves it before the click.
-export default function Page({ params }: PageProps<"/writing/[slug]">) {
-  return (
-    <Suspense>
-      <Post params={params} />
-    </Suspense>
-  );
+// The article's HTML, cached: rendering reads image sizes from disk, which a
+// page prerendered outside Suspense may only do inside a cache.
+async function render(body: string) {
+  "use cache";
+  return renderMarkdown(body);
 }
 
-async function Post({
-  params,
-}: {
-  params: PageProps<"/writing/[slug]">["params"];
-}) {
+// Every post is listed in generateStaticParams, so the page awaits `params`
+// outside any Suspense boundary and is prerendered whole: its HTML carries the
+// article visible, not in a hidden boundary waiting on a script to reveal it.
+// So navigating here may block on the page, which is fine: it is prerendered
+// whole and every link to it prefetches it in full.
+export const instant = false;
+
+export default async function Page({ params }: PageProps<"/writing/[slug]">) {
   const { slug } = await params;
   const post = getPost(slug);
   if (!post) notFound();
 
-  const { html, toc, minutes } = renderMarkdown(post.body);
+  const { html, toc } = await render(post.body);
   const url = `${site}/writing/${slug}`;
 
   return (
     <main className="mx-auto w-full max-w-xl px-6 pt-6 pb-24 leading-relaxed sm:pt-10">
+      <JsonLd data={article(post)} />
       <nav aria-label="Breadcrumb" className={enter}>
         <ol className="flex min-w-0 items-center gap-1.5">
           <li className="shrink-0">
@@ -85,9 +99,17 @@ async function Post({
           className="font-medium text-balance"
         />
         <p className={`${enter} text-muted-foreground delay-300`}>
+          <a
+            href="/"
+            rel="author"
+            className="rounded-sm outline-offset-2 transition-colors duration-150 hover:text-foreground"
+          >
+            Luan Fabri
+          </a>
+          <span aria-hidden> · </span>
           <time dateTime={post.date}>{formatDate(post.date)}</time>
           <span aria-hidden> · </span>
-          {minutes} min read
+          {post.minutes} min read
         </p>
         <AskAI
           label="Summarize with"
@@ -140,7 +162,7 @@ async function Post({
             className="group flex items-center gap-3 rounded-[14px] leading-snug outline-offset-4"
           >
             <Image
-              src="https://github.com/luannzin.png"
+              src="/avatar.jpg"
               alt=""
               width={40}
               height={40}

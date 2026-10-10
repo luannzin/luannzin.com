@@ -9,8 +9,15 @@ export type Post = {
   title: string;
   description: string;
   date: string;
+  // optional: when the post last changed, and a title and description for
+  // search results and shares when the post's own are too short to say what
+  // it is about there
+  updated?: string;
+  metaTitle?: string;
+  metaDescription?: string;
   seed: number;
   body: string;
+  minutes: number;
 };
 
 // ponytail: flat `key: value` frontmatter only; swap in a YAML parser if a
@@ -30,13 +37,22 @@ function parse(slug: string, source: string): Post {
   if (!data.title || !data.date) {
     throw new Error(`${slug}.md needs a title and a date in its frontmatter`);
   }
+  const body = source.slice(match?.[0].length ?? 0);
   return {
     slug,
     title: data.title,
     description: data.description ?? "",
     date: data.date,
+    updated: data.updated,
+    metaTitle: data.metaTitle,
+    metaDescription: data.metaDescription,
     seed: seedFrom(data.seed ? Number(data.seed) || data.seed : slug),
-    body: source.slice(match?.[0].length ?? 0),
+    body,
+    // reading time, at 220 words a minute
+    minutes: Math.max(
+      1,
+      Math.round(body.split(/\s+/).filter(Boolean).length / 220),
+    ),
   };
 }
 
