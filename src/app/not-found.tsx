@@ -1,16 +1,28 @@
 import type { Metadata } from "next";
-import { NotFoundCopy } from "@/components/not-found-copy";
-import { translations } from "@/i18n/generated";
+import Link from "next/link";
+import { setLocale, t } from "@/i18n/generated";
+import { underline } from "@/lib/classes";
 
-// The same in either language, since this page can't know which it is in.
-export const metadata: Metadata = { title: "404" };
-
-// This page renders under the root layout, above the language, so it hands
-// over the copy in each and the client picks one.
-const copy = Object.fromEntries(
-  Object.entries(translations).map(([locale, t]) => [locale, t.app.notFound]),
-);
+export async function generateMetadata(): Promise<Metadata> {
+  await setLocale();
+  return { title: t.app.notFound.title };
+}
 
 export default function NotFound() {
-  return <NotFoundCopy copy={copy} />;
+  const copy = t.app.notFound;
+  return (
+    <main className="mx-auto w-full max-w-xl px-6 pt-20 pb-24 leading-relaxed sm:pt-28">
+      <h1 className="font-medium">{copy.title}</h1>
+      <p className="mt-4 text-muted-foreground">
+        {copy.body}{" "}
+        <Link
+          href="/"
+          className="group rounded-sm text-foreground outline-offset-2"
+        >
+          <span className={underline}>{copy.home}</span>
+        </Link>
+        .
+      </p>
+    </main>
+  );
 }

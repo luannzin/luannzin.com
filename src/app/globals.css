@@ -1020,13 +1020,6 @@
   }
 }
 
-/* A language switch loads the page again (src/lib/locale-switch.ts), and the
-   browser cross-fades the two pages. Opted in for every same-site page load;
-   the reveal script skips it for any load that isn't a switch. */
-@view-transition {
-  navigation: auto;
-}
-
 /* The language circle stays out of a language switch's cross-fade: its new
    flag is already playing in it, so it shows live from the first frame. */
 ::view-transition-group(locale-menu),
