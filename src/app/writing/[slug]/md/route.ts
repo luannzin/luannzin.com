@@ -24,7 +24,9 @@ export async function GET(
 
 ${plainMarkdown(post.body).trim()}
 `;
+  // text/plain, not text/markdown: some agents' fetchers (ChatGPT's) refuse
+  // text/markdown, and every one of them reads plain text.
   return new Response(text, {
-    headers: { "Content-Type": "text/markdown; charset=utf-8" },
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
   });
 }
