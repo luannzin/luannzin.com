@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useCopy } from "@/components/share";
 import { CheckIcon, CopyIcon, DiceIcon } from "@/components/icons";
 import { ActionSwapIcon } from "@/components/motion/action-swap";
 import { SceneArt } from "@/components/scene-art";
+import { announce, useCopy } from "@/components/share";
+import type { t } from "@/i18n/generated";
 import { press } from "@/lib/classes";
 import { createScene } from "@/lib/scene";
+
+type SceneLabels = typeof t.components.scene;
+type CopyLabels = typeof t.components.copy;
 
 type Island =
   | { kind: "copy"; el: HTMLElement; code: HTMLElement }
@@ -16,7 +20,15 @@ type Island =
 
 // The article is static HTML from markdown. The few parts that need React,
 // copy buttons and live scenes, mount into placeholders the HTML leaves.
-export function ArticleIslands({ root }: { root: string }) {
+export function ArticleIslands({
+  root,
+  scene,
+  copy,
+}: {
+  root: string;
+  scene: SceneLabels;
+  copy: CopyLabels;
+}) {
   const [islands, setIslands] = useState<Island[]>([]);
 
   useEffect(() => {
@@ -46,9 +58,9 @@ export function ArticleIslands({ root }: { root: string }) {
       island.kind === "scene" ? (
         <SceneArt seed={island.seed} />
       ) : island.kind === "roll" ? (
-        <RollScene seed={island.seed} />
+        <RollScene seed={island.seed} labels={scene} />
       ) : (
-        <CopyCode code={island.code} />
+        <CopyCode code={island.code} labels={copy} />
       ),
       island.el,
       i,
@@ -58,7 +70,13 @@ export function ArticleIslands({ root }: { root: string }) {
 
 // A live scene, and a button that draws another from a fresh seed. Only the
 // name is shown, never the seed.
-function RollScene({ seed: first }: { seed: number }) {
+function RollScene({
+  seed: first,
+  labels,
+}: {
+  seed: number;
+  labels: SceneLabels;
+}) {
   const [seed, setSeed] = useState(first);
   const { name, time } = createScene(seed);
 
@@ -67,7 +85,7 @@ function RollScene({ seed: first }: { seed: number }) {
       <div
         className="scene-slot"
         role="img"
-        aria-label={`An animated scene drawn in dots: ${name}`}
+        aria-label={`${labels.label} ${name}`}
         style={{ background: time.ground }}
       >
         <SceneArt seed={seed} stir />
@@ -79,7 +97,7 @@ function RollScene({ seed: first }: { seed: number }) {
           onClick={() => setSeed(Math.floor(Math.random() * 2 ** 32))}
           className={`-my-1 -me-2 flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm px-2 py-1 text-muted-foreground hover:text-foreground ${press}`}
         >
-          Another scene
+          {labels.another}
           <DiceIcon className="size-4" />
         </button>
       </figcaption>
@@ -87,7 +105,7 @@ function RollScene({ seed: first }: { seed: number }) {
   );
 }
 
-function CopyCode({ code }: { code: HTMLElement }) {
+function CopyCode({ code, labels }: { code: HTMLElement; labels: CopyLabels }) {
   const [state, copy] = useCopy();
   const copied = state === "copied";
 
@@ -96,7 +114,7 @@ function CopyCode({ code }: { code: HTMLElement }) {
       <button
         type="button"
         onClick={() => copy(code.textContent ?? "")}
-        aria-label={copied ? "Copied" : "Copy code"}
+        aria-label={copied ? labels.copied : labels.code}
         className={`${press} -m-1.5 grid size-7 place-items-center rounded-md text-muted-foreground hover:text-foreground`}
       >
         <ActionSwapIcon value={copied ? "check" : "copy"}>
@@ -107,9 +125,7 @@ function CopyCode({ code }: { code: HTMLElement }) {
           )}
         </ActionSwapIcon>
       </button>
-      <output className="sr-only">
-        {state === "idle" ? "" : copied ? "Copied" : "Copy failed"}
-      </output>
+      <output className="sr-only">{announce(state, labels)}</output>
     </>
   );
 }

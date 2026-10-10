@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, ViewTransition } from "react";
 import { Die } from "@/components/die";
 import { SceneArt } from "@/components/scene-art";
+import type { t } from "@/i18n/generated";
 import { enter, press } from "@/lib/classes";
 import { type Melt, melt } from "@/lib/melt";
 import { createScene } from "@/lib/scene";
@@ -28,7 +29,15 @@ const HATCH =
 // only (a reload brings the post's own back). The dice waits out the morph
 // from the home tile; the first cover anyone sees draws an arrow to it first,
 // and the dice arrives as the arrow is finished. The arrow goes once rolled.
-export function CoverArt({ seed: own, slug }: { seed: number; slug: string }) {
+export function CoverArt({
+  seed: own,
+  slug,
+  labels,
+}: {
+  seed: number;
+  slug: string;
+  labels: typeof t.components.scene;
+}) {
   const [seed, setSeed] = useState(own);
   const [rolls, setRolls] = useState(0);
   const [hint, setHint] = useState(false);
@@ -83,7 +92,7 @@ export function CoverArt({ seed: own, slug }: { seed: number; slug: string }) {
         <div
           ref={art}
           role="img"
-          aria-label={`An animated scene drawn in dots: ${name}`}
+          aria-label={`${labels.label} ${name}`}
           className="relative overflow-hidden sm:rounded-[14px] sm:outline sm:-outline-offset-1 sm:outline-white/10"
         >
           <SceneArt seed={seed} stir />
@@ -92,7 +101,7 @@ export function CoverArt({ seed: own, slug }: { seed: number; slug: string }) {
       <button
         type="button"
         onClick={roll}
-        aria-label="Draw another scene"
+        aria-label={labels.draw}
         data-ready={ready ? (hint ? "now" : "late") : undefined}
         className={`cover-dice absolute end-2 top-2 grid size-8 place-items-center rounded-md bg-black/40 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] backdrop-blur-sm hover:text-white ${press}`}
       >

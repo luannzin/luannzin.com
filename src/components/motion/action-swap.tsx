@@ -1,20 +1,16 @@
 "use client";
 // Adapted from beui.dev/components/motion/action-swap (MIT): the icon slot
-// only, without the button chrome, on better-ui's contextual icon values.
+// only, without the button chrome, on better-ui's contextual icon values. The
+// motion is CSS (`.swap-in` and `.swap-out` in globals.css), so the page ships
+// no animation library for it.
 
-import { AnimatePresence, LazyMotion, useReducedMotion } from "motion/react";
-import * as m from "motion/react-m";
-import type { ReactNode } from "react";
+import { type AnimationEvent, type ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
 
-const hidden = { opacity: 0, scale: 0.25, filter: "blur(4px)" };
-// Reduced motion keeps the crossfade and drops the scale and blur.
-const faded = { opacity: 0 };
-// The animation features load on their own, after the page: the icon needs
-// none until its first swap.
-const features = () => import("motion/react").then((mod) => mod.domAnimation);
+type Shown = { value: string; icon: ReactNode };
 
-// An icon that shrinks out as the next one grows in, in the same spot.
+// An icon that shrinks out as the next one grows in, in the same spot. The old
+// icon stays mounted only until its exit animation ends.
 export function ActionSwapIcon({
   value,
   children,
@@ -24,7 +20,14 @@ export function ActionSwapIcon({
   children: ReactNode;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
+  const [shown, setShown] = useState<Shown>({ value, icon: children });
+  const [gone, setGone] = useState<Shown | null>(null);
+  if (value !== shown.value) {
+    setGone(shown);
+    setShown({ value, icon: children });
+  }
+
+  const slot = "col-start-1 row-start-1 inline-flex";
   return (
     <span
       className={cn(
@@ -32,25 +35,22 @@ export function ActionSwapIcon({
         className,
       )}
     >
-      <LazyMotion features={features}>
-        <AnimatePresence mode="popLayout" initial={false}>
-          <m.span
-            key={value}
-            aria-hidden
-            initial={reduce ? faded : hidden}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={reduce ? faded : hidden}
-            transition={
-              reduce
-                ? { duration: 0.15 }
-                : { type: "spring", duration: 0.3, bounce: 0 }
-            }
-            className="col-start-1 row-start-1 inline-flex"
-          >
-            {children}
-          </m.span>
-        </AnimatePresence>
-      </LazyMotion>
+      {gone && (
+        <span
+          key={gone.value}
+          aria-hidden
+          className={`${slot} swap-out`}
+          onAnimationEnd={(e: AnimationEvent) => {
+            if (e.target === e.currentTarget) setGone(null);
+          }}
+        >
+          {gone.icon}
+        </span>
+      )}
+      {/* the first icon is simply there; later ones grow in */}
+      <span key={value} aria-hidden className={cn(slot, gone && "swap-in")}>
+        {children}
+      </span>
     </span>
   );
 }

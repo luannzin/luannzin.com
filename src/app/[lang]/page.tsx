@@ -19,22 +19,29 @@ import {
 } from "@/components/icons";
 import { LiveTile } from "@/components/live-tile";
 import { TextReveal } from "@/components/motion/text-reveal";
+import { translations } from "@/i18n/generated";
 import { bezel, enter, underline } from "@/lib/classes";
 import { home, JsonLd } from "@/lib/json-ld";
+import { localeOf } from "@/lib/lang";
 import { profiles, site } from "@/lib/site";
 import { getPosts } from "@/lib/writing";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
 
-export const metadata: Metadata = {
-  title: { absolute: "Luan Fabri · Front-end engineer" },
-  alternates: { canonical: "/", types: { "text/markdown": "/index.md" } },
-};
+export async function generateMetadata({
+  params,
+}: PageProps<"/[lang]">): Promise<Metadata> {
+  const t = translations[await localeOf(params)];
+  return {
+    title: { absolute: t.app.meta.title },
+    alternates: { canonical: "/", types: { "text/markdown": "/index.md" } },
+  };
+}
 
 const projects = [
   {
     name: "echo",
-    description: "The note taker that learns with you",
+    blurb: "echo",
     href: "https://useecho.dev",
     mark: (
       <Image
@@ -48,13 +55,16 @@ const projects = [
   },
   {
     name: "better-intl",
-    description: "Typed, file-based i18n for Next.js",
+    blurb: "betterIntl",
     href: "https://github.com/luannzin/better-intl",
     mark: <GlobeIcon className="size-5" />,
   },
-];
+] as const;
 
-export default function Home() {
+export default async function Home({ params }: PageProps<"/[lang]">) {
+  const locale = await localeOf(params);
+  const t = translations[locale];
+  const copy = t.app.home;
   return (
     <main className="mx-auto w-full max-w-xl px-6 pt-20 pb-24 leading-relaxed sm:pt-28">
       <JsonLd data={home} />
@@ -71,7 +81,7 @@ export default function Home() {
           <TextReveal as="h1" text="Luan Fabri" className="font-medium" />
           <TextReveal
             as="p"
-            text="Front-end engineer at Loopscape"
+            text={copy.role}
             delay={0.15}
             className="text-muted-foreground"
           />
@@ -79,29 +89,26 @@ export default function Home() {
       </header>
 
       <section
-        aria-label="About"
+        aria-label={copy.about}
         className={`${enter} mt-8 space-y-4 text-pretty text-foreground/70 delay-400`}
       >
         <p>
-          I’m a front-end engineer at{" "}
+          {copy.work}
           <InlineLink href="https://loopscape.com.br" icon={LoopscapeIcon}>
             Loopscape
           </InlineLink>
-          , where since 2023 I’ve built ERPs and multi-tenant platforms with
-          React and Next.js: software people spend their whole workday in. I
-          care about the details that make it fast and clear to use.
+          {copy.workRest}
         </p>
         <p>
-          On the side, I build open source tools for problems I keep running
-          into. You can see my code on{" "}
+          {copy.side}
           <InlineLink href={profiles.github} icon={GitHubIcon} me>
             GitHub
           </InlineLink>
-          , follow along on{" "}
+          {copy.followOn}
           <InlineLink href={profiles.x} me>
             X
           </InlineLink>
-          , or find me on{" "}
+          {copy.findMeOn}
           <InlineLink href={profiles.linkedin} icon={LinkedInIcon} me>
             LinkedIn
           </InlineLink>
@@ -114,10 +121,10 @@ export default function Home() {
         className={`${enter} mt-20 delay-500`}
       >
         <h2 id="projects" className="font-medium">
-          Projects
+          {copy.projects}
         </h2>
         <ul className="mt-4 grid gap-6">
-          {projects.map(({ name, description, href, mark }) => (
+          {projects.map(({ name, blurb, href, mark }) => (
             <li key={name}>
               <a
                 href={href}
@@ -136,7 +143,7 @@ export default function Home() {
                     <ArrowUpRightIcon className="size-3.5 -translate-x-0.5 translate-y-0.5 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100" />
                   </span>
                   <span className="block text-muted-foreground">
-                    {description}
+                    {copy[blurb]}
                   </span>
                 </span>
               </a>
@@ -147,10 +154,10 @@ export default function Home() {
 
       <section aria-labelledby="writing" className={`${enter} mt-20 delay-600`}>
         <h2 id="writing" className="scroll-mt-12 font-medium">
-          Writing
+          {t.app.writing.title}
         </h2>
         <ul className="mt-4 grid gap-6">
-          {getPosts().map(({ slug, title, description, seed }) => (
+          {getPosts(locale).map(({ slug, title, description, seed }) => (
             <li key={slug}>
               <Link
                 href={`/writing/${slug}`}
@@ -192,8 +199,8 @@ export default function Home() {
       </section>
 
       <AskAI
-        label="Ask about me on"
-        prompt={`Tell me about Luan Fabri, the front-end engineer behind ${site}`}
+        label={copy.askLabel}
+        prompt={copy.askPrompt({ site })}
         className={`${enter} mt-20 delay-700`}
       />
 

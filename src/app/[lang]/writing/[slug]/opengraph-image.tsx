@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { postImage } from "@/lib/og";
+import { localeOf } from "@/lib/lang";
 import { formatDate, getPost, getPosts } from "@/lib/writing";
 
 export const alt = "A post by Luan Fabri";
@@ -13,13 +14,15 @@ export function generateStaticParams() {
 export default async function Image({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ lang: string; slug: string }>;
 }) {
-  const post = getPost((await params).slug);
+  const { slug } = await params;
+  const lang = await localeOf(params);
+  const post = getPost(slug, lang);
   if (!post) notFound();
   return postImage({
     title: post.title,
-    date: formatDate(post.date),
+    date: formatDate(post.date, lang),
     minutes: post.minutes,
   });
 }

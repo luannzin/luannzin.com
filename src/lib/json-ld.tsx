@@ -1,3 +1,4 @@
+import { type Locale, translations } from "@/i18n/generated";
 import { profiles, site } from "@/lib/site";
 import type { Post } from "@/lib/writing";
 
@@ -45,7 +46,7 @@ export const home = {
   ],
 };
 
-export function article(post: Post) {
+export function article(post: Post, locale: Locale) {
   const url = `${site}/writing/${post.slug}`;
   return {
     "@context": "https://schema.org",
@@ -60,7 +61,7 @@ export function article(post: Post) {
         image: `${url}/opengraph-image`,
         datePublished: post.date,
         dateModified: post.updated ?? post.date,
-        inLanguage: "en",
+        inLanguage: locale,
         author: { ...person, "@type": "Person", name: "Luan Fabri", url: site },
         publisher: person,
         isPartOf: website,
@@ -71,7 +72,7 @@ export function article(post: Post) {
           {
             "@type": "ListItem",
             position: 1,
-            name: "Writing",
+            name: translations[locale].app.writing.title,
             item: `${site}/#writing`,
           },
           { "@type": "ListItem", position: 2, name: post.title, item: url },

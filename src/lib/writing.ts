@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { seedFrom } from "@/lib/scene";
 
@@ -56,22 +56,25 @@ function parse(slug: string, source: string): Post {
   };
 }
 
-// Read synchronously at build time: posts are part of the static shell.
-export function getPosts(): Post[] {
+// English posts sit in the folder; a translation sits in the subfolder named
+// for its locale (`pt/<slug>.md`), and a post without one is read in English.
+export function getPosts(locale = "en"): Post[] {
   return readdirSync(dir)
     .filter((file) => file.endsWith(".md"))
-    .map((file) =>
-      parse(file.slice(0, -3), readFileSync(path.join(dir, file), "utf8")),
-    )
+    .map((file) => {
+      const translated = path.join(dir, locale, file);
+      const source = existsSync(translated) ? translated : path.join(dir, file);
+      return parse(file.slice(0, -3), readFileSync(source, "utf8"));
+    })
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export function getPost(slug: string): Post | undefined {
-  return getPosts().find((post) => post.slug === slug);
+export function getPost(slug: string, locale?: string): Post | undefined {
+  return getPosts(locale).find((post) => post.slug === slug);
 }
 
-export function formatDate(date: string) {
-  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
+export function formatDate(date: string, locale = "en-US") {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, {
     month: "long",
     day: "numeric",
     year: "numeric",

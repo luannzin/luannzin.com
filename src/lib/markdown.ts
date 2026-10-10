@@ -3,6 +3,7 @@ import path from "node:path";
 import { Marked, type Tokens } from "marked";
 import { highlight } from "sugar-high";
 import { lang } from "sugar-high/lang";
+import { type Locale, translations } from "@/i18n/generated";
 import { createScene } from "@/lib/scene";
 import { site } from "@/lib/site";
 
@@ -78,6 +79,9 @@ function codeBlock(text: string, info: string) {
   return `<figure class="code"${line > 1 ? " data-lines" : ""}><figcaption><span class="code-badge" aria-hidden="true">${escapeHtml(badge)}</span><span class="code-title">${escapeHtml(title ?? LANGUAGE[name] ?? fence)}</span><span data-island="copy"></span></figcaption><pre tabindex="0"><code>${html}</code></pre></figure>`;
 }
 
+// The labels the blocks below write into the HTML, in the post's language.
+type Words = (typeof translations)[Locale]["components"];
+
 // --- flow diagrams -------------------------------------------------------
 
 // Central-style strokes, 24 grid, 1.5px, drawn as markup for the static HTML.
@@ -124,7 +128,7 @@ function flowNodes(text: string) {
 }
 
 // Nodes run two a row, and the arrow turns down to the next row, like reading.
-function flowBlock(text: string) {
+function flowBlock(text: string, words: Words) {
   const nodes = flowNodes(text);
   const node = (n: Node) =>
     `<div class="flow-node"${n.lit ? " data-lit" : ""}>${icon(n.icon)}<span class="flow-text"><span class="flow-title">${escapeHtml(n.title)}</span>${n.note ? `<span class="flow-note">${escapeHtml(n.note)}</span>` : ""}</span></div>`;
@@ -138,8 +142,8 @@ function flowBlock(text: string) {
     const pair = nodes.slice(i, i + 2);
     html += `<div class="flow-row">${node(pair[0])}${pair[1] ? arrow(pair[1].label) + node(pair[1]) : ""}</div>`;
   }
-  const summary = nodes.map((n) => n.title).join(", then ");
-  return `<figure class="flow" role="img" aria-label="${escapeHtml(`Diagram: ${summary}`)}">${html}</figure>`;
+  const summary = nodes.map((n) => n.title).join(words.diagram.between);
+  return `<figure class="flow" role="img" aria-label="${escapeHtml(`${words.diagram.label} ${summary}`)}">${html}</figure>`;
 }
 
 const seedsOf = (text: string) =>
@@ -150,11 +154,11 @@ const seedsOf = (text: string) =>
     .filter(Number.isFinite);
 
 // ```scenes: seeds, mounted as live scenes on the client.
-function scenesBlock(text: string) {
+function scenesBlock(text: string, words: Words) {
   const cards = seedsOf(text)
     .map((seed) => {
       const { name, time } = createScene(seed);
-      return `<figure class="scene-card" data-hover-play><div class="scene-slot" data-island="scene" data-seed="${seed}" role="img" aria-label="${escapeHtml(`An animated scene drawn in dots: ${name}`)}" style="background:${time.ground}"></div><figcaption>${escapeHtml(name)}</figcaption></figure>`;
+      return `<figure class="scene-card" data-hover-play><div class="scene-slot" data-island="scene" data-seed="${seed}" role="img" aria-label="${escapeHtml(`${words.scene.label} ${name}`)}" style="background:${time.ground}"></div><figcaption>${escapeHtml(name)}</figcaption></figure>`;
     })
     .join("");
   return `<div class="scenes">${cards}</div>`;
@@ -162,10 +166,10 @@ function scenesBlock(text: string) {
 
 // ```roll: one seed, drawn live on the client with a button that draws
 // another. Until then, its ground and its name hold the place.
-function rollBlock(text: string) {
+function rollBlock(text: string, words: Words) {
   const seed = Number(text.trim()) >>> 0;
   const { name, time } = createScene(seed);
-  return `<figure class="scene-roll" data-island="roll" data-seed="${seed}"><div class="scene-slot" role="img" aria-label="${escapeHtml(`An animated scene drawn in dots: ${name}`)}" style="background:${time.ground}"></div><figcaption><span>${escapeHtml(name)}</span></figcaption></figure>`;
+  return `<figure class="scene-roll" data-island="roll" data-seed="${seed}"><div class="scene-slot" role="img" aria-label="${escapeHtml(`${words.scene.label} ${name}`)}" style="background:${time.ground}"></div><figcaption><span>${escapeHtml(name)}</span></figcaption></figure>`;
 }
 
 // --- images --------------------------------------------------------------
@@ -183,9 +187,11 @@ function pngSize(href: string) {
   }
 }
 
-// Markdown to HTML at build time. Posts live in the repo, so their HTML is
-// trusted. h2 and h3 get ids and a "#" link, and become the table of contents.
-export function renderMarkdown(source: string) {
+// Markdown to HTML. Posts live in the repo, so their HTML is trusted. h2 and
+// h3 get ids and a "#" link, and become the table of contents. It runs inside
+// a cache, where `t` can't read the request, so it takes the locale.
+export function renderMarkdown(source: string, locale: Locale = "en") {
+  const words = translations[locale].components;
   const toc: Heading[] = [];
   const used = new Map<string, number>();
 
@@ -207,9 +213,9 @@ export function renderMarkdown(source: string) {
       },
       code({ text, lang: info = "" }) {
         const fence = info.trim().split(/\s+/)[0];
-        if (fence === "flow") return flowBlock(text);
-        if (fence === "scenes") return scenesBlock(text);
-        if (fence === "roll") return rollBlock(text);
+        if (fence === "flow") return flowBlock(text, words);
+        if (fence === "scenes") return scenesBlock(text, words);
+        if (fence === "roll") return rollBlock(text, words);
         return codeBlock(text, info);
       },
       // An image alone in its paragraph becomes a framed figure; its title is

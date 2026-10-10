@@ -18,6 +18,9 @@ import {
   MenuPopup,
   MenuTrigger,
 } from "@/components/ui/menu";
+import type { t } from "@/i18n/generated";
+
+type CopyLabels = typeof t.components.copy;
 
 type State = "idle" | "copied" | "failed";
 
@@ -40,7 +43,10 @@ export function useCopy() {
 }
 
 const icon = { idle: LinkIcon, copied: CheckIcon, failed: CloseIcon };
-const announce = { idle: "", copied: "Copied", failed: "Copy failed" };
+
+// What a screen reader hears once a copy is done.
+export const announce = (state: State, copy: CopyLabels) =>
+  state === "idle" ? "" : state === "copied" ? copy.copied : copy.failed;
 
 const segment =
   "flex items-center outline-offset-2 transition-[color] duration-150 hover:text-foreground";
@@ -49,7 +55,17 @@ const noop = () => () => {};
 
 // Split button: the main half copies the link, the chevron opens the other
 // ways to share it.
-export function Share({ title, url }: { title: string; url: string }) {
+export function Share({
+  title,
+  url,
+  labels,
+  copy: copyLabels,
+}: {
+  title: string;
+  url: string;
+  labels: typeof t.components.share;
+  copy: CopyLabels;
+}) {
   const [state, copy] = useCopy();
   const Icon = icon[state];
   const canShare = useSyncExternalStore(
@@ -63,18 +79,18 @@ export function Share({ title, url }: { title: string; url: string }) {
       <button
         type="button"
         onClick={() => copy(url)}
-        aria-label="Share, copy link"
+        aria-label={labels.copyLink}
         className={`${segment} gap-1.5 whitespace-nowrap rounded-s-[8px] ps-2.5 pe-3`}
       >
         <ActionSwapIcon value={state}>
           <Icon className="size-4" />
         </ActionSwapIcon>
-        Share
+        {labels.share}
       </button>
       <span aria-hidden className="w-px bg-border" />
       <Menu>
         <MenuTrigger
-          aria-label="More ways to share"
+          aria-label={labels.more}
           className={`${segment} rounded-e-[8px] px-2 data-popup-open:text-foreground`}
         >
           <ChevronRightIcon className="size-4 rotate-90 transition-[rotate] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] in-data-popup-open:-rotate-90" />
@@ -90,7 +106,7 @@ export function Share({ title, url }: { title: string; url: string }) {
             rel="noopener noreferrer"
           >
             <XIcon />
-            Share on X
+            {labels.onX}
           </MenuLinkItem>
           <MenuLinkItem
             href={`https://www.linkedin.com/sharing/share-offsite/?${new URLSearchParams({ url })}`}
@@ -98,19 +114,19 @@ export function Share({ title, url }: { title: string; url: string }) {
             rel="noopener noreferrer"
           >
             <LinkedInIcon />
-            Share on LinkedIn
+            {labels.onLinkedIn}
           </MenuLinkItem>
           {canShare && (
             <MenuItem
               onClick={() => navigator.share({ title, url }).catch(() => {})}
             >
               <ShareIcon />
-              Share on other apps
+              {labels.onOther}
             </MenuItem>
           )}
         </MenuPopup>
       </Menu>
-      <output className="sr-only">{announce[state]}</output>
+      <output className="sr-only">{announce(state, copyLabels)}</output>
     </div>
   );
 }

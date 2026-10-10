@@ -1,6 +1,12 @@
-@import "tailwindcss";
+/* Utilities are generated only for classes found in src/, and of the kit in
+   components/ui only for the parts the site uses: scanning the whole kit
+   tripled the stylesheet, which blocks the first paint. Using another kit
+   component? Add its file here. */
+@import "tailwindcss" source("..");
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@source not "../components/ui";
+@source "../components/ui/menu.tsx";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -282,6 +288,69 @@
 }
 @keyframes text-fade {
   from {
+    opacity: 0;
+  }
+}
+
+/* Action Swap (action-swap.tsx): the old icon shrinks out as the new one grows
+   in, to and from 0.25 scale and a 4px blur, on motion's 0.3s no-bounce
+   spring (critically damped, sampled into linear()). Reduced motion keeps a
+   150ms crossfade. */
+@layer components {
+  .swap-in,
+  .swap-out {
+    animation: 300ms both
+      linear(
+        0,
+        0.079 5%,
+        0.236 10%,
+        0.403 15%,
+        0.551 20%,
+        0.671 25%,
+        0.764 30%,
+        0.883 40%,
+        0.944 50%,
+        0.974 60%,
+        0.992 75%,
+        1
+      );
+
+    @media (prefers-reduced-motion: reduce) {
+      animation-duration: 150ms;
+      animation-timing-function: ease;
+    }
+  }
+  .swap-in {
+    animation-name: swap-in;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation-name: text-fade;
+    }
+  }
+  .swap-out {
+    animation-name: swap-out;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation-name: swap-fade;
+    }
+  }
+}
+@keyframes swap-in {
+  from {
+    opacity: 0;
+    scale: 0.25;
+    filter: blur(4px);
+  }
+}
+@keyframes swap-out {
+  to {
+    opacity: 0;
+    scale: 0.25;
+    filter: blur(4px);
+  }
+}
+@keyframes swap-fade {
+  to {
     opacity: 0;
   }
 }
@@ -951,7 +1020,100 @@
   }
 }
 
+/* A language switch loads the page again (src/lib/locale-switch.ts), and the
+   browser cross-fades the two pages. Opted in for every same-site page load;
+   the reveal script skips it for any load that isn't a switch. */
+@view-transition {
+  navigation: auto;
+}
+
+/* The language circle stays out of a language switch's cross-fade: its new
+   flag is already playing in it, so it shows live from the first frame. */
+::view-transition-group(locale-menu),
+::view-transition-new(locale-menu) {
+  animation: none;
+}
+::view-transition-old(locale-menu) {
+  display: none;
+}
+
+/* A new flag develops inside the circle, which holds still: the flag settles
+   out of a blown-out blur while a burst of light opens over it and a sheen
+   crosses after. */
+@layer components {
+  .flag-flash {
+    display: none;
+  }
+  [data-flash] > svg {
+    animation: flag-develop 700ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+  [data-flash] > .flag-flash {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle,
+      rgb(255 255 255 / 0.95),
+      rgb(255 255 255 / 0.4) 35%,
+      transparent 70%
+    );
+    mix-blend-mode: plus-lighter;
+    animation: flag-burst 700ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+  [data-flash]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      rgb(255 255 255 / 0.7) 50%,
+      transparent 70%
+    );
+    mix-blend-mode: plus-lighter;
+    animation: flag-sheen 600ms 150ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+}
+@keyframes flag-develop {
+  from {
+    scale: 1.5;
+    filter: blur(6px) brightness(2.4) saturate(0);
+  }
+  40% {
+    filter: blur(1px) brightness(1.4) saturate(1.3);
+  }
+}
+@keyframes flag-burst {
+  from {
+    opacity: 0;
+    scale: 0.2;
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 1.6;
+  }
+}
+@keyframes flag-sheen {
+  from {
+    translate: -100% 0;
+  }
+  to {
+    translate: 100% 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  /* The new flag fades in; no light plays over it. */
+  [data-flash] > svg {
+    animation: text-fade 150ms ease-out both;
+  }
+  [data-flash] > .flag-flash,
+  [data-flash]::after {
+    display: none;
+  }
   /* No travelling shapes: pages and the art swap in place. */
   ::view-transition-group(*),
   ::view-transition-old(*),

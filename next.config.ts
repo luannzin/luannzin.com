@@ -1,3 +1,4 @@
+import { withInternationalization } from "better-intl/next";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -48,4 +49,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Generates src/i18n/generated.ts from the t.ts files (intl.config.ts), and
+// watches them in dev.
+export default withInternationalization(nextConfig);
