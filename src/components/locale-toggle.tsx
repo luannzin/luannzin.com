@@ -1,14 +1,17 @@
 "use client";
 
 import { Menu } from "@base-ui/react/menu";
-import { updateLocale } from "better-intl/runtime";
-import { useParams } from "next/navigation";
-import { type ComponentType, useEffect, useState } from "react";
+import {
+  addTransitionType,
+  type ComponentType,
+  useOptimistic,
+  useState,
+  useTransition,
+} from "react";
 import { CheckIcon } from "@/components/icons";
 import type { Locale } from "@/i18n/generated";
 import { enter, press } from "@/lib/classes";
-import { SWITCH_KEY } from "@/lib/locale-switch";
-import intl from "../../intl.config";
+import { changeLocale } from "@/lib/locale";
 
 // Flags drawn for a circle: each fills a 24 square, and its frame crops it.
 function USFlag() {
@@ -77,16 +80,18 @@ const ease = "ease-[cubic-bezier(0.23,1,0.32,1)]";
 
 // The current language as a flag in a small circle, bottom center (bottom
 // right on a phone). It opens upward into the languages; choosing one closes
-// it, and the page cross-fades into the new language (src/lib/locale-switch.ts),
-// where the new flag develops in the circle.
-export function LocaleToggle({ labels }: { labels: Record<Locale, string> }) {
-  // the language of the page under the root layout, from its [lang] segment
-  const locale =
-    useParams<{ lang?: Locale }>().lang ?? (intl.defaultLocale as Locale);
-  const label = labels[locale];
+// it, and the page cross-fades into the new language (the "locale" transition
+// on the layout's ViewTransition), where the new flag develops in the circle.
+export function LocaleToggle({
+  locale,
+  label,
+}: {
+  locale: Locale;
+  label: string;
+}) {
   // the language just chosen, shown on the flag before the page catches up
-  const [chosen, setChosen] = useState<Locale | null>(null);
-  const shown = chosen ?? locale;
+  const [shown, setShown] = useOptimistic(locale);
+  const [, startTransition] = useTransition();
   // the flag only plays once someone switches, not on every page load
   const [switched, setSwitched] = useState(false);
   // the row the hover background sits on: the last one highlighted, kept
@@ -94,25 +99,16 @@ export function LocaleToggle({ labels }: { labels: Record<Locale, string> }) {
   const [row, setRow] = useState(codes.length - 1);
   const { name, Flag } = locales[shown];
 
-  // set by the reveal script on the page a switch loaded
-  useEffect(() => {
-    if (document.documentElement.hasAttribute("data-locale-switched")) {
-      setSwitched(true);
-    }
-  }, []);
-
+  // The cookie is set by a Server Action, which sends the page back in the
+  // new language in the same round trip; the transition type cross-fades it.
   const choose = (next: Locale) => {
     if (next === shown || !(next in locales)) return;
-    setChosen(next);
-    // The cookie, then the same address again: the proxy now serves the page
-    // in the new language, and the reveal script keeps the scroll from here.
-    void updateLocale(next, intl);
-    try {
-      sessionStorage.setItem(SWITCH_KEY, String(scrollY));
-    } catch {
-      // storage is blocked: the new page opens at the top
-    }
-    location.replace(location.pathname + location.search);
+    setSwitched(true);
+    startTransition(async () => {
+      addTransitionType("locale");
+      setShown(next);
+      await changeLocale(next);
+    });
   };
 
   return (

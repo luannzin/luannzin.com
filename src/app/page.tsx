@@ -19,19 +19,16 @@ import {
 } from "@/components/icons";
 import { LiveTile } from "@/components/live-tile";
 import { TextReveal } from "@/components/motion/text-reveal";
-import { translations } from "@/i18n/generated";
+import { setLocale, translations } from "@/i18n/generated";
 import { bezel, enter, underline } from "@/lib/classes";
 import { home, JsonLd } from "@/lib/json-ld";
-import { localeOf } from "@/lib/lang";
 import { profiles, site } from "@/lib/site";
 import { getPosts } from "@/lib/writing";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
 
-export async function generateMetadata({
-  params,
-}: PageProps<"/[lang]">): Promise<Metadata> {
-  const t = translations[await localeOf(params)];
+export async function generateMetadata(): Promise<Metadata> {
+  const t = translations[await setLocale()];
   return {
     title: { absolute: t.app.meta.title },
     alternates: { canonical: "/", types: { "text/markdown": "/index.md" } },
@@ -61,8 +58,8 @@ const projects = [
   },
 ] as const;
 
-export default async function Home({ params }: PageProps<"/[lang]">) {
-  const locale = await localeOf(params);
+export default async function Home() {
+  const locale = await setLocale();
   const t = translations[locale];
   const copy = t.app.home;
   return (

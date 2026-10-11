@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { postImage } from "@/lib/og";
-import { localeOf } from "@/lib/lang";
 import { formatDate, getPost, getPosts } from "@/lib/writing";
 
 export const alt = "A post by Luan Fabri";
@@ -14,15 +13,15 @@ export function generateStaticParams() {
 export default async function Image({
   params,
 }: {
-  params: Promise<{ lang: string; slug: string }>;
+  params: Promise<{ slug: string }>;
 }) {
+  // crawlers send no language cookie, so share cards are in English
   const { slug } = await params;
-  const lang = await localeOf(params);
-  const post = getPost(slug, lang);
+  const post = getPost(slug);
   if (!post) notFound();
   return postImage({
     title: post.title,
-    date: formatDate(post.date, lang),
+    date: formatDate(post.date),
     minutes: post.minutes,
   });
 }

@@ -9,8 +9,7 @@ import { ChevronRightIcon } from "@/components/icons";
 import { TextReveal } from "@/components/motion/text-reveal";
 import { Share } from "@/components/share";
 import { Toc } from "@/components/toc";
-import { type Locale, translations } from "@/i18n/generated";
-import { localeOf } from "@/lib/lang";
+import { type Locale, setLocale, translations } from "@/i18n/generated";
 import { enter, underline } from "@/lib/classes";
 import { article, JsonLd } from "@/lib/json-ld";
 import { renderMarkdown } from "@/lib/markdown";
@@ -23,9 +22,9 @@ export function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: PageProps<"/[lang]/writing/[slug]">): Promise<Metadata> {
+}: PageProps<"/writing/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const locale = await localeOf(params);
+  const locale = await setLocale();
   const t = translations[locale];
   const post = getPost(slug, locale);
   if (!post) return {};
@@ -66,11 +65,9 @@ async function render(body: string, locale: Locale) {
 // fine: every link to it prefetches it in full.
 export const instant = false;
 
-export default async function Page({
-  params,
-}: PageProps<"/[lang]/writing/[slug]">) {
+export default async function Page({ params }: PageProps<"/writing/[slug]">) {
   const { slug } = await params;
-  const locale = await localeOf(params);
+  const locale = await setLocale();
   const t = translations[locale];
   const post = getPost(slug, locale);
   if (!post) notFound();
