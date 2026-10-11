@@ -190,7 +190,7 @@ function pngSize(href: string) {
 // Markdown to HTML. Posts live in the repo, so their HTML is trusted. h2 and
 // h3 get ids and a "#" link, and become the table of contents. It runs inside
 // a cache, where `t` can't read the request, so it takes the locale.
-export function renderMarkdown(source: string, locale: Locale = "en") {
+export function renderMarkdown(source: string, locale: Locale) {
   const words = translations[locale].components;
   const toc: Heading[] = [];
   const used = new Map<string, number>();

@@ -25,7 +25,6 @@ export async function generateMetadata({
 }: PageProps<"/writing/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const locale = await setLocale();
-  const t = translations[locale];
   const post = getPost(slug, locale);
   if (!post) return {};
   const url = `/writing/${post.slug}`;
@@ -40,7 +39,7 @@ export async function generateMetadata({
     },
     openGraph: {
       ...openGraph,
-      locale: t.app.meta.ogLocale,
+      locale: translations[locale].app.meta.ogLocale,
       type: "article",
       url,
       title,

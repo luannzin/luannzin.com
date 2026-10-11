@@ -4,9 +4,9 @@ import { Menu } from "@base-ui/react/menu";
 import {
   addTransitionType,
   type ComponentType,
+  startTransition,
   useOptimistic,
   useState,
-  useTransition,
 } from "react";
 import { CheckIcon } from "@/components/icons";
 import type { Locale } from "@/i18n/generated";
@@ -24,23 +24,11 @@ function USFlag() {
       />
       <rect width="12" height="12.923" fill="#3c3b6e" />
       <g fill="#fff">
-        {[
-          [2, 2.2],
-          [6, 2.2],
-          [10, 2.2],
-          [4, 4.3],
-          [8, 4.3],
-          [2, 6.4],
-          [6, 6.4],
-          [10, 6.4],
-          [4, 8.5],
-          [8, 8.5],
-          [2, 10.6],
-          [6, 10.6],
-          [10, 10.6],
-        ].map(([cx, cy]) => (
-          <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="0.7" />
-        ))}
+        {[2.2, 4.3, 6.4, 8.5, 10.6].flatMap((cy, i) =>
+          (i % 2 ? [4, 8] : [2, 6, 10]).map((cx) => (
+            <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="0.7" />
+          )),
+        )}
       </g>
     </svg>
   );
@@ -76,8 +64,6 @@ const locales: Record<Locale, { name: string; Flag: ComponentType }> = {
 
 const codes = Object.keys(locales) as Locale[];
 
-const ease = "ease-[cubic-bezier(0.23,1,0.32,1)]";
-
 // The current language as a flag in a small circle, bottom center (bottom
 // right on a phone). It opens upward into the languages; choosing one closes
 // it, and the page cross-fades into the new language (the "locale" transition
@@ -91,7 +77,6 @@ export function LocaleToggle({
 }) {
   // the language just chosen, shown on the flag before the page catches up
   const [shown, setShown] = useOptimistic(locale);
-  const [, startTransition] = useTransition();
   // the flag only plays once someone switches, not on every page load
   const [switched, setSwitched] = useState(false);
   // the row the hover background sits on: the last one highlighted, kept
@@ -102,7 +87,7 @@ export function LocaleToggle({
   // The cookie is set by a Server Action, which sends the page back in the
   // new language in the same round trip; the transition type cross-fades it.
   const choose = (next: Locale) => {
-    if (next === shown || !(next in locales)) return;
+    if (next === shown) return;
     setSwitched(true);
     startTransition(async () => {
       addTransitionType("locale");
@@ -123,7 +108,7 @@ export function LocaleToggle({
           className="relative block size-full overflow-hidden rounded-full outline -outline-offset-1 outline-white/10"
         >
           <Flag />
-          <span aria-hidden className="flag-flash" />
+          {switched && <span aria-hidden className="flag-flash" />}
         </span>
       </Menu.Trigger>
       <Menu.Portal>
@@ -136,7 +121,7 @@ export function LocaleToggle({
           className="z-50"
         >
           <Menu.Popup
-            className={`min-w-44 origin-(--transform-origin) rounded-[12px] bg-popover p-1 shadow-lg/20 inset-ring inset-ring-border outline-none transition-[opacity,scale,translate,filter] duration-250 ${ease} data-starting-style:translate-y-2 data-starting-style:scale-50 data-starting-style:opacity-0 data-starting-style:blur-xs data-ending-style:translate-y-1 data-ending-style:opacity-0 data-ending-style:blur-xs data-ending-style:duration-150 motion-reduce:transition-[opacity]`}
+            className={`min-w-44 origin-(--transform-origin) rounded-[12px] bg-popover p-1 shadow-lg/20 inset-ring inset-ring-border outline-none transition-[opacity,scale,translate,filter] duration-250 ease-[cubic-bezier(0.23,1,0.32,1)] data-starting-style:translate-y-2 data-starting-style:scale-50 data-starting-style:opacity-0 data-starting-style:blur-xs data-ending-style:translate-y-1 data-ending-style:opacity-0 data-ending-style:blur-xs data-ending-style:duration-150 motion-reduce:transition-[opacity]`}
           >
             <Menu.RadioGroup
               value={shown}
