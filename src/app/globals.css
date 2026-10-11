@@ -1,11 +1,12 @@
 /* Utilities are generated only for classes found in src/, and of the kit in
    components/ui only for the parts the site uses: scanning the whole kit
    tripled the stylesheet, which blocks the first paint. Using another kit
-   component? Add its file here. */
+   component? Add its file here. The AGENTS.md docs are prose, not markup. */
 @import "tailwindcss" source("..");
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @source not "../components/ui";
+@source not "../**/AGENTS.md";
 @source "../components/ui/menu.tsx";
 
 @custom-variant dark (&:is(.dark *));
