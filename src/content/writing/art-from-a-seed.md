@@ -1,20 +1,22 @@
 ---
 title: Art from a seed
-description: Every post’s picture, grown from one number
+description: Each post’s picture, drawn from a single number
 date: 2026-10-08
-updated: 2026-10-10
+updated: 2026-10-11
 metaTitle: Art from a seed: seeded generative art in TypeScript
 metaDescription: How each post’s generative cover art grows from one seed: a mulberry32 PRNG picks the scene, and WebGL draws it as Bayer-dithered halftone dots.
 seed: 16
 ---
 
-Every post on this site opens with a scene nobody painted. Each post carries one number, its seed, and the page grows a small world from it: the place, the time of day, the thing standing in it, the shape of every cloud. Move your pointer over the one above and you carry a small light across it; tap the sky for a shooting star, or the water for a ripple. The dice in its corner draws you a different one, for this visit only.
+Nobody drew the picture at the top of this post. Each post has a number, its seed, and the page builds a scene from it: the place, the time of day, what’s standing there, even the shape of the clouds.
 
-I wanted the pictures to belong to the posts without making cover images I would have to keep up. A seed costs nothing to store, never goes stale, and gives every post a view no other post shares.
+It also reacts to you. Move your pointer over it and a small light follows along. Tap the sky for a shooting star, or the water for a ripple. The dice in the corner gives you a different scene, just for this visit.
+
+I wanted every post to have its own picture, but I didn’t want to make cover images and keep them up to date. A seed is just a number in the frontmatter. It never goes stale, and no two posts end up with the same view.
 
 ## One number, every choice
 
-The seed comes from the post's frontmatter, or from a hash of its slug when the post leaves it out. A tiny seeded pseudo-random number generator (PRNG), mulberry32, turns it into a stream of numbers between 0 and 1, and every decision the scene makes reads the next one from that stream:
+The seed comes from the post’s frontmatter. If a post doesn’t set one, it’s a hash of the slug. Then mulberry32, a tiny seeded pseudo-random number generator (PRNG), turns it into a stream of numbers between 0 and 1. Every decision the scene makes takes the next number from that stream:
 
 ```ts title="src/lib/scene.ts"
 function mulberry32(a: number) {
@@ -27,7 +29,7 @@ function mulberry32(a: number) {
 }
 ```
 
-The place comes first, because the place decides what else can happen there. Each one lists the times of day it is drawn at and what can stand in it, each with a weight, and the next three numbers from the stream pick one of each:
+The place is picked first, because it decides what else can show up. Each place lists the times of day it can be drawn at and what can stand in it, each with a weight. The next three numbers pick the place, the time and the landmark:
 
 ```ts title="src/lib/scene.ts" {15-17}
 const PLACES = {
@@ -49,11 +51,11 @@ const time = TIMES[weighted(random, PLACES[place].times)];
 const landmark = weighted(random, PLACES[place].landmarks);
 ```
 
-So a street is never drawn with the sun setting in it, and nothing under the sea gets snow. Because the stream is the same every time for the same seed, so is everything drawn from it. The landmark and the sun or moon land on opposite sides of the frame, so every scene starts from a composition that holds.
+That’s why a street is never drawn at sunset, and nothing under the sea gets snow. And since the same seed always gives the same stream, it always gives the same scene. One more rule: the landmark and the sun or moon go on opposite sides of the frame, so every scene starts from a balanced composition.
 
-## A small world of parts
+## What a scene is made of
 
-There are nine places, eleven times of day, and eleven things to stand in them:
+There are nine places, eleven times of day and eleven landmarks:
 
 | Place | Drawn at | What stands in it |
 | --- | --- | --- |
@@ -67,13 +69,13 @@ There are nine places, eleven times of day, and eleven things to stand in them:
 | City | Rain, night, twilight, storm | Someone under an umbrella, or a vending machine |
 | Reef | Deep water | A wreck, or a manta ray |
 
-The same code, six other seeds. Hover one to set it moving:
+Here’s the same code with six other seeds. Hover one to make it move:
 
 ```scenes
 2 109 103 9 46 58
 ```
 
-The name under each picture comes from the same choices: a word for the time and a word for the place, like the one above. Or keep drawing; every press picks a new seed:
+The name under each picture comes from the same choices: a word for the time and a word for the place. This one picks a new seed every time you press the button:
 
 ```roll
 44
@@ -81,7 +83,7 @@ The name under each picture comes from the same choices: a word for the time and
 
 ## Shading every cell
 
-From the seed to the screen, a scene passes through four steps. The first two run once; the last two run every frame:
+There are four steps between the seed and the screen. The first two run once, and the last two run on every frame:
 
 ```flow
 seed | one number | hash | lit
@@ -91,23 +93,23 @@ frame(t) | shades every cell | grid
 canvas | dots on the GPU | image | lit
 ```
 
-The frame is a grid of cells, one for every three pixels of width, or finer on a sharper screen, and each cell is shaded in full colour before anything is drawn.
+A frame is a grid of cells, one for every three pixels of width (smaller on sharper screens). Each cell gets its full colour before anything is drawn.
 
-The sky runs from its top colour down to a brighter horizon, with a glow round the sun or moon. Clouds are layers of noise, lit on the side that faces the light and kept clear of the moon's face. Mountains are ridged noise: the slopes facing the light catch it, far ranges fade toward the sky, mist pools at their feet, and the crest of each one catches a line of sky behind it, so a dark range still separates from a dark sky. At alpenglow the sun is not up yet, but the snow on the high peaks already is, so only the faces turned toward it go rose.
+The sky goes from its top colour down to a brighter horizon, with a glow around the sun or moon. Clouds are layers of noise, lit on the side facing the light and kept away from the moon. Mountains are ridged noise. The slopes facing the light catch it, far ranges fade into the sky, and mist collects at their base. Each crest also gets a thin line of sky behind it, so a dark range still stands out against a dark sky. At alpenglow the sun hasn’t risen yet but already reaches the snow on the high peaks, so only the faces turned toward it turn pink.
 
-### Water that reflects what is above it
+### Water that reflects what’s above it
 
-Water is shaded last. For each cell below the horizon, the scene looks up at the cell mirrored across the waterline, which is already shaded, and nudges it sideways by the swell. The reflection of the mountains, the clouds and every lamp falls out of that one lookup. A road of glints runs down from the sun or moon on top.
+Water is shaded last. For each cell below the horizon, the scene looks at the cell mirrored across the waterline, which is already shaded, and shifts it sideways a little to follow the swell. That one lookup gives you the reflection of the mountains, the clouds and every lamp. On top of it, a trail of glints runs down from the sun or moon.
 
-Each column mirrors about its own line: the horizon on open water, or the foot of whatever stands in it. A torii standing in a pond reflects from its own posts, and on a wet street a vending machine's light starts at its own base and runs long down the road.
+Each column mirrors around its own line: the horizon on open water, or the base of whatever is standing there. A torii in a pond reflects from its own posts, and on a wet street a vending machine’s light starts at its base and stretches down the road.
 
 ## Places without a horizon
 
-Most scenes are a sky over land over water. Two are not.
+Most scenes are sky, then land, then water. Two aren’t.
 
-### A street that runs away
+### The city street
 
-The city is drawn in one-point perspective: the street runs straight away from us to a point on the horizon. Every column of the frame looks at one wall, and how far away that wall is follows from how far the column is from the middle. Knowing the depth, the rest is division. Trimmed down, it reads:
+The city uses one-point perspective: the street goes straight ahead to a single point on the horizon. Each column of the frame looks at one wall, and the wall’s distance depends on how far the column is from the middle. Once you know the depth, the rest is division. Simplified, it looks like this:
 
 ```ts title="src/lib/scene.ts"
 const z = Math.min(end, STREET / Math.abs(x - 1));
@@ -117,21 +119,21 @@ else if (y < horizon - (block.h - EYE) / z) kind[k] = SKY;
 else paint(k, face(z, EYE - (y - horizon) * z, block));
 ```
 
-The signs are blade signs, mounted square to the wall, which means they face straight down the street, at us. Each one is a rectangle shrunk by its depth, with a lit border and katakana drawn from five-by-five bitmaps when there is room for them; too far away, a sign is a scatter of light. Their glow is worked out once, and it lights the walls, the wet street and the rain falling past them.
+The signs are blade signs, mounted perpendicular to the wall, so they face down the street, toward us. Each one is a rectangle scaled by its depth, with a lit border and katakana from five-by-five bitmaps when there’s room for them. Far enough away, a sign is just a few points of light. Their glow is calculated once and lights the walls, the wet street and the rain falling in front of them.
 
 ### Under the sea
 
-The reef is the sky turned upside down. The gradient runs from the bright surface down to the dark, the sun is a glare at the top with shafts of light fanning out from it, and the mountains become rock high at both edges with coral along the crest. A school of fish turns in a ring that wanders, and each fish flashes when it turns its flank to us.
+The reef is basically the sky upside down. The gradient goes from the bright surface down into the dark, the sun becomes a glare at the top with rays of light spreading from it, and the mountains turn into tall rock at both edges with coral along the top. A school of fish swims in a loose ring that drifts around, and each fish flashes when it turns its side to us.
 
 ## Things that move
 
-- **Weather:** clouds drift and stars twinkle. Rain falls in slanted lanes, lit by any neon near it, and a storm sends a bolt every few seconds that flickers twice before it goes.
-- **Lights:** sky lanterns rise at their own depths, the near ones big, low and quick, and the water mirrors the ones above it. Lamps float down the river, and the lighthouse turns its beam.
-- **Life:** petals fall from the cherry tree, a flag streams from the temple, a windmill turns, and a manta ray glides past the reef, its wings rising and falling.
+- **Weather:** clouds drift and stars twinkle. Rain falls in slanted lines, lit by any neon nearby, and a storm sends a bolt every few seconds that flickers twice before it’s gone.
+- **Lights:** sky lanterns rise at different depths (the close ones big, low and fast), and the water reflects the ones above it. Lamps float down the river, and the lighthouse beam turns.
+- **Life:** petals fall from the cherry tree, a flag waves on the temple, a windmill turns, and a manta ray glides past the reef, its wings rising and falling.
 
 ## From colour to halftone dots
 
-Each cell becomes one dot, in one of three sizes or none, the way a printed halftone does it. The brightest cells get the largest dots. A four-by-four ordered dither, the Bayer matrix, decides between neighbouring sizes, so a smooth gradient turns into an even texture instead of hard bands. Trimmed down, it is three lines:
+Each cell becomes one dot, in one of three sizes or no dot at all, like a printed halftone. The brightest cells get the biggest dots. A four-by-four ordered dither, the Bayer matrix, decides between neighbouring sizes, so a smooth gradient becomes an even texture instead of hard bands. Simplified, it’s three lines:
 
 ```ts title="src/lib/scene.ts" {2}
 const level = floor + (1 - floor) * peak ** 0.75;
@@ -139,27 +141,27 @@ const dither = bayer[(row & 3) * 4 + (col & 3)];
 const step = Math.round(level * 3 + dither);
 ```
 
-Then the colour makes up what the size could not: a small dot is drawn a little brighter and a large one a little dimmer, so the picture keeps its tone across the dither's steps. Each dot's colour is also pushed away from its own grey, so coral, neon and blossom stay vivid while white snow and grey storm cloud stay as they are. Land is allowed to drop to no dot at all, which is what makes a dark hill read against a dark sky.
+Then colour makes up for what size can’t do. A small dot is drawn a bit brighter and a large one a bit dimmer, so the picture keeps its tone across the dither steps. Each dot’s colour is also pushed away from its own grey, which keeps coral, neon and blossoms vivid without touching white snow or grey storm clouds. Land can drop to no dot at all, and that’s what makes a dark hill visible against a dark sky.
 
 ## Shading only what moves
 
-The scene draws fifteen frames a second. Light that never moves, like the sky's gradient, the glow round the moon, lamplight in the air and the road of light on the water, is worked out once, and a cloud only when it drifts into view. A frame shades what is left: clouds, stars, rain and water.
+The scene draws fifteen frames per second. Light that never moves, like the sky gradient, the glow around the moon, lamplight in the air and the trail of light on the water, is calculated once. A cloud gets the same treatment when it drifts into view. Each frame only shades what’s left: clouds, stars, rain and water.
 
-Then the GPU draws the dots, in a WebGL shader. The frame goes up as a small texture, one texel a cell, its colour and its dot size. One triangle covers the canvas, and every pixel works out which cell it falls in and how far it is from the middle, so every dot comes out round, with a pixel's worth of soft edge, and a frame costs the same however many dots there are.
+Then the GPU draws the dots in a WebGL shader. Each frame is uploaded as a small texture, one texel per cell, holding its colour and dot size. A single triangle covers the canvas, and each pixel works out which cell it’s in and how far it is from the cell’s center. That way every dot comes out round with a one-pixel soft edge, and a frame costs the same no matter how many dots there are.
 
-If frames start running slow, eight in a row over 30 milliseconds, the cells grow and there are fewer to shade. Past 320 columns they grow rather than multiply, and without WebGL the dots are filled on a plain canvas, fewer and larger.
+If frames get slow (eight in a row over 30 milliseconds), the cells get bigger so there are fewer to shade. Past 320 columns the cells grow instead of multiplying, and without WebGL the dots are drawn on a regular canvas, fewer and larger.
 
-## Touching it
+## Interacting with it
 
 - **Pointer:** a small warm light follows the mouse, and the water reflects it.
-- **Tap:** on the sky, a shooting star leaves from where you pressed; on the water, a ring spreads out and fades; under the sea, a few bubbles rise.
-- **Dice:** each press throws the die and draws a new seed, for this visit only. While it tumbles, the old scene melts into the new one: both warp through noise, and the new one breaks through where the noise runs lowest.
-- **Rest:** the scene stops drawing when it scrolls out of view, and it holds still if your system asks for reduced motion.
+- **Tap:** on the sky, a shooting star starts where you tapped; on the water, a ring spreads out and fades; under the sea, a few bubbles float up.
+- **Dice:** each press rolls the die and picks a new seed, just for this visit. While it rolls, the old scene melts into the new one: both get warped by noise, and the new one shows through where the noise is lowest.
+- **Rest:** the scene stops drawing when it scrolls out of view, and it stays still if your system asks for reduced motion.
 
-On the home page, the same seed draws a square crop of the scene inside each post's tile, around its landmark, still until you hover or focus it. Open the post and the tile grows into the picture at the top.
+On the home page, the same seed draws a square crop of the scene inside each post’s tile, centered on its landmark. It stays still until you hover or focus it. When you open the post, the tile grows into the picture at the top.
 
-![The Writing list on the home page, with this post's tile](/writing/art-from-a-seed/home-tile.png "The tile is the same scene, cropped close round its landmark.")
+![The Writing list on the home page, with this post's tile](/writing/art-from-a-seed/home-tile.png "The tile is the same scene, cropped around its landmark.")
 
-## Where it comes from
+## Where the idea came from
 
-The look is borrowed from [ascii.rest](https://ascii.rest) by [bas3line](https://github.com/bas3line/ascii), a library of animated text art for web pages. Each of its scenes, like [night coast](https://ascii.rest/night-coast/), [tokyo rain](https://ascii.rest/tokyo-rain/) or [deep reef](https://ascii.rest/deep-reef/), is its own piece of code, shaded in colour cell by cell and drawn as dithered dots. These are grown from a number instead. Both are the same bet: a page can move a little without giving up being quiet.
+The look comes from [ascii.rest](https://ascii.rest) by [bas3line](https://github.com/bas3line/ascii), a library of animated text art for web pages. Each of its scenes, like [night coast](https://ascii.rest/night-coast/), [tokyo rain](https://ascii.rest/tokyo-rain/) or [deep reef](https://ascii.rest/deep-reef/), is its own piece of code, shaded in colour cell by cell and drawn as dithered dots. The ones here come from a number instead. Different approach, same idea: a page can have a bit of motion and still be calm.

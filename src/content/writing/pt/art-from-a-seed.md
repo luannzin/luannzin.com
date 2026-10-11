@@ -1,20 +1,22 @@
 ---
-title: Arte a partir de uma semente
-description: A imagem de cada post, nascida de um único número
+title: Arte a partir de uma seed
+description: A imagem de cada post, desenhada a partir de um único número
 date: 2026-10-08
-updated: 2026-10-10
-metaTitle: Arte a partir de uma semente: arte generativa com seed em TypeScript
-metaDescription: Como a arte de capa de cada post nasce de uma seed: um PRNG mulberry32 escolhe a cena, e o WebGL a desenha como pontos de meio-tom com dithering de Bayer.
+updated: 2026-10-11
+metaTitle: Arte a partir de uma seed: arte generativa em TypeScript
+metaDescription: Como a arte de capa de cada post sai de uma seed: um PRNG mulberry32 escolhe a cena, e o WebGL desenha tudo como pontos de meio-tom com dithering de Bayer.
 seed: 16
 ---
 
-Todo post deste site abre com uma cena que ninguém pintou. Cada post carrega um número, sua semente (seed), e a página faz crescer um pequeno mundo a partir dele: o lugar, a hora do dia, o que está de pé ali, o formato de cada nuvem. Passe o ponteiro sobre a de cima e você leva uma pequena luz por ela; toque no céu para ver uma estrela cadente, ou na água para uma ondulação. O dado no canto sorteia outra para você, só nesta visita.
+Ninguém desenhou a imagem no topo deste post. Cada post tem um número, a seed, e a página monta uma cena a partir dele: o lugar, a hora do dia, o que está ali, até o formato das nuvens.
 
-Eu queria que as imagens pertencessem aos posts sem precisar criar capas que eu teria que manter. Uma semente não custa nada para guardar, nunca fica desatualizada e dá a cada post uma vista que nenhum outro tem.
+Ela também reage a você. Passa o ponteiro por cima e uma luzinha vai junto. Toca no céu pra ver uma estrela cadente, ou na água pra fazer uma ondulação. O dado no canto sorteia outra cena, só pra essa visita.
+
+Eu queria que cada post tivesse sua própria imagem, mas sem ter que criar capas e manter tudo atualizado. Uma seed é só um número no frontmatter. Ela nunca fica desatualizada, e nenhum post acaba com a mesma vista de outro.
 
 ## Um número, todas as escolhas
 
-A semente vem do frontmatter do post, ou de um hash do slug quando o post não a define. Um pequeno gerador de números pseudoaleatórios (PRNG) com semente, o mulberry32, a transforma em uma sequência de números entre 0 e 1, e cada decisão que a cena toma lê o próximo número dessa sequência:
+A seed vem do frontmatter do post. Se o post não define uma, ela vira um hash do slug. Aí o mulberry32, um gerador de números pseudoaleatórios (PRNG) bem pequeno, transforma ela numa sequência de números entre 0 e 1. Toda decisão que a cena toma pega o próximo número dessa sequência:
 
 ```ts title="src/lib/scene.ts"
 function mulberry32(a: number) {
@@ -27,7 +29,7 @@ function mulberry32(a: number) {
 }
 ```
 
-O lugar vem primeiro, porque o lugar decide o que mais pode acontecer ali. Cada um lista as horas do dia em que é desenhado e o que pode estar nele, cada item com um peso, e os três próximos números da sequência escolhem um de cada:
+O lugar é escolhido primeiro, porque ele decide o que mais pode aparecer. Cada lugar lista as horas do dia em que pode ser desenhado e o que pode estar nele, cada um com um peso. Os três próximos números escolhem o lugar, a hora e o marco:
 
 ```ts title="src/lib/scene.ts" {15-17}
 const PLACES = {
@@ -49,11 +51,11 @@ const time = TIMES[weighted(random, PLACES[place].times)];
 const landmark = weighted(random, PLACES[place].landmarks);
 ```
 
-Assim, uma rua nunca é desenhada com o sol se pondo nela, e nada no fundo do mar recebe neve. Como a sequência é sempre a mesma para a mesma semente, tudo o que sai dela também é. O marco e o sol ou a lua ficam em lados opostos do quadro, então toda cena começa de uma composição que se sustenta.
+Por isso uma rua nunca aparece no pôr do sol, e nada no fundo do mar recebe neve. E como a mesma seed sempre gera a mesma sequência, ela sempre gera a mesma cena. Tem mais uma regra: o marco e o sol ou a lua ficam em lados opostos do quadro, então toda cena já começa com uma composição equilibrada.
 
-## Um pequeno mundo de peças
+## Do que uma cena é feita
 
-São nove lugares, onze horas do dia e onze coisas para colocar neles:
+São nove lugares, onze horas do dia e onze marcos:
 
 | Lugar | Desenhado em | O que está nele |
 | --- | --- | --- |
@@ -67,13 +69,13 @@ São nove lugares, onze horas do dia e onze coisas para colocar neles:
 | Cidade | Chuva, noite, crepúsculo, tempestade | Alguém sob um guarda-chuva, ou uma máquina de venda automática |
 | Recife | Águas profundas | Um naufrágio, ou uma raia-manta |
 
-O mesmo código, seis outras sementes. Passe o ponteiro sobre uma para colocá-la em movimento:
+Aqui está o mesmo código com seis outras seeds. Passa o ponteiro por cima de uma pra ela se mexer:
 
 ```scenes
 2 109 103 9 46 58
 ```
 
-O nome embaixo de cada imagem vem das mesmas escolhas: uma palavra para a hora e uma para o lugar, como a de cima. Ou continue sorteando; cada clique escolhe uma nova semente:
+O nome embaixo de cada imagem vem das mesmas escolhas: uma palavra pra hora e outra pro lugar. Essa aqui sorteia uma seed nova toda vez que você aperta o botão:
 
 ```roll
 44
@@ -81,7 +83,7 @@ O nome embaixo de cada imagem vem das mesmas escolhas: uma palavra para a hora e
 
 ## Sombreando cada célula
 
-Da semente até a tela, uma cena passa por quatro etapas. As duas primeiras rodam uma vez; as duas últimas rodam a cada quadro:
+Entre a seed e a tela são quatro etapas. As duas primeiras rodam uma vez só, e as duas últimas rodam a cada frame:
 
 ```flow
 seed | um número | hash | lit
@@ -91,23 +93,23 @@ frame(t) | sombreia cada célula | grid
 canvas | pontos na GPU | image | lit
 ```
 
-O quadro é uma grade de células, uma a cada três pixels de largura, ou mais fina em uma tela mais nítida, e cada célula é sombreada em cores antes de qualquer coisa ser desenhada.
+Um frame é uma grade de células, uma a cada três pixels de largura (menores em telas mais nítidas). Cada célula recebe sua cor completa antes de qualquer coisa ser desenhada.
 
-O céu vai da cor do topo até um horizonte mais claro, com um brilho em volta do sol ou da lua. As nuvens são camadas de ruído, iluminadas no lado voltado para a luz e mantidas longe da face da lua. As montanhas são ruído em cristas: as encostas voltadas para a luz a recebem, as cadeias distantes se dissolvem no céu, a névoa se acumula aos seus pés, e o topo de cada uma pega uma linha do céu por trás, então até uma cadeia escura se destaca de um céu escuro. No alpenglow o sol ainda não nasceu, mas a neve nos picos mais altos já o vê, então só as faces voltadas para ele ficam rosadas.
+O céu vai da cor do topo até um horizonte mais claro, com um brilho em volta do sol ou da lua. As nuvens são camadas de ruído, iluminadas do lado virado pra luz e mantidas longe da lua. As montanhas são ruído em cristas. As encostas viradas pra luz recebem ela, as cadeias mais distantes somem no céu, e a névoa se junta na base. Cada crista também ganha uma linha fina de céu atrás, então até uma cadeia escura se destaca de um céu escuro. No alpenglow o sol ainda não nasceu, mas já bate na neve lá no alto, então só as faces viradas pra ele ficam rosadas.
 
 ### Água que reflete o que está acima dela
 
-A água é sombreada por último. Para cada célula abaixo do horizonte, a cena olha para cima, para a célula espelhada pela linha d'água, que já foi sombreada, e a desloca para o lado de acordo com a ondulação. O reflexo das montanhas, das nuvens e de cada lâmpada sai dessa única consulta. Por cima, uma estrada de reflexos desce a partir do sol ou da lua.
+A água é sombreada por último. Pra cada célula abaixo do horizonte, a cena olha pra célula espelhada do outro lado da linha d'água, que já foi sombreada, e desloca ela um pouco pro lado seguindo a ondulação. Essa única consulta já dá o reflexo das montanhas, das nuvens e de cada lâmpada. Por cima, uma trilha de reflexos desce a partir do sol ou da lua.
 
-Cada coluna espelha em torno da própria linha: o horizonte em mar aberto, ou a base do que estiver de pé nela. Um torii dentro de um lago reflete a partir dos próprios pilares, e em uma rua molhada a luz de uma máquina de venda automática começa na própria base e se estende pela rua.
+Cada coluna espelha em torno da própria linha: o horizonte em mar aberto, ou a base do que estiver ali. Um torii num lago reflete a partir dos próprios pilares, e numa rua molhada a luz de uma máquina de venda automática começa na base dela e se estende pela rua.
 
 ## Lugares sem horizonte
 
-A maioria das cenas é um céu sobre terra sobre água. Duas não são.
+A maioria das cenas é céu, depois terra, depois água. Duas não são.
 
-### Uma rua que foge
+### A rua da cidade
 
-A cidade é desenhada em perspectiva de um ponto: a rua se afasta de nós em linha reta até um ponto no horizonte. Cada coluna do quadro olha para uma parede, e a distância dessa parede depende de quão longe a coluna está do centro. Sabendo a profundidade, o resto é divisão. Resumido, fica assim:
+A cidade usa perspectiva de um ponto: a rua vai reto até um único ponto no horizonte. Cada coluna do frame olha pra uma parede, e a distância dessa parede depende de quão longe a coluna está do meio. Sabendo a profundidade, o resto é divisão. Simplificando, fica assim:
 
 ```ts title="src/lib/scene.ts"
 const z = Math.min(end, STREET / Math.abs(x - 1));
@@ -117,21 +119,21 @@ else if (y < horizon - (block.h - EYE) / z) kind[k] = SKY;
 else paint(k, face(z, EYE - (y - horizon) * z, block));
 ```
 
-As placas são do tipo bandeira, presas perpendiculares à parede, o que significa que ficam de frente para o fundo da rua, para nós. Cada uma é um retângulo encolhido pela profundidade, com uma borda acesa e katakana desenhado a partir de bitmaps de cinco por cinco quando há espaço para eles; longe demais, uma placa vira um punhado de luz. O brilho delas é calculado uma vez e ilumina as paredes, a rua molhada e a chuva que cai na frente delas.
+As placas são do tipo bandeira, presas perpendiculares à parede, então ficam viradas pro fundo da rua, na nossa direção. Cada uma é um retângulo escalado pela profundidade, com uma borda acesa e katakana feito a partir de bitmaps de cinco por cinco quando tem espaço. Longe o bastante, uma placa vira só alguns pontos de luz. O brilho delas é calculado uma vez e ilumina as paredes, a rua molhada e a chuva que cai na frente delas.
 
 ### No fundo do mar
 
-O recife é o céu de cabeça para baixo. O gradiente vai da superfície clara até o escuro, o sol é um clarão no topo com feixes de luz se abrindo a partir dele, e as montanhas viram rocha alta nas duas bordas com coral ao longo da crista. Um cardume gira em um anel que vagueia, e cada peixe reluz quando vira o flanco para nós.
+O recife é basicamente o céu de cabeça pra baixo. O gradiente vai da superfície clara até o escuro, o sol vira um clarão no topo com raios de luz se abrindo a partir dele, e as montanhas viram rochas altas nas duas bordas, com coral no topo. Um cardume nada num anel solto que vai mudando de lugar, e cada peixe reluz quando vira de lado pra gente.
 
-## Coisas que se movem
+## Coisas que se mexem
 
-- **Clima:** as nuvens passam e as estrelas cintilam. A chuva cai em faixas inclinadas, iluminada por qualquer neon por perto, e uma tempestade solta um raio a cada poucos segundos, que pisca duas vezes antes de sumir.
-- **Luzes:** lanternas de céu sobem cada uma na sua profundidade, as próximas grandes, baixas e rápidas, e a água espelha as que estão acima dela. Luminárias descem o rio flutuando, e o farol gira seu facho.
-- **Vida:** pétalas caem da cerejeira, uma bandeira tremula no templo, um moinho gira, e uma raia-manta desliza pelo recife, as asas subindo e descendo.
+- **Clima:** as nuvens passam e as estrelas piscam. A chuva cai em linhas inclinadas, iluminada por qualquer neon por perto, e uma tempestade solta um raio a cada poucos segundos, que pisca duas vezes antes de sumir.
+- **Luzes:** lanternas de céu sobem em profundidades diferentes (as mais próximas são grandes, baixas e rápidas), e a água reflete as que estão acima dela. Luminárias descem o rio boiando, e o facho do farol gira.
+- **Vida:** pétalas caem da cerejeira, uma bandeira tremula no templo, um moinho gira, e uma raia-manta passa deslizando pelo recife, subindo e descendo as asas.
 
 ## Da cor aos pontos de meio-tom
 
-Cada célula vira um ponto, em um de três tamanhos ou nenhum, do jeito que um meio-tom impresso faz. As células mais claras recebem os maiores pontos. Um dithering ordenado de quatro por quatro, a matriz de Bayer, decide entre tamanhos vizinhos, então um gradiente suave vira uma textura uniforme em vez de faixas duras. Resumido, são três linhas:
+Cada célula vira um ponto, em um de três tamanhos ou nenhum, igual a um meio-tom impresso. As células mais claras ganham os maiores pontos. Um dithering ordenado de quatro por quatro, a matriz de Bayer, decide entre tamanhos vizinhos, então um gradiente suave vira uma textura uniforme em vez de faixas marcadas. Simplificando, são três linhas:
 
 ```ts title="src/lib/scene.ts" {2}
 const level = floor + (1 - floor) * peak ** 0.75;
@@ -139,27 +141,27 @@ const dither = bayer[(row & 3) * 4 + (col & 3)];
 const step = Math.round(level * 3 + dither);
 ```
 
-Depois, a cor compensa o que o tamanho não conseguiu: um ponto pequeno é desenhado um pouco mais claro e um grande um pouco mais escuro, então a imagem mantém o tom ao longo dos degraus do dithering. A cor de cada ponto também é afastada do seu próprio cinza, então coral, neon e flores continuam vivos enquanto a neve branca e a nuvem cinza de tempestade ficam como estão. A terra pode ficar sem ponto nenhum, e é isso que faz um morro escuro se destacar contra um céu escuro.
+Depois, a cor compensa o que o tamanho não consegue. Um ponto pequeno é desenhado um pouco mais claro e um grande um pouco mais escuro, então a imagem mantém o tom entre os degraus do dithering. A cor de cada ponto também é afastada do próprio cinza, o que mantém coral, neon e flores vivos sem mexer na neve branca nem nas nuvens cinza de tempestade. A terra pode ficar sem ponto nenhum, e é isso que deixa um morro escuro visível contra um céu escuro.
 
-## Sombreando só o que se move
+## Sombreando só o que se mexe
 
-A cena desenha quinze quadros por segundo. A luz que nunca se move, como o gradiente do céu, o brilho em volta da lua, a luz das lâmpadas no ar e a estrada de luz na água, é calculada uma vez, e uma nuvem só quando ela entra no quadro. Cada quadro sombreia o que sobra: nuvens, estrelas, chuva e água.
+A cena desenha quinze frames por segundo. A luz que nunca se mexe, como o gradiente do céu, o brilho em volta da lua, a luz das lâmpadas no ar e a trilha de luz na água, é calculada uma vez só. Uma nuvem recebe o mesmo tratamento quando entra no quadro. Cada frame só sombreia o que sobra: nuvens, estrelas, chuva e água.
 
-Então a GPU desenha os pontos, em um shader WebGL. O quadro sobe como uma textura pequena, um texel por célula, com sua cor e o tamanho do ponto. Um único triângulo cobre o canvas, e cada pixel descobre em qual célula cai e a que distância está do centro, então cada ponto sai redondo, com um pixel de borda suave, e um quadro custa o mesmo não importa quantos pontos existam.
+Aí a GPU desenha os pontos num shader WebGL. Cada frame sobe como uma textura pequena, um texel por célula, com a cor e o tamanho do ponto. Um único triângulo cobre o canvas, e cada pixel descobre em qual célula está e a que distância está do centro dela. Assim todo ponto sai redondo, com um pixel de borda suave, e um frame custa o mesmo não importa quantos pontos tenha.
 
-Se os quadros começarem a ficar lentos, oito seguidos acima de 30 milissegundos, as células crescem e sobram menos para sombrear. Acima de 320 colunas elas crescem em vez de se multiplicar, e sem WebGL os pontos são preenchidos em um canvas comum, em menor número e maiores.
+Se os frames ficam lentos (oito seguidos acima de 30 milissegundos), as células aumentam pra sobrar menos coisa pra sombrear. Acima de 320 colunas as células crescem em vez de se multiplicar, e sem WebGL os pontos são desenhados num canvas comum, em menor quantidade e maiores.
 
-## Tocando nela
+## Interagindo com ela
 
-- **Ponteiro:** uma pequena luz quente segue o mouse, e a água a reflete.
-- **Toque:** no céu, uma estrela cadente parte de onde você tocou; na água, um anel se espalha e some; no fundo do mar, algumas bolhas sobem.
-- **Dado:** cada clique joga o dado e sorteia uma nova semente, só nesta visita. Enquanto ele rola, a cena antiga se derrete na nova: as duas se deformam pelo ruído, e a nova aparece onde o ruído está mais baixo.
+- **Ponteiro:** uma pequena luz quente segue o mouse, e a água reflete ela.
+- **Toque:** no céu, uma estrela cadente sai de onde você tocou; na água, um anel se espalha e some; no fundo do mar, umas bolhas sobem.
+- **Dado:** cada clique joga o dado e sorteia uma seed nova, só pra essa visita. Enquanto ele rola, a cena antiga derrete na nova: as duas se deformam com ruído, e a nova aparece onde o ruído está mais baixo.
 - **Repouso:** a cena para de desenhar quando sai da tela, e fica parada se o seu sistema pede movimento reduzido.
 
-Na página inicial, a mesma semente desenha um recorte quadrado da cena dentro do bloco de cada post, em volta do seu marco, parado até você passar o ponteiro ou focar nele. Abra o post e o bloco cresce até virar a imagem no topo.
+Na página inicial, a mesma seed desenha um recorte quadrado da cena dentro do bloco de cada post, centralizado no marco. Ele fica parado até você passar o ponteiro ou focar nele. Quando você abre o post, o bloco cresce até virar a imagem do topo.
 
-![A lista de artigos na página inicial, com o bloco deste post](/writing/art-from-a-seed/home-tile.png "O bloco é a mesma cena, recortada bem perto do seu marco.")
+![A lista de artigos na página inicial, com o bloco deste post](/writing/art-from-a-seed/home-tile.png "O bloco é a mesma cena, recortada em volta do marco.")
 
-## De onde vem
+## De onde veio a ideia
 
-O visual é emprestado do [ascii.rest](https://ascii.rest), de [bas3line](https://github.com/bas3line/ascii), uma biblioteca de arte em texto animada para páginas web. Cada uma das cenas de lá, como [night coast](https://ascii.rest/night-coast/), [tokyo rain](https://ascii.rest/tokyo-rain/) ou [deep reef](https://ascii.rest/deep-reef/), é seu próprio pedaço de código, sombreado em cores célula por célula e desenhado como pontos com dithering. As daqui nascem de um número. As duas são a mesma aposta: uma página pode se mover um pouco sem deixar de ser calma.
+O visual vem do [ascii.rest](https://ascii.rest), criado por [bas3line](https://github.com/bas3line/ascii), uma biblioteca de arte em texto animada pra páginas web. Cada cena de lá, como [night coast](https://ascii.rest/night-coast/), [tokyo rain](https://ascii.rest/tokyo-rain/) ou [deep reef](https://ascii.rest/deep-reef/), é um pedaço de código próprio, sombreado em cores célula por célula e desenhado como pontos com dithering. As daqui saem de um número. Abordagem diferente, mesma ideia: uma página pode ter um pouco de movimento e continuar calma.
