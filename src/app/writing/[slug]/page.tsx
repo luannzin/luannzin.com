@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleIslands } from "@/components/article-islands";
 import { AskAI } from "@/components/ask-ai";
+import { AuthorFooter } from "@/components/author-footer";
 import { CoverArt } from "@/components/cover-art";
 import { ChevronRightIcon } from "@/components/icons";
 import { TextReveal } from "@/components/motion/text-reveal";
 import { Share } from "@/components/share";
 import { Toc } from "@/components/toc";
 import { type Locale, setLocale, translations } from "@/i18n/generated";
-import { enter, underline } from "@/lib/classes";
+import { enter } from "@/lib/classes";
 import { article, JsonLd } from "@/lib/json-ld";
 import { renderMarkdown } from "@/lib/markdown";
 import { openGraph, site } from "@/lib/site";
@@ -169,38 +169,14 @@ export default async function Page({ params }: PageProps<"/writing/[slug]">) {
         />
       </div>
 
-      <footer className="mt-20">
-        <div
-          aria-hidden
-          className="relative h-px bg-border before:absolute before:top-1/2 before:left-1/2 before:size-1.5 before:-translate-1/2 before:rotate-45 before:bg-muted-foreground before:shadow-[0_0_0_4px_var(--background)]"
+      <AuthorFooter role={t.app.home.role}>
+        <Share
+          title={post.title}
+          url={url}
+          labels={t.components.share}
+          copy={t.components.copy}
         />
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
-          <Link
-            href="/"
-            className="group flex items-center gap-3 rounded-[14px] leading-snug outline-offset-4"
-          >
-            <Image
-              src="/avatar.jpg"
-              alt=""
-              width={40}
-              height={40}
-              className="size-10 rounded-full outline -outline-offset-1 outline-white/10"
-            />
-            <span>
-              <span className={`${underline} font-medium`}>Luan Fabri</span>
-              <span className="block text-muted-foreground">
-                {t.app.home.role}
-              </span>
-            </span>
-          </Link>
-          <Share
-            title={post.title}
-            url={url}
-            labels={t.components.share}
-            copy={t.components.copy}
-          />
-        </div>
-      </footer>
+      </AuthorFooter>
     </main>
   );
 }

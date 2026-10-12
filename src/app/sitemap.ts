@@ -8,5 +8,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${site}/writing/${post.slug}`,
     lastModified: post.updated ?? post.date,
   }));
-  return [{ url: site, lastModified: posts[0]?.lastModified }, ...posts];
+  return [
+    { url: site, lastModified: posts[0]?.lastModified },
+    { url: `${site}/lab` },
+    ...posts,
+  ];
 }

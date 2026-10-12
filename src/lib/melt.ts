@@ -82,11 +82,21 @@ export type Melt = {
   stop: () => void;
 };
 
+// One melt held at whatever point it is drawn at: the Lab moves it by hand.
+export type MeltLayer = {
+  canvas: HTMLCanvasElement;
+  draw: (progress: number) => void;
+  remove: () => void;
+};
+
 // power2.inOut, as in the original
-const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (2 - 2 * t) ** 2 / 2);
+export const ease = (t: number) =>
+  t < 0.5 ? 2 * t * t : 1 - (2 - 2 * t) ** 2 / 2;
+export const MELT_MS = 1100;
 
 // Lays the melt over `host`, from what `from` shows now to whatever `live`
-// shows as it plays. Null when WebGL is out of reach: the scene just swaps.
+// shows as it plays, and plays it. Null when WebGL is out of reach: the scene
+// just swaps.
 export function melt(
   host: HTMLElement,
   from: HTMLCanvasElement,
@@ -94,6 +104,41 @@ export function melt(
   seed: number,
   still: boolean,
 ): Melt | null {
+  const layer = meltLayer(host, from, live, seed, still);
+  if (!layer) return null;
+  const duration = still ? 350 : MELT_MS;
+  const start = performance.now();
+  let p = 0;
+  const state: Melt = {
+    running: true,
+    capture: () => {
+      layer.draw(p);
+      return layer.canvas;
+    },
+    stop: () => {
+      if (!state.running) return;
+      state.running = false;
+      cancelAnimationFrame(frame);
+      layer.remove();
+    },
+  };
+  let frame = requestAnimationFrame(function tick(now) {
+    p = ease(Math.min(1, (now - start) / duration));
+    layer.draw(p);
+    if (p < 1) frame = requestAnimationFrame(tick);
+    else state.stop();
+  });
+  return state;
+}
+
+// The melt's canvas over `host`, showing the old scene until it is drawn on.
+export function meltLayer(
+  host: HTMLElement,
+  from: HTMLCanvasElement,
+  live: HTMLCanvasElement,
+  seed: number,
+  still: boolean,
+): MeltLayer | null {
   const canvas = document.createElement("canvas");
   canvas.width = live.width;
   canvas.height = live.height;
@@ -155,10 +200,7 @@ export function melt(
   const progress = gl.getUniformLocation(program, "uProgress");
   gl.viewport(0, 0, canvas.width, canvas.height);
 
-  const duration = still ? 350 : 1100;
-  const start = performance.now();
-  let p = 0;
-  const draw = () => {
+  const draw = (p: number) => {
     // the new scene keeps moving underneath: take its latest frame
     gl.activeTexture(gl.TEXTURE1);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, live);
@@ -166,30 +208,16 @@ export function melt(
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   };
 
-  const state: Melt = {
-    running: true,
-    capture: () => {
-      draw();
-      return canvas;
-    },
-    stop: () => {
-      if (!state.running) return;
-      state.running = false;
-      cancelAnimationFrame(frame);
+  // The first frame goes up before the new scene is drawn underneath, so the
+  // old one never blinks away.
+  host.append(canvas);
+  draw(0);
+  return {
+    canvas,
+    draw,
+    remove: () => {
       canvas.remove();
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     },
   };
-
-  // The first frame goes up before the new scene is drawn underneath, so the
-  // old one never blinks away.
-  host.append(canvas);
-  draw();
-  let frame = requestAnimationFrame(function tick(now) {
-    p = ease(Math.min(1, (now - start) / duration));
-    draw();
-    if (p < 1) frame = requestAnimationFrame(tick);
-    else state.stop();
-  });
-  return state;
 }

@@ -1,9 +1,11 @@
+import { translations } from "@/i18n/generated";
 import { site } from "@/lib/site";
 import { formatDate, getPosts } from "@/lib/writing";
 
 // The home page as plain markdown, for agents (also served at /llms.txt).
 // The bio and projects repeat the home page's; keep the two in step.
 export function GET() {
+  const lab = translations.en.app.lab;
   const text = `# Luan Fabri
 
 > Luan Fabri (luannzin), front-end engineer at Loopscape, and the author of the open source tools echo and better-intl.
@@ -25,6 +27,10 @@ ${getPosts()
       `- [${p.title}](${site}/writing/${p.slug}.md) — ${p.description} (${formatDate(p.date)})`,
   )
   .join("\n")}
+
+## Lab
+
+- [${lab.row}](${site}/lab.md) — ${lab.rowDescription}
 
 ## Links
 
