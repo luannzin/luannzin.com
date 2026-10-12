@@ -1,5 +1,5 @@
 import { translations } from "@/i18n/generated";
-import { site } from "@/lib/site";
+import { markdownTwin, profiles, site } from "@/lib/site";
 import { formatDate, getPosts } from "@/lib/writing";
 
 // The home page as plain markdown, for agents (also served at /llms.txt).
@@ -12,7 +12,7 @@ export function GET() {
 
 I'm a front-end engineer at [Loopscape](https://loopscape.com.br), where since 2023 I've been building ERPs and multi-tenant platforms with React and Next.js. It's software people spend their whole workday in, so a button that doesn't look clickable isn't a small detail there. It's friction, all day.
 
-On the side, I build open source tools for problems I keep running into. You can see my code on [GitHub](https://github.com/luannzin), follow along on [X](https://x.com/__luannzin), or find me on [LinkedIn](https://linkedin.com/in/luannzin).
+On the side, I build open source tools for problems I keep running into. You can see my code on [GitHub](${profiles.github}), follow along on [X](${profiles.x}), or find me on [LinkedIn](${profiles.linkedin}).
 
 ## Projects
 
@@ -35,15 +35,9 @@ ${getPosts()
 ## Links
 
 - Website: ${site}
-- GitHub: https://github.com/luannzin
-- X: https://x.com/__luannzin
-- LinkedIn: https://linkedin.com/in/luannzin
+- GitHub: ${profiles.github}
+- X: ${profiles.x}
+- LinkedIn: ${profiles.linkedin}
 `;
-  // the home page is the copy to index; this one is for reading
-  return new Response(text, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      Link: `<${site}/>; rel="canonical"`,
-    },
-  });
+  return markdownTwin(text, "/");
 }

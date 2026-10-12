@@ -14,3 +14,13 @@ export const profiles = {
 // Shared by every page's Open Graph tags: a page that sets its own replaces
 // the layout's whole object, so it spreads this back in (and adds the locale).
 export const openGraph = { siteName: "Luan Fabri" };
+
+// A markdown twin for agents: text/plain, since some fetchers (ChatGPT's)
+// refuse text/markdown, pointing at its page as the copy to index.
+export const markdownTwin = (text: string, page: string) =>
+  new Response(text, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      Link: `<${site}${page}>; rel="canonical"`,
+    },
+  });
