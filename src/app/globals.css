@@ -1156,9 +1156,10 @@
 }
 
 /* The CV (app/cv/page.tsx): an entry sits a heading's distance from the one
-   before, but close under its own section head; its timeline bars grow from
-   their start, one after another, as the page arrives, then the playhead
-   draws down from its dot onto today. */
+   before, but close under its own section head; its timeline bars draw in
+   from their start, one after another, as the page arrives, then the playhead
+   draws down from its dot onto today. A bar is revealed by a clip with its
+   own corners, not scaled, so its ends stay round and its ring stays 1px. */
 @layer components {
   .cv .prose {
     & > .entry {
@@ -1170,8 +1171,7 @@
   }
   .cv-bar {
     @media (prefers-reduced-motion: no-preference) {
-      transform-origin: left;
-      animation: bar-grow 600ms var(--delay, 0ms) both
+      animation: bar-draw 600ms var(--delay, 0ms) both
         cubic-bezier(0.2, 0, 0, 1);
     }
   }
@@ -1182,9 +1182,12 @@
     }
   }
 }
-@keyframes bar-grow {
+@keyframes bar-draw {
   from {
-    scale: 0 1;
+    clip-path: inset(0 100% 0 0 round 6px);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 6px);
   }
 }
 @keyframes playhead-draw {

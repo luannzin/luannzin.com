@@ -25,7 +25,7 @@
 ## Local Contracts
 
 - Server code calls `await setLocale()` before reading `t` or `translations` from `@/i18n/generated`; inside `"use cache"` functions pass the locale in and use `translations[locale]`
-- `layout.tsx` and the post page export `instant = false`: rendering is per request, and the post page awaits `params` and the locale outside any Suspense boundary so the article ships visible in the HTML
+- `layout.tsx`, the post page and the CV export `instant = false`: rendering is per request, and the post page awaits `params` and the locale outside any Suspense boundary so the article ships visible in the HTML; the CV awaits `connection()` there before reading today's date for its timeline
 - Each page sets its own `alternates` (canonical plus the `text/markdown` twin) because a child's `alternates` replaces the layout's; the 404 page sets none
 - A page that sets `openGraph` spreads `openGraph` from `@/lib/site` back in and adds the locale's `ogLocale`
 - Markdown twins return `markdownTwin` from `@/lib/site`: `text/plain; charset=utf-8` (some agent fetchers refuse `text/markdown`) with a `Link: rel="canonical"` header to the page; the sitemap lists pages only

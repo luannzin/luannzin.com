@@ -40,7 +40,9 @@ export function Breadcrumb({
 }
 
 // The contents: a rail in the margin at xl, a disclosure above the text below
-// it. Goes inside a `relative` box around the text, which the rail spans.
+// it. Goes inside a `relative` box around the text, which the rail spans. The
+// rail keeps 96px off the column, so it stays 32px clear of the figures and
+// specimens that break out 64px.
 export function Contents({
   label,
   headings,
@@ -51,7 +53,7 @@ export function Contents({
   return (
     <>
       <aside
-        className={`${enter} absolute inset-y-0 end-full me-16 hidden w-60 delay-500 xl:block`}
+        className={`${enter} absolute inset-y-0 end-full me-24 hidden w-60 delay-500 xl:block`}
       >
         <nav aria-label={label} className="sticky top-12">
           <p className="font-medium">{label}</p>

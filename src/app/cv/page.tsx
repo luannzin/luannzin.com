@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import type { CSSProperties } from "react";
 import { AuthorFooter } from "@/components/author-footer";
 import { DownloadIcon } from "@/components/icons";
@@ -31,6 +32,10 @@ export async function generateMetadata(): Promise<Metadata> {
     },
   };
 }
+
+// The timeline ends on today, so the page renders per request and waits for
+// it outside any Suspense boundary, like a post: its HTML carries the whole CV.
+export const instant = false;
 
 // A month as [year, month]; a role still going has no end.
 type Month = [number, number];
@@ -68,6 +73,7 @@ export default async function CV() {
   const t = translations[locale];
   const cv = t.app.cv;
   const home = t.app.home;
+  await connection();
   const today = new Date();
   const now: Month = [today.getUTCFullYear(), today.getUTCMonth() + 1];
   const period = (from: Month, to: Month | null) =>
