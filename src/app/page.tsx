@@ -10,6 +10,7 @@ import {
 import echoLogo from "@/assets/echo.png";
 import { AskAI } from "@/components/ask-ai";
 import { Die } from "@/components/die";
+import { DitherStrip, Signature } from "@/components/footer-art";
 import {
   ArrowRightIcon,
   ArrowUpRightIcon,
@@ -229,12 +230,16 @@ export default async function Home() {
       />
 
       <footer className={`${enter} mt-20 delay-900`}>
-        <a
-          href="/index.md"
-          className="group rounded-sm font-mono text-muted-foreground text-sm outline-offset-2 transition-[color] duration-150 hover:text-foreground"
-        >
-          <span className={underline}>index.md</span>
-        </a>
+        <DitherStrip />
+        <div className="mt-16 flex items-end justify-between">
+          <a
+            href="/index.md"
+            className="group rounded-sm font-mono text-muted-foreground text-sm outline-offset-2 transition-[color] duration-150 hover:text-foreground"
+          >
+            <span className={underline}>index.md</span>
+          </a>
+          <Signature />
+        </div>
       </footer>
     </main>
   );

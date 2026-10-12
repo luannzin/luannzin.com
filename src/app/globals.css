@@ -391,6 +391,26 @@
     }
   }
 }
+
+/* The home footer's signature (src/components/footer-art.tsx): "Luan" writes
+   itself, then the flourish underlines it, once it is in view. */
+@layer components {
+  @media (prefers-reduced-motion: no-preference) {
+    .signature path {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+    }
+    .signature[data-drawn] path {
+      animation: hint-draw 1400ms calc(var(--wait, 0ms) + 200ms) both
+        cubic-bezier(0.45, 0, 0.25, 1);
+    }
+    .signature[data-drawn] .flourish {
+      animation-duration: 400ms;
+      animation-delay: calc(var(--wait, 0ms) + 1500ms);
+    }
+  }
+}
+
 /* The cover's dice stays out of sight (and out of reach) until it is ready:
    just after the morph from the home tile, or as the hint arrow finishes. */
 @layer components {

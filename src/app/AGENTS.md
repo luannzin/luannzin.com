@@ -7,7 +7,7 @@
 ## Ownership
 
 - `layout.tsx`: html shell, fonts (Inter preloaded; Geist Mono with `preload: false`, used only by code and the footer link), default metadata (`metadataBase`, title template, Open Graph, Twitter), a `ViewTransition` that cross-fades only locale switches, `LocaleToggle`, Vercel `Analytics`
-- `page.tsx`: home (header, bio, projects, writing list, Lab row, Ask AI, `index.md` footer link); the `projects` list is local to it
+- `page.tsx`: home (header, bio, projects, writing list, Lab row, Ask AI, footer: dither strip, `index.md` link and signature); the `projects` list is local to it
 - `not-found.tsx`: 404, title only
 - `writing/[slug]/page.tsx`: post page (breadcrumb, header, cover, contents, article, author footer, share)
 - `lab/page.tsx`: the Lab, one section per piece of the site's motion (seeded scenes, die, hint arrow, text reveal), each a live specimen with a timing sheet from `@/components/lab`, then its write-up
@@ -18,7 +18,7 @@
 - `index.md/route.ts`: home as plain markdown, also served at `/llms.txt`
 - `robots.ts`, `sitemap.ts`, `icon.png`, `apple-icon.png`
 - `t.ts` (`t.app.meta`, `t.app.home`, `t.app.notFound`, `t.app.language`), `writing/t.ts` (`t.app.writing`), `lab/t.ts` (`t.app.lab`, written to `IDENTITY.md`)
-- `globals.css`: Tailwind v4 entry, theme tokens, and every custom component style (prose, code box, flow diagram, scene blocks, text reveal, action swap, dice hint, locale flag, lab sections)
+- `globals.css`: Tailwind v4 entry, theme tokens, and every custom component style (prose, code box, flow diagram, scene blocks, text reveal, action swap, signature, dice hint, locale flag, lab sections)
 
 ## Local Contracts
 

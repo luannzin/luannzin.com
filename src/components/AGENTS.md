@@ -16,6 +16,7 @@
 - `toc.tsx`: contents list with scroll-spy
 - `page-nav.tsx`: `Breadcrumb` and `Contents` (margin rail at xl, disclosure below), shared by the post page and the Lab
 - `author-footer.tsx`: closing rule and author link, with Share passed in; post page and Lab
+- `footer-art.tsx`: home footer art: `DitherStrip` (canvas of four Bayer-dithered dusk blocks whose dots the pointer pushes aside) and `Signature` (hand-drawn "Luan", drawn by `.signature` in `globals.css` once in view)
 - `dice-hint.tsx`: the hand-drawn arrow to a cover's die, drawn by `.dice-hint` in `globals.css`
 - `lab/timeline.tsx`: `useTimeline` (a piece's clock), `useSeekCss`, `bezier`, and `Specimen` (transport plus timing sheet)
 - `lab/specimens.tsx`: the Lab's pieces, each driving the real component or library code at the sheet's time
