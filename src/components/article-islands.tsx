@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { CheckIcon, CopyIcon, DiceIcon } from "@/components/icons";
+import type { PieceName } from "@/components/lab/specimens";
 import { ActionSwapIcon } from "@/components/motion/action-swap";
 import { SceneArt } from "@/components/scene-art";
 import { announce, useCopy } from "@/components/share";
@@ -12,22 +13,34 @@ import { createScene } from "@/lib/scene";
 
 type SceneLabels = typeof t.components.scene;
 type CopyLabels = typeof t.components.copy;
+type LabLabels = Pick<typeof t.app.lab, "controls" | "tracks" | "seed">;
+
+// The Lab's pieces load only in a post that shows one.
+const Piece = lazy(() =>
+  import("@/components/lab/specimens").then((m) => ({ default: m.Piece })),
+);
 
 type Island =
   | { kind: "copy"; el: HTMLElement; code: HTMLElement }
   | { kind: "scene"; el: HTMLElement; seed: number }
-  | { kind: "roll"; el: HTMLElement; seed: number };
+  | { kind: "roll"; el: HTMLElement; seed: number }
+  | { kind: "lab"; el: HTMLElement; piece: PieceName; name: string };
 
 // The article is static HTML from markdown. The few parts that need React,
-// copy buttons and live scenes, mount into placeholders the HTML leaves.
+// copy buttons, live scenes and pieces of the Lab, mount into placeholders the
+// HTML leaves.
 export function ArticleIslands({
   root,
   scene,
   copy,
+  lab,
+  role,
 }: {
   root: string;
   scene: SceneLabels;
   copy: CopyLabels;
+  lab: LabLabels;
+  role: string;
 }) {
   const [islands, setIslands] = useState<Island[]>([]);
 
@@ -47,6 +60,15 @@ export function ArticleIslands({
         found.push({ kind: "roll", el, seed });
         continue;
       }
+      if (el.dataset.island === "lab") {
+        found.push({
+          kind: "lab",
+          el,
+          piece: el.dataset.piece as PieceName,
+          name: el.dataset.name ?? "",
+        });
+        continue;
+      }
       const code = el.closest("figure")?.querySelector("code");
       if (code) found.push({ kind: "copy", el, code });
     }
@@ -59,6 +81,16 @@ export function ArticleIslands({
         <SceneArt seed={island.seed} />
       ) : island.kind === "roll" ? (
         <RollScene seed={island.seed} labels={scene} />
+      ) : island.kind === "lab" ? (
+        <Suspense>
+          <Piece
+            piece={island.piece}
+            name={island.name}
+            {...lab}
+            scene={scene}
+            role={role}
+          />
+        </Suspense>
       ) : (
         <CopyCode code={island.code} labels={copy} />
       ),

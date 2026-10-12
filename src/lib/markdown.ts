@@ -172,6 +172,16 @@ function rollBlock(text: string, words: Words) {
   return `<figure class="scene-roll" data-island="roll" data-seed="${seed}"><div class="scene-slot" role="img" aria-label="${escapeHtml(`${words.scene.label} ${name}`)}" style="background:${time.ground}"></div><figcaption><span>${escapeHtml(name)}</span></figcaption></figure>`;
 }
 
+// ```lab: one piece of the Lab by name (scenes, die, reveal), mounted
+// live on the client with its timing sheet. The heading above it names it.
+const PIECES = ["scenes", "die", "reveal"];
+function labBlock(text: string, heading: string) {
+  const piece = text.trim();
+  if (!PIECES.includes(piece)) throw new Error(`Unknown Lab piece: ${piece}`);
+  if (!heading) throw new Error(`The Lab piece ${piece} needs a heading`);
+  return `<div class="lab-piece" data-island="lab" data-piece="${piece}" data-name="${escapeHtml(heading)}"></div>`;
+}
+
 // --- images --------------------------------------------------------------
 
 // Width and height of a PNG in public/, so the frame reserves its space.
@@ -194,6 +204,8 @@ export function renderMarkdown(source: string, locale: Locale) {
   const words = translations[locale].components;
   const toc: Heading[] = [];
   const used = new Map<string, number>();
+  // the id of the last h2 or h3, which names a Lab piece under it
+  let heading = "";
 
   const marked = new Marked({
     renderer: {
@@ -204,6 +216,7 @@ export function renderMarkdown(source: string, locale: Locale) {
         const count = used.get(base) ?? 0;
         used.set(base, count + 1);
         const id = count ? `${base}-${count}` : base;
+        heading = id;
         toc.push({
           id,
           text: this.parser.parseInline(tokens, this.parser.textRenderer),
@@ -216,6 +229,7 @@ export function renderMarkdown(source: string, locale: Locale) {
         if (fence === "flow") return flowBlock(text, words);
         if (fence === "scenes") return scenesBlock(text, words);
         if (fence === "roll") return rollBlock(text, words);
+        if (fence === "lab") return labBlock(text, heading);
         return codeBlock(text, info);
       },
       // An image alone in its paragraph becomes a framed figure; its title is
@@ -244,8 +258,11 @@ export function renderMarkdown(source: string, locale: Locale) {
 export function plainMarkdown(source: string) {
   return source
     .replace(
-      /^```(flow|scenes|roll)[^\n]*\n([\s\S]*?)^```[ \t\r]*$/gm,
+      /^```(flow|scenes|roll|lab)[^\n]*\n([\s\S]*?)^```[ \t\r]*$/gm,
       (_, fence: string, text: string) => {
+        if (fence === "lab") {
+          return `*Live on the page: a piece of [the Lab](/lab#${text.trim()}), on its timing sheet.*`;
+        }
         if (fence === "flow") {
           return flowNodes(text)
             .map(

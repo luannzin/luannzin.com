@@ -6,7 +6,7 @@
 
 ## Ownership
 
-- `article-islands.tsx`: finds the `[data-island]` placeholders (`copy`, `scene`, `roll`) that `@/lib/markdown` leaves in the article and portals client components into them
+- `article-islands.tsx`: finds the `[data-island]` placeholders (`copy`, `scene`, `roll`, `lab`) that `@/lib/markdown` leaves in the article and portals client components into them; a `lab` placeholder lazy-loads `Piece` from `lab/specimens.tsx`, so posts without one never load the Lab
 - `scene-art.tsx`: canvas player for a seeded scene (`@/lib/scene` frames drawn by `@/lib/dots`)
 - `cover-art.tsx`: post cover (with `DiceHint`); the die draws a new scene through the `@/lib/melt` transition; remembers the first-roll hint in `localStorage` key `cover-dice-hint`
 - `die.tsx`: line-art die, geometry and throws from `@/lib/die`
@@ -20,7 +20,7 @@
 - `dice-hint.tsx`: the hand-drawn arrow to a cover's die, drawn by `.dice-hint` in `globals.css`
 - `print-button.tsx`: the CV's Print button (`window.print()`)
 - `lab/timeline.tsx`: `useTimeline` (a piece's clock), `useSeekCss`, `bezier`, and `Specimen` (transport plus timing sheet)
-- `lab/specimens.tsx`: the Lab's pieces, each driving the real component or library code at the sheet's time
+- `lab/specimens.tsx`: the Lab's pieces, each driving the real component or library code at the sheet's time; `Piece` picks one by name for a post's `lab` fence
 - `ask-ai.tsx`: links that open ChatGPT, Claude, Perplexity and Grok with a prompt
 - `icons.tsx`: every icon and brand mark the site draws
 - `motion/text-reveal.tsx`, `motion/action-swap.tsx`: CSS-driven adaptations of beui.dev components; their keyframes live in `src/app/globals.css`

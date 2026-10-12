@@ -435,3 +435,23 @@ export function RevealSpecimen({
     </Specimen>
   );
 }
+
+// A piece of the Lab by name, for a post's `lab` fence.
+export type PieceName = "scenes" | "die" | "reveal";
+export function Piece({
+  piece,
+  seed,
+  scene,
+  role,
+  ...common
+}: Common & {
+  piece: PieceName;
+  seed: Lab["seed"];
+  scene: typeof t.components.scene;
+  role: string;
+}) {
+  if (piece === "scenes")
+    return <ScenesSpecimen {...common} seed={seed} scene={scene} />;
+  if (piece === "die") return <DieSpecimen {...common} />;
+  return <RevealSpecimen {...common} role={role} />;
+}

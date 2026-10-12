@@ -134,6 +134,12 @@ export default async function Page({ params }: PageProps<"/writing/[slug]">) {
           root="article"
           scene={t.components.scene}
           copy={t.components.copy}
+          lab={{
+            controls: t.app.lab.controls,
+            tracks: t.app.lab.tracks,
+            seed: t.app.lab.seed,
+          }}
+          role={t.app.home.role}
         />
       </div>
 

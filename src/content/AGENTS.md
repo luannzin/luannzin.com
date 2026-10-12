@@ -19,12 +19,13 @@
 - Code fence: language, then optional title (`title="path"` or a bare name) and marked lines (`{1,4-6}`)
 - `flow` fence: one node a line, `title | note | icon | lit`; a line without a pipe labels the arrow into the next node; icons are `hash`, `layers`, `grid`, `image`, `file`
 - `scenes` fence: seeds, drawn as a gallery of live scenes; `roll` fence: one seed, with a button that draws another
+- `lab` fence: one piece of the Lab by name (`scenes`, `die`, `reveal`), live with its timing sheet; it sits under its own `##` or `###` heading, which names it, so at most one per heading (a missing heading or an unknown name throws at build)
 - An image alone in its paragraph becomes a framed figure; its title is the caption; PNGs are drawn at 2x and shown at half size
 - Internal links are root-relative (`/writing/...`); the markdown twin makes them absolute
 
 ## Work Guidance
 
-- Prose follows `DESIGN.md` (Prose, Code Box, Flow Diagram, Framed Image, Scene Gallery, Scene Roller)
+- Prose follows `DESIGN.md` (Prose, Code Box, Flow Diagram, Framed Image, Scene Gallery, Scene Roller, Lab)
 
 ## Verification
 
