@@ -52,7 +52,7 @@ export function Toc({
           <a
             href={`#${id}`}
             aria-current={active === id ? "location" : undefined}
-            className="block rounded-sm text-pretty text-muted-foreground outline-offset-2 transition-colors duration-150 hover:text-foreground aria-[current]:text-foreground"
+            className="block rounded-sm text-pretty text-muted-foreground outline-offset-2 transition-[color] duration-150 hover:text-foreground aria-[current]:text-foreground"
           >
             {text}
           </a>

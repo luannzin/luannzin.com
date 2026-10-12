@@ -180,7 +180,7 @@ export function Specimen({
     <figure
       ref={figure}
       aria-labelledby={name}
-      className="specimen -mx-6 [--muted-foreground:color-mix(in_srgb,var(--color-neutral-500)_80%,var(--color-white))] overflow-hidden bg-foreground/2.5 max-sm:shadow-[inset_0_1px_var(--border),inset_0_-1px_var(--border)] sm:-mx-6 sm:rounded-[14px] sm:inset-ring sm:inset-ring-border lg:-mx-16"
+      className="specimen -mx-6 [--muted-foreground:color-mix(in_srgb,var(--color-neutral-500)_80%,var(--color-white))] overflow-hidden bg-foreground/2.5 max-sm:shadow-[inset_0_1px_var(--border),inset_0_-1px_var(--border)] sm:rounded-[14px] sm:inset-ring sm:inset-ring-border lg:-mx-16"
     >
       {children}
       <div className="border-border border-t px-6 pt-4 pb-5 lg:px-16">
@@ -232,7 +232,7 @@ function Transport({
         {SPEEDS.map((speed) => (
           <label
             key={speed}
-            className="relative grid min-w-10 cursor-pointer place-items-center rounded-[6px] px-2 font-mono text-muted-foreground text-sm tabular-nums transition-colors duration-150 hover:text-foreground has-checked:bg-foreground/7 has-checked:text-foreground has-checked:inset-ring has-checked:inset-ring-foreground/10 has-focus-visible:outline-2 has-focus-visible:outline-ring has-focus-visible:outline-offset-2"
+            className="relative grid min-w-10 cursor-pointer place-items-center rounded-[6px] px-2 font-mono text-muted-foreground text-sm tabular-nums transition-[color,background-color,box-shadow] duration-150 hover:text-foreground has-checked:bg-foreground/7 has-checked:text-foreground has-checked:inset-ring has-checked:inset-ring-foreground/10 has-focus-visible:outline-2 has-focus-visible:outline-ring has-focus-visible:outline-offset-2"
           >
             <input
               type="radio"
@@ -381,7 +381,7 @@ function Sheet({
             <Fragment key={`${track.label}-${i}`}>
               <span
                 className={cn(
-                  "truncate transition-colors duration-150",
+                  "truncate transition-[color] duration-150",
                   live ? "text-foreground" : "text-muted-foreground",
                 )}
               >

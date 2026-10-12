@@ -131,7 +131,7 @@ export default async function Home() {
                 rel="noopener noreferrer"
               >
                 <span className={bezel}>
-                  <span className="grid size-11 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors duration-150 group-hover:text-foreground">
+                  <span className="grid size-11 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[color] duration-150 group-hover:text-foreground">
                     {mark}
                   </span>
                 </span>
@@ -206,7 +206,7 @@ export default async function Home() {
           className="group mt-4 flex items-center gap-4 rounded-[14px] outline-offset-4"
         >
           <span className={bezel}>
-            <span className="grid size-11 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-colors duration-150 group-hover:text-foreground">
+            <span className="grid size-11 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[color] duration-150 group-hover:text-foreground">
               <Die seed={4} className="size-6 overflow-visible" />
             </span>
           </span>

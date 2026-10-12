@@ -94,7 +94,7 @@ export default async function Page({ params }: PageProps<"/writing/[slug]">) {
           <a
             href="/"
             rel="author"
-            className="rounded-sm outline-offset-2 transition-colors duration-150 hover:text-foreground"
+            className="rounded-sm outline-offset-2 transition-[color] duration-150 hover:text-foreground"
           >
             Luan Fabri
           </a>
@@ -123,7 +123,7 @@ export default async function Page({ params }: PageProps<"/writing/[slug]">) {
         )}
         <article
           id="article"
-          className={`${enter} prose delay-400`}
+          className={`${enter} prose delay-500`}
           // biome-ignore lint/security/noDangerouslySetInnerHtml: posts are markdown files in this repo, rendered at build time
           dangerouslySetInnerHTML={{ __html: html }}
         />

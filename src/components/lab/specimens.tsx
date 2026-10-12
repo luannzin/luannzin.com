@@ -361,7 +361,7 @@ export function HintSpecimen({ name, controls, tracks }: Common) {
           >
             <SceneArt seed={HINT_SEED} />
           </div>
-          <span className="absolute end-2 top-2 grid size-8 place-items-center rounded-md bg-black/40 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] backdrop-blur-sm">
+          <span className="absolute end-2 top-2 grid size-8 place-items-center rounded-[6px] bg-black/40 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] backdrop-blur-sm">
             <Die seed={HINT_SEED} className="size-[22px] overflow-visible" />
           </span>
           <DiceHint key={timeline.runs} />

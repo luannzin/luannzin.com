@@ -23,7 +23,7 @@ export function Breadcrumb({
         <li className="shrink-0">
           <Link
             href={href}
-            className="rounded-sm text-muted-foreground outline-offset-2 transition-colors duration-150 hover:text-foreground"
+            className="rounded-sm text-muted-foreground outline-offset-2 transition-[color] duration-150 hover:text-foreground"
           >
             {parent}
           </Link>

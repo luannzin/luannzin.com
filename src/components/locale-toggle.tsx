@@ -121,7 +121,7 @@ export function LocaleToggle({
           className="z-50"
         >
           <Menu.Popup
-            className={`min-w-44 origin-(--transform-origin) rounded-[12px] bg-popover p-1 shadow-lg/20 inset-ring inset-ring-border outline-none transition-[opacity,scale,translate,filter] duration-250 ease-[cubic-bezier(0.23,1,0.32,1)] data-starting-style:translate-y-2 data-starting-style:scale-50 data-starting-style:opacity-0 data-starting-style:blur-xs data-ending-style:translate-y-1 data-ending-style:opacity-0 data-ending-style:blur-xs data-ending-style:duration-150 motion-reduce:transition-[opacity]`}
+            className={`min-w-44 origin-(--transform-origin) rounded-[12px] bg-popover p-1 shadow-lg/20 inset-ring inset-ring-border outline-none transition-[opacity,scale,translate,filter] duration-250 ease-[cubic-bezier(0.23,1,0.32,1)] data-starting-style:scale-[0.96] data-starting-style:opacity-0 data-starting-style:blur-xs data-ending-style:translate-y-1 data-ending-style:opacity-0 data-ending-style:blur-xs data-ending-style:duration-150 motion-reduce:transition-[opacity]`}
           >
             <Menu.RadioGroup
               value={shown}

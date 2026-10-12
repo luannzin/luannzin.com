@@ -96,7 +96,7 @@ export function CoverArt({
         onClick={roll}
         aria-label={labels.draw}
         data-ready={ready ? (hint ? "now" : "late") : undefined}
-        className={`cover-dice absolute end-2 top-2 grid size-8 place-items-center rounded-md bg-black/40 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] backdrop-blur-sm hover:text-white ${press}`}
+        className={`cover-dice absolute end-2 top-2 grid size-8 place-items-center rounded-[6px] bg-black/40 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] backdrop-blur-sm hover:text-white ${press}`}
       >
         <Die seed={seed} className="size-[22px] overflow-visible" />
       </button>

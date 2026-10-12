@@ -361,7 +361,7 @@
    the dice is rolled. */
 @layer components {
   .dice-hint {
-    transition: opacity 200ms;
+    transition: opacity 200ms ease-out;
 
     &[data-gone] {
       opacity: 0;
