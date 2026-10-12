@@ -7,7 +7,7 @@ import { getPost } from "@/lib/writing";
 export function GET() {
   const lab = translations.en.app.lab;
   const art = getPost("art-from-a-seed");
-  const pieces = (["scenes", "die", "hint", "swap", "reveal"] as const)
+  const pieces = (["scenes", "die", "hint", "reveal"] as const)
     .map((id) => {
       const { title, p1, p2 } = lab[id];
       const more =

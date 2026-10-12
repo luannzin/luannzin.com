@@ -7,7 +7,7 @@ related_targets: ["src/components/lab/specimens.tsx","src/components/lab/timelin
 
 # Lab (src/app/lab/page.tsx)
 
-Scope: one page of live, inspectable pieces of this site (seeded scenes with the melt and a seed field, the die, the hand-drawn arrow, the icon swap, the text reveal), each with a timing sheet and a short write-up. Visitor mode: Experience, read-like: the pieces lead, the prose under each explains them.
+Scope: one page of live, inspectable pieces of this site (seeded scenes with the melt and a seed field, the die, the hand-drawn arrow, the text reveal), each with a timing sheet and a short write-up. Visitor mode: Experience, read-like: the pieces lead, the prose under each explains them.
 
 Audience: design engineers, engineers and recruiters judging craft. Job: see the motion up close (replay, slow, step, scrub) and understand how it is built. Proof: the real components the site ships, driven by the sheet, not recordings. Constraints: English and Portuguese, dark only, One Size Rule, Central-style icons, reduced motion respected (nothing plays by itself).
 

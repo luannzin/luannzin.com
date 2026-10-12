@@ -8,12 +8,17 @@
 
 - `article-islands.tsx`: finds the `[data-island]` placeholders (`copy`, `scene`, `roll`) that `@/lib/markdown` leaves in the article and portals client components into them
 - `scene-art.tsx`: canvas player for a seeded scene (`@/lib/scene` frames drawn by `@/lib/dots`)
-- `cover-art.tsx`: post cover; the die draws a new scene through the `@/lib/melt` transition; remembers the first-roll hint in `localStorage` key `cover-dice-hint`
-- `die.tsx`: line-art die projected by hand into SVG paths
+- `cover-art.tsx`: post cover (with `DiceHint`); the die draws a new scene through the `@/lib/melt` transition; remembers the first-roll hint in `localStorage` key `cover-dice-hint`
+- `die.tsx`: line-art die, geometry and throws from `@/lib/die`
 - `live-tile.tsx`: lazy-loads `SceneArt` over the home tile's still PNG on hover or focus
 - `share.tsx`: share menu (copy link, X, LinkedIn, system share) on `@/components/ui/menu`; exports `useCopy` and `announce`, reused by the article's copy buttons
 - `locale-toggle.tsx`: fixed language switch; calls the `changeLocale` server action inside a transition typed `locale`
 - `toc.tsx`: contents list with scroll-spy
+- `page-nav.tsx`: `Breadcrumb` and `Contents` (margin rail at xl, disclosure below), shared by the post page and the Lab
+- `author-footer.tsx`: closing rule and author link, with Share passed in; post page and Lab
+- `dice-hint.tsx`: the hand-drawn arrow to a cover's die, drawn by `.dice-hint` in `globals.css`
+- `lab/timeline.tsx`: `useTimeline` (a piece's clock), `useSeekCss`, `bezier`, and `Specimen` (transport plus timing sheet)
+- `lab/specimens.tsx`: the Lab's pieces, each driving the real component or library code at the sheet's time
 - `ask-ai.tsx`: links that open ChatGPT, Claude, Perplexity and Grok with a prompt
 - `icons.tsx`: every icon and brand mark the site draws
 - `motion/text-reveal.tsx`, `motion/action-swap.tsx`: CSS-driven adaptations of beui.dev components; their keyframes live in `src/app/globals.css`

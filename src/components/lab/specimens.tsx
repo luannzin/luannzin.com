@@ -11,7 +11,6 @@ import {
 } from "react";
 import { DiceHint } from "@/components/dice-hint";
 import { Die } from "@/components/die";
-import { CheckIcon, LinkIcon } from "@/components/icons";
 import {
   bezier,
   FRAME,
@@ -20,7 +19,6 @@ import {
   useSeekCss,
   useTimeline,
 } from "@/components/lab/timeline";
-import { ActionSwapIcon } from "@/components/motion/action-swap";
 import { TextReveal } from "@/components/motion/text-reveal";
 import { SceneArt } from "@/components/scene-art";
 import type { t } from "@/i18n/generated";
@@ -49,10 +47,7 @@ type Common = {
 
 const random = () => Math.floor(Math.random() * 2 ** 32);
 // A die at rest on the face for `seed`.
-const rest = (seed: number): Throw => {
-  const [x, y] = faceOf(seed);
-  return [x, y, x, y];
-};
+const rest = (seed: number) => [...faceOf(seed), ...faceOf(seed)] as Throw;
 
 // The hop's height over its run, from its keyframes in `HOP`: up to the top
 // at 36%, a small dip under the line at 80%, then still.
@@ -339,7 +334,7 @@ const HINT_SEED = 46;
 
 export function HintSpecimen({ name, controls, tracks }: Common) {
   const stage = useRef<HTMLDivElement>(null);
-  const timeline = useTimeline(HINT_MS, () => {});
+  const timeline = useTimeline(HINT_MS);
   useSeekCss(stage, timeline);
 
   return (
@@ -376,73 +371,6 @@ export function HintSpecimen({ name, controls, tracks }: Common) {
   );
 }
 
-// The swap's spring, the linear() stops of `.swap-in` in globals.css.
-const SWAP_MS = 300;
-const STOPS = [
-  [0, 0],
-  [0.05, 0.079],
-  [0.1, 0.236],
-  [0.15, 0.403],
-  [0.2, 0.551],
-  [0.25, 0.671],
-  [0.3, 0.764],
-  [0.4, 0.883],
-  [0.5, 0.944],
-  [0.6, 0.974],
-  [0.75, 0.992],
-  [1, 1],
-];
-const spring = (x: number) => {
-  const i = STOPS.findIndex(([at]) => at >= x);
-  if (i <= 0) return 0;
-  const [x0, y0] = STOPS[i - 1];
-  const [x1, y1] = STOPS[i];
-  return y0 + ((y1 - y0) * (x - x0)) / (x1 - x0);
-};
-
-export function SwapSpecimen({ name, controls, tracks }: Common) {
-  const stage = useRef<HTMLDivElement>(null);
-  const [copied, setCopied] = useState(false);
-  // each run swaps the other way
-  const timeline = useTimeline(SWAP_MS, () => setCopied((was) => !was));
-  useSeekCss(stage, timeline);
-
-  return (
-    <Specimen
-      timeline={timeline}
-      tracks={[
-        // the old icon shrinks and fades out as the new one grows in
-        {
-          label: tracks.out,
-          start: 0,
-          end: SWAP_MS,
-          curve: (x) => 1 - spring(x),
-        },
-        { label: tracks.in, start: 0, end: SWAP_MS, curve: spring },
-      ]}
-      labels={controls}
-      name={name}
-    >
-      {/* a copy button's icon, three times its size */}
-      <div
-        ref={stage}
-        aria-hidden="true"
-        className="grid place-items-center py-14"
-      >
-        <span className="grid size-24 place-items-center rounded-[24px] bg-muted text-foreground inset-ring inset-ring-border">
-          <ActionSwapIcon value={copied ? "check" : "link"}>
-            {copied ? (
-              <CheckIcon className="size-12" />
-            ) : (
-              <LinkIcon className="size-12" />
-            )}
-          </ActionSwapIcon>
-        </span>
-      </div>
-    </Specimen>
-  );
-}
-
 // `TextReveal` and `enter`: each word 800ms, 50ms apart, the role 150ms
 // behind the name; the avatar fades up over 500ms.
 const rises = bezier(0.16, 1, 0.3, 1);
@@ -461,7 +389,7 @@ export function RevealSpecimen({
     ...role.split(" ").map((word, i) => [word, 150 + i * 50] as const),
   ];
   const duration = (words.at(-1)?.[1] ?? 0) + 800;
-  const timeline = useTimeline(duration, () => {});
+  const timeline = useTimeline(duration);
   useSeekCss(stage, timeline);
 
   return (

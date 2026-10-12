@@ -110,8 +110,8 @@ Default section order:
 
 ## Purpose
 
-- Personal site of Luan Fabri: a one-column portfolio (bio, projects) plus writing, in English and Brazilian Portuguese, deployed on Vercel at `https://www.luannzin.com`
-- `PRODUCT.md` is the product brief (audience, positioning, facts on hand); `DESIGN.md` is the binding design system ("The Quiet Column") for every visual change
+- Personal site of Luan Fabri: a one-column portfolio (bio, projects) plus writing and a Lab of the site's motion, in English and Brazilian Portuguese, deployed on Vercel at `https://www.luannzin.com`
+- `PRODUCT.md` is the product brief (audience, positioning, facts on hand); `DESIGN.md` is the binding design system ("The Quiet Column") for every visual change; `IDENTITY.md` is the binding voice for every user-facing string, in both languages
 
 ## Ownership
 

@@ -60,10 +60,10 @@ export function bezier(x1: number, y1: number, x2: number, y2: number) {
 export type Timeline = ReturnType<typeof useTimeline>;
 
 // A piece's clock, in ms. It rests on its last frame until played; `run`
-// sets up a fresh run of the piece (a new throw, the icon the other way) and
+// (optional) sets up a fresh run of the piece (a new throw, a new scene) and
 // the clock plays it from the start. Playing, stepping and scrubbing only
 // move the clock: each piece draws itself at whatever time it shows.
-export function useTimeline(duration: number, run: () => void) {
+export function useTimeline(duration: number, run?: () => void) {
   const [time, setTime] = useState(duration);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -93,7 +93,7 @@ export function useTimeline(duration: number, run: () => void) {
     setPlaying(true);
   };
   const replay = () => {
-    run();
+    run?.();
     start();
   };
   const seek = (ms: number) => {

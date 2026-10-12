@@ -7,8 +7,9 @@
 ## Ownership
 
 - `scene.ts`: seeded scene engine; one seed picks place, time of day, landmark and every shape, and each frame is a colour plus dot size per cell, ordered-dithered; exports `seedFrom`, `createScene`, `renderer`, `viewOf`, `START`, `RADIUS`; pure, runs on server and client
+- `die.ts`: the die's geometry (`drawDie`), throws (`throwTo`, `angleAt`) and hop keyframes; pure, shared by `Die` and the Lab
 - `dots.ts`: draws a frame on a canvas (WebGL, 2D fallback); client only
-- `melt.ts`: WebGL melt between two scenes for the cover die (a plain crossfade under reduced motion); client only
+- `melt.ts`: WebGL melt between two scenes for the cover die (a plain crossfade under reduced motion); `meltLayer` holds one at a given point for the Lab; client only
 - `markdown.ts`: `renderMarkdown(source, locale)` returns `{ html, toc }`; `plainMarkdown(source)` feeds the markdown twins
 - `writing.ts`: reads `src/content/writing`, parses frontmatter, falls back to English for a missing translation; `getPosts`, `getPost`, `formatDate`; reading time at 220 words a minute
 - `og.tsx`: share images through `next/og` (`homeImage`, `postImage`); reads the Inter TTFs and `public/avatar.jpg`
