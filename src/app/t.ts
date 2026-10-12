@@ -23,8 +23,8 @@ export default {
       pt: "Sou engenheiro front-end na ",
     },
     workRest: {
-      en: ", where since 2023 I’ve been building ERPs and multi-tenant platforms with React and Next.js. It’s software people spend their whole workday in, so I pay a lot of attention to the details that make it fast and clear to use.",
-      pt: ", onde desde 2023 construo ERPs e plataformas multi-tenant com React e Next.js. É o tipo de software que as pessoas usam o dia inteiro no trabalho, então eu presto muita atenção nos detalhes que deixam ele rápido e fácil de usar.",
+      en: ", where since 2023 I’ve been building ERPs and multi-tenant platforms with React and Next.js. It’s software people spend their whole workday in, so a button that doesn’t look clickable isn’t a small detail there. It’s friction, all day.",
+      pt: ", onde desde 2023 construo ERPs e plataformas multi-tenant com React e Next.js. É software que as pessoas passam o dia INTEIRO usando, então um botão que não parece clicável não é detalhe ali. É atrito o dia todo.",
     },
     side: {
       en: "On the side, I build open source tools for problems I keep running into. You can see my code on ",
@@ -50,8 +50,8 @@ export default {
   notFound: {
     title: { en: "Page not found", pt: "Página não encontrada" },
     body: {
-      en: "There’s nothing at this address.",
-      pt: "Não tem nada neste endereço.",
+      en: "There’s nothing here. Either the link is wrong, or I moved something.",
+      pt: "Não tem nada aqui. Ou o link tá errado, ou eu mudei alguma coisa de lugar.",
     },
     home: { en: "Go home", pt: "Voltar pro início" },
   },

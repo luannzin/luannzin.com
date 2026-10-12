@@ -11,8 +11,8 @@ export default {
     pt: "O movimento deste site, em câmera lenta",
   },
   intro: {
-    en: "Most of the motion here is over in a second or two, too fast to see what it’s actually doing. These are the same pieces the site runs, not recordings of them, hooked to a timing sheet: replay them, slow them to a tenth, or step through a frame at a time.",
-    pt: "Quase todo movimento aqui acaba em um ou dois segundos, rápido demais pra ver o que ele tá fazendo de verdade. Essas são as mesmas peças que o site roda, não gravações delas, ligadas a uma folha de tempo: dá pra repetir, deixar em um décimo da velocidade ou avançar frame a frame.",
+    en: "Most of the motion on this site is over in a second or two. Too fast to see what it’s actually doing. So I hooked the real pieces, not recordings of them, to a timing sheet: replay them, slow them to a tenth, or step through a frame at a time.",
+    pt: "Quase todo movimento deste site acaba em um ou dois segundos. Rápido demais pra ver o que ele tá fazendo de verdade. Então liguei as peças de verdade (não é gravação) numa folha de tempo: dá pra repetir, deixar em um décimo da velocidade ou avançar frame a frame.",
   },
   // The home page's row that leads here.
   row: {
@@ -52,19 +52,19 @@ export default {
   scenes: {
     title: { en: "Seeded scenes", pt: "Cenas a partir de uma seed" },
     p1: {
-      en: "Every post here has a picture nobody drew. One number, the seed, picks the place, the time of day and the landmark, then every cloud, star and window after them. Type a number or any word and a scene grows from it, or let the die pick one.",
-      pt: "Todo post aqui tem uma imagem que ninguém desenhou. Um número, a seed, escolhe o lugar, a hora do dia e o marco, e depois cada nuvem, estrela e janela. Digita um número ou qualquer palavra e uma cena nasce dela, ou deixa o dado escolher.",
+      en: "Nobody drew the picture on top of each post. I didn’t want to make covers and keep them up to date, so every post gets a number instead, its seed, and the page builds a scene from it: the place, the time of day, the landmark, then every cloud, star and window. Type a number or any word and a scene grows from it, or let the die pick one.",
+      pt: "Ninguém desenhou a imagem do topo dos posts. Eu não queria criar capa e ficar mantendo tudo atualizado, então cada post ganha um número, a seed, e a página monta uma cena a partir dele: o lugar, a hora do dia, o marco, depois cada nuvem, estrela e janela. Digita um número ou qualquer palavra e uma cena nasce dela, ou deixa o dado escolher.",
     },
     p2: {
-      en: "When the seed changes, the picture doesn’t just cut to the next one. The old scene melts into it: a WebGL layer holds a snapshot of the old frame and the live canvas of the new one, warps both through a field of noise, and lets the new scene break through where the noise is lowest. The whole story is in ",
-      pt: "Quando a seed muda, a imagem não troca de uma vez. A cena antiga derrete na nova: uma camada WebGL guarda uma foto do frame antigo e o canvas ao vivo do novo, deforma os dois com um campo de ruído e deixa a cena nova aparecer onde o ruído é mais baixo. A história completa tá em ",
+      en: "When the seed changes, the picture doesn’t just cut. The old scene melts into the new one: a WebGL layer holds a snapshot of the old frame and the live canvas of the new one, warps both through noise, and lets the new scene break through where the noise is lowest. It started as the melt from React Bits’ Morph Slider, rewritten for one canvas and no dependencies. The whole story is in ",
+      pt: "Quando a seed muda, a imagem não só troca. A cena antiga derrete na nova: uma camada WebGL guarda uma foto do frame antigo e o canvas ao vivo do novo, deforma os dois com ruído e deixa a cena nova aparecer onde o ruído é mais baixo. Começou como o melt do Morph Slider do React Bits, reescrito pra um canvas só e sem NENHUMA dependência. A história completa tá em ",
     },
   },
   die: {
     title: { en: "The die", pt: "O dado" },
     p1: {
-      en: "The die isn’t an icon or a 3D model. Every frame, a cube is turned and projected by hand into two SVG paths: one for the edges, and one for the pips, small discs that flatten as their face turns away. Only the faces turned toward you get drawn, and the stroke stays a pixel wide at any size.",
-      pt: "O dado não é um ícone nem um modelo 3D. A cada frame, um cubo é girado e projetado na mão em dois paths SVG: um pras arestas e outro pros pontos, discos pequenos que achatam conforme a face vira. Só as faces voltadas pra você são desenhadas, e o traço continua com um pixel de largura em qualquer tamanho.",
+      en: "The die isn’t an icon or a 3D model. I draw it by hand: every frame, a cube is turned and projected into two SVG paths, one for the edges and one for the pips, which flatten as their face turns away. That way every line stays a crisp 1px vector however it turns, at any size.",
+      pt: "O dado não é ícone nem modelo 3D. Eu desenho ele na mão: a cada frame, um cubo é girado e projetado em dois paths SVG, um pras arestas e outro pros pontos, que achatam conforme a face vira. Assim cada linha continua um vetor de 1px, nítido, girando do jeito que for e em qualquer tamanho.",
     },
     p2: {
       en: "A throw hops, tumbles at least a full turn on each axis, and lands on the face its seed picks, so the die and the scene always agree. Pause it halfway and step through: the frames it just passed stay behind as faint outlines.",
@@ -74,8 +74,8 @@ export default {
   hint: {
     title: { en: "A hand-drawn arrow", pt: "Uma seta desenhada à mão" },
     p1: {
-      en: "The first time you open a post, an arrow draws itself to the die: the line swoops and loops once, then the head gets outlined and hatched stroke by stroke. After that your browser remembers, and the arrow doesn’t come back.",
-      pt: "Na primeira vez que você abre um post, uma seta se desenha até o dado: a linha faz uma curva e uma volta, depois a ponta é contornada e hachurada traço por traço. Depois disso o navegador lembra, e a seta não aparece de novo.",
+      en: "A die in the corner of a picture is easy to miss. So the first time you open a post, an arrow draws itself to it: the line swoops and loops once, then the head gets outlined and hatched stroke by stroke. After that your browser remembers, and you don’t see it again.",
+      pt: "Um dado no canto da imagem passa batido fácil. Então na primeira vez que você abre um post, uma seta se desenha até ele: a linha faz uma curva e uma volta, depois a ponta é contornada e hachurada traço por traço. Depois disso o navegador lembra, e ela não aparece de novo.",
     },
     p2: {
       en: "Each stroke is one dash as long as its own path, slid into place with stroke-dashoffset. Under the strokes runs a thicker copy in the page’s own black, so the part that crosses the picture still reads.",
@@ -89,8 +89,8 @@ export default {
       pt: "O nome no topo da página inicial chega uma palavra por vez. Cada palavra sobe um quinto da própria altura saindo de um desfoque de 6px em 800ms, 50ms depois da anterior, e o cargo começa 150ms depois do nome.",
     },
     p2: {
-      en: "It’s all CSS, so the words are in the HTML from the start and anything that reads the page gets them; only the animation’s first frame hides them from view. With reduced motion on, they just fade in.",
-      pt: "É tudo CSS, então as palavras tão no HTML desde o começo e qualquer coisa que lê a página recebe elas; só o primeiro frame da animação esconde elas da tela. Com movimento reduzido ligado, elas só aparecem com um fade.",
+      en: "It’s all CSS, no JavaScript and no animation library. The words are in the HTML from the start, so anything that reads the page gets them, and only the animation’s first frame hides them. With reduced motion on, they just fade in.",
+      pt: "É tudo CSS, sem JavaScript e sem biblioteca de animação. As palavras tão no HTML desde o começo, então qualquer coisa que lê a página recebe elas, e só o primeiro frame da animação esconde elas. Com movimento reduzido ligado, elas só aparecem com um fade.",
     },
   },
 };

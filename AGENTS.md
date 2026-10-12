@@ -127,6 +127,7 @@ Root owns repo-wide config and the folders without their own AGENTS.md:
 - `luannzin.com-audit/`: SEO audit snapshot of 2026-10-10 (report, action plan, per-domain findings, OG captures); a dated record, so the code is the current truth
 - `.impeccable/`: impeccable skill state behind `DESIGN.md` (`design.json`, per-surface briefs); `.impeccable/review/` is gitignored
 - `.claude/launch.json`: `dev` preview server (`bun run dev`, port 3000)
+- `.claude/skills/luan-writing-way/`: project skill that reviews and rewrites copy into Luan's voice, from `IDENTITY.md`
 
 ## Local Contracts
 
@@ -141,6 +142,7 @@ Root owns repo-wide config and the folders without their own AGENTS.md:
 
 - Before Next.js API work, read the matching guide in `node_modules/next/dist/docs/` (top of this file)
 - Run Biome `--write` (`check --write` or `format --write`) only on the exact files changed, never on a folder or through `bun run format`: `src/app/globals.css` and `src/components/ui/` are not Biome-formatted and a wide write reformats them; compare `git diff --stat` before and after
+- For any new or changed user-facing copy, run the `luan-writing-way` skill; never invent reasons or opinions for Luan, ask instead
 - For design work, follow `DESIGN.md` and reach for the `better-*` skills (better-typography, better-layout)
 
 ## Verification

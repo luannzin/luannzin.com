@@ -10,7 +10,7 @@ export function GET() {
 
 > Luan Fabri (luannzin), front-end engineer at Loopscape, and the author of the open source tools echo and better-intl.
 
-I'm a front-end engineer at [Loopscape](https://loopscape.com.br), where since 2023 I've been building ERPs and multi-tenant platforms with React and Next.js. It's software people spend their whole workday in, so I pay a lot of attention to the details that make it fast and clear to use.
+I'm a front-end engineer at [Loopscape](https://loopscape.com.br), where since 2023 I've been building ERPs and multi-tenant platforms with React and Next.js. It's software people spend their whole workday in, so a button that doesn't look clickable isn't a small detail there. It's friction, all day.
 
 On the side, I build open source tools for problems I keep running into. You can see my code on [GitHub](https://github.com/luannzin), follow along on [X](https://x.com/__luannzin), or find me on [LinkedIn](https://linkedin.com/in/luannzin).
 
