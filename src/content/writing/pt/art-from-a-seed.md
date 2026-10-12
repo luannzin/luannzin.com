@@ -8,11 +8,11 @@ metaDescription: Como a arte de capa de cada post sai de uma seed: um PRNG mulbe
 seed: 16
 ---
 
-Ninguém desenhou a imagem no topo deste post. Cada post tem um número, a seed, e a página monta uma cena a partir dele: o lugar, a hora do dia, o que está ali, até o formato das nuvens.
+Ninguém desenhou a imagem no topo deste post. Eu queria que cada post tivesse a própria imagem, mas NÃO queria criar capa e ficar mantendo tudo atualizado. Então cada post ganha um número, a seed, e a página monta uma cena a partir dele: o lugar, a hora do dia, o que tá ali, até o formato das nuvens.
 
-Ela também reage a você. Passa o ponteiro por cima e uma luzinha vai junto. Toca no céu pra ver uma estrela cadente, ou na água pra fazer uma ondulação. O dado no canto sorteia outra cena, só pra essa visita.
+Uma seed é só um número no frontmatter. Ela nunca fica desatualizada, e nenhum post acaba com a mesma vista de outro.
 
-Eu queria que cada post tivesse sua própria imagem, mas sem ter que criar capas e manter tudo atualizado. Uma seed é só um número no frontmatter. Ela nunca fica desatualizada, e nenhum post acaba com a mesma vista de outro.
+A imagem também reage a você. Passa o ponteiro por cima e uma luzinha vai junto. Toca no céu pra ver uma estrela cadente, ou na água pra fazer uma ondulação. O dado no canto sorteia outra cena, só pra essa visita.
 
 ## Um número, todas as escolhas
 
@@ -69,7 +69,7 @@ São nove lugares, onze horas do dia e onze marcos:
 | Cidade | Chuva, noite, crepúsculo, tempestade | Alguém sob um guarda-chuva, ou uma máquina de venda automática |
 | Recife | Águas profundas | Um naufrágio, ou uma raia-manta |
 
-Aqui está o mesmo código com seis outras seeds. Passa o ponteiro por cima de uma pra ela se mexer:
+Aqui tá o mesmo código com outras seis seeds. Passa o ponteiro por cima de uma pra ela se mexer:
 
 ```scenes
 2 109 103 9 46 58
@@ -93,13 +93,13 @@ frame(t) | sombreia cada célula | grid
 canvas | pontos na GPU | image | lit
 ```
 
-Um frame é uma grade de células, uma a cada três pixels de largura (menores em telas mais nítidas). Cada célula recebe sua cor completa antes de qualquer coisa ser desenhada.
+Um frame é uma grade de células, uma a cada três pixels de largura (menores em telas mais nítidas). Cada célula ganha a cor final antes de qualquer coisa ir pra tela.
 
 O céu vai da cor do topo até um horizonte mais claro, com um brilho em volta do sol ou da lua. As nuvens são camadas de ruído, iluminadas do lado virado pra luz e mantidas longe da lua. As montanhas são ruído em cristas. As encostas viradas pra luz recebem ela, as cadeias mais distantes somem no céu, e a névoa se junta na base. Cada crista também ganha uma linha fina de céu atrás, então até uma cadeia escura se destaca de um céu escuro. No alpenglow o sol ainda não nasceu, mas já bate na neve lá no alto, então só as faces viradas pra ele ficam rosadas.
 
 ### Água que reflete o que está acima dela
 
-A água é sombreada por último. Pra cada célula abaixo do horizonte, a cena olha pra célula espelhada do outro lado da linha d'água, que já foi sombreada, e desloca ela um pouco pro lado seguindo a ondulação. Essa única consulta já dá o reflexo das montanhas, das nuvens e de cada lâmpada. Por cima, uma trilha de reflexos desce a partir do sol ou da lua.
+A água é sombreada por último. Pra cada célula abaixo do horizonte, a cena olha pra célula espelhada do outro lado da linha d'água, que já foi sombreada, e desloca ela um pouco pro lado seguindo a ondulação. Sem renderizar a cena de novo, sem ray tracing. Essa única consulta já dá o reflexo das montanhas, das nuvens e de cada lâmpada. Por cima, uma trilha de reflexos desce a partir do sol ou da lua.
 
 Cada coluna espelha em torno da própria linha: o horizonte em mar aberto, ou a base do que estiver ali. Um torii num lago reflete a partir dos próprios pilares, e numa rua molhada a luz de uma máquina de venda automática começa na base dela e se estende pela rua.
 
@@ -164,4 +164,4 @@ Na página inicial, a mesma seed desenha um recorte quadrado da cena dentro do b
 
 ## De onde veio a ideia
 
-O visual vem do [ascii.rest](https://ascii.rest), criado por [bas3line](https://github.com/bas3line/ascii), uma biblioteca de arte em texto animada pra páginas web. Cada cena de lá, como [night coast](https://ascii.rest/night-coast/), [tokyo rain](https://ascii.rest/tokyo-rain/) ou [deep reef](https://ascii.rest/deep-reef/), é um pedaço de código próprio, sombreado em cores célula por célula e desenhado como pontos com dithering. As daqui saem de um número. Abordagem diferente, mesma ideia: uma página pode ter um pouco de movimento e continuar calma.
+Eu peguei o visual do [ascii.rest](https://ascii.rest), criado por [bas3line](https://github.com/bas3line/ascii), uma biblioteca de arte em texto animada pra páginas web. Cada cena de lá, como [night coast](https://ascii.rest/night-coast/), [tokyo rain](https://ascii.rest/tokyo-rain/) ou [deep reef](https://ascii.rest/deep-reef/), é um pedaço de código próprio, sombreado em cores célula por célula e desenhado como pontos com dithering. As daqui saem de um número. Abordagem diferente, mesma ideia: uma página pode ter um pouco de movimento e continuar calma.

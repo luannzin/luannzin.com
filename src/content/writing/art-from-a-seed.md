@@ -8,11 +8,11 @@ metaDescription: How each post’s generative cover art grows from one seed: a m
 seed: 16
 ---
 
-Nobody drew the picture at the top of this post. Each post has a number, its seed, and the page builds a scene from it: the place, the time of day, what’s standing there, even the shape of the clouds.
+Nobody drew the picture at the top of this post. I wanted every post to have its own picture, but I didn’t want to make cover images and keep them up to date. So each post gets a number instead, its seed, and the page builds a scene from it: the place, the time of day, what’s standing there, even the shape of the clouds.
 
-It also reacts to you. Move your pointer over it and a small light follows along. Tap the sky for a shooting star, or the water for a ripple. The dice in the corner gives you a different scene, just for this visit.
+A seed is just a number in the frontmatter. It never goes stale, and no two posts end up with the same view.
 
-I wanted every post to have its own picture, but I didn’t want to make cover images and keep them up to date. A seed is just a number in the frontmatter. It never goes stale, and no two posts end up with the same view.
+The picture also reacts to you. Move your pointer over it and a small light follows along. Tap the sky for a shooting star, or the water for a ripple. The die in the corner gives you a different scene, just for this visit.
 
 ## One number, every choice
 
@@ -93,13 +93,13 @@ frame(t) | shades every cell | grid
 canvas | dots on the GPU | image | lit
 ```
 
-A frame is a grid of cells, one for every three pixels of width (smaller on sharper screens). Each cell gets its full colour before anything is drawn.
+A frame is a grid of cells, one for every three pixels of width (smaller on sharper screens). Each cell gets its final colour before anything hits the screen.
 
 The sky goes from its top colour down to a brighter horizon, with a glow around the sun or moon. Clouds are layers of noise, lit on the side facing the light and kept away from the moon. Mountains are ridged noise. The slopes facing the light catch it, far ranges fade into the sky, and mist collects at their base. Each crest also gets a thin line of sky behind it, so a dark range still stands out against a dark sky. At alpenglow the sun hasn’t risen yet but already reaches the snow on the high peaks, so only the faces turned toward it turn pink.
 
 ### Water that reflects what’s above it
 
-Water is shaded last. For each cell below the horizon, the scene looks at the cell mirrored across the waterline, which is already shaded, and shifts it sideways a little to follow the swell. That one lookup gives you the reflection of the mountains, the clouds and every lamp. On top of it, a trail of glints runs down from the sun or moon.
+Water is shaded last. For each cell below the horizon, the scene looks at the cell mirrored across the waterline, which is already shaded, and shifts it sideways a little to follow the swell. No second render, no ray tracing. That one lookup gives you the reflection of the mountains, the clouds and every lamp. On top of it, a trail of glints runs down from the sun or moon.
 
 Each column mirrors around its own line: the horizon on open water, or the base of whatever is standing there. A torii in a pond reflects from its own posts, and on a wet street a vending machine’s light starts at its base and stretches down the road.
 
@@ -164,4 +164,4 @@ On the home page, the same seed draws a square crop of the scene inside each pos
 
 ## Where the idea came from
 
-The look comes from [ascii.rest](https://ascii.rest) by [bas3line](https://github.com/bas3line/ascii), a library of animated text art for web pages. Each of its scenes, like [night coast](https://ascii.rest/night-coast/), [tokyo rain](https://ascii.rest/tokyo-rain/) or [deep reef](https://ascii.rest/deep-reef/), is its own piece of code, shaded in colour cell by cell and drawn as dithered dots. The ones here come from a number instead. Different approach, same idea: a page can have a bit of motion and still be calm.
+I got the look from [ascii.rest](https://ascii.rest) by [bas3line](https://github.com/bas3line/ascii), a library of animated text art for web pages. Each of its scenes, like [night coast](https://ascii.rest/night-coast/), [tokyo rain](https://ascii.rest/tokyo-rain/) or [deep reef](https://ascii.rest/deep-reef/), is its own piece of code, shaded in colour cell by cell and drawn as dithered dots. The ones here come from a number instead. Different approach, same idea: a page can have a bit of motion and still be calm.
