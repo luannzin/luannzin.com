@@ -1,5 +1,5 @@
 import { translations } from "@/i18n/generated";
-import { markdownTwin, profiles, site } from "@/lib/site";
+import { cvPdf, markdownTwin, profiles, site } from "@/lib/site";
 import { formatDate, getPosts } from "@/lib/writing";
 
 // The home page as plain markdown, for agents (also served at /llms.txt).
@@ -31,6 +31,10 @@ ${getPosts()
 ## Lab
 
 - [${lab.row}](${site}/lab.md) — ${lab.rowDescription}
+
+## CV
+
+- [CV](${site}/cv.md), also as a PDF: ${site}${cvPdf.en}
 
 ## Links
 

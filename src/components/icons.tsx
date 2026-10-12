@@ -155,6 +155,25 @@ export function NextFrameIcon(props: IconProps) {
   return <Stroke d="M8.5 7L13.5 12L8.5 17M16.25 7V17" {...props} />;
 }
 
+// CV: the PDF, and the page on paper.
+export function DownloadIcon(props: IconProps) {
+  return (
+    <Stroke
+      d="M12 4.75V14.25M12 14.25L8.25 10.5M12 14.25L15.75 10.5M5.75 15.75V17.25C5.75 18.35 6.65 19.25 7.75 19.25H16.25C17.35 19.25 18.25 18.35 18.25 17.25V15.75"
+      {...props}
+    />
+  );
+}
+
+export function PrintIcon(props: IconProps) {
+  return (
+    <Stroke
+      d="M7.75 9.25V5.75C7.75 5.2 8.2 4.75 8.75 4.75H15.25C15.8 4.75 16.25 5.2 16.25 5.75V9.25M7.75 16.25H6.75C5.65 16.25 4.75 15.35 4.75 14.25V11.25C4.75 10.15 5.65 9.25 6.75 9.25H17.25C18.35 9.25 19.25 10.15 19.25 11.25V14.25C19.25 15.35 18.35 16.25 17.25 16.25H16.25M8.75 13.75H15.25C15.8 13.75 16.25 14.2 16.25 14.75V18.25C16.25 18.8 15.8 19.25 15.25 19.25H8.75C8.2 19.25 7.75 18.8 7.75 18.25V14.75C7.75 14.2 8.2 13.75 8.75 13.75Z"
+      {...props}
+    />
+  );
+}
+
 export function CopyIcon(props: IconProps) {
   return (
     <Stroke

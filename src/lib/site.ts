@@ -11,6 +11,15 @@ export const profiles = {
   linkedin: "https://linkedin.com/in/luannzin",
 };
 
+// Public contact, on the CV only (user decision: email yes, phone never).
+export const email = "luandaniel966@gmail.com";
+
+// The CV as PDFs, printed from /cv by scripts/cv-pdf.mjs into public/.
+export const cvPdf = {
+  en: "/cv/luan-fabri-cv.pdf",
+  pt: "/cv/luan-fabri-curriculo.pdf",
+};
+
 // Shared by every page's Open Graph tags: a page that sets its own replaces
 // the layout's whole object, so it spreads this back in (and adds the locale).
 export const openGraph = { siteName: "Luan Fabri" };

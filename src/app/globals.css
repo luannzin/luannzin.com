@@ -1154,3 +1154,155 @@
     transition: none;
   }
 }
+
+/* The CV (app/cv/page.tsx): an entry sits a heading's distance from the one
+   before, but close under its own section head; its timeline bars grow from
+   their start, one after another, as the page arrives, then the playhead
+   draws down from its dot onto today. */
+@layer components {
+  .cv .prose {
+    & > .entry {
+      margin-top: 2rem;
+    }
+    & > h2 + .entry {
+      margin-top: 0.75rem;
+    }
+  }
+  .cv-bar {
+    @media (prefers-reduced-motion: no-preference) {
+      transform-origin: left;
+      animation: bar-grow 600ms var(--delay, 0ms) both
+        cubic-bezier(0.2, 0, 0, 1);
+    }
+  }
+  .cv-playhead {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: playhead-draw 500ms var(--delay, 0ms) both
+        cubic-bezier(0.2, 0, 0, 1);
+    }
+  }
+}
+@keyframes bar-grow {
+  from {
+    scale: 0 1;
+  }
+}
+@keyframes playhead-draw {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(-4px 0 0 0);
+  }
+}
+
+/* The CV on paper (app/cv/page.tsx): Ctrl+P or its Print button turns the
+   page into the CV itself, black ink on an A4 sheet that applicant tracking
+   systems can read. The site's chrome, the controls and the timeline
+   ([data-screen]) stay on screen; the keywords and the profiles' addresses
+   ([data-paper]) only print.
+   Paper has its own type: a larger name, ruled uppercase section heads.
+   Unlayered on purpose: its tokens must beat `.dark`'s. */
+@page {
+  size: A4;
+  margin: 14mm 16mm;
+}
+@media print {
+  :root:has(.cv) {
+    --background: #fff;
+    --foreground: #111;
+    --muted-foreground: #444;
+    color-scheme: light;
+    font-size: 10pt;
+
+    & body {
+      background: #fff;
+    }
+    & body > :not(main),
+    & [data-screen] {
+      display: none !important;
+    }
+    & [data-paper] {
+      display: revert !important;
+    }
+    & *,
+    & *::before,
+    & *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    & .cv {
+      max-width: none;
+      padding: 0;
+    }
+    & .cv header {
+      margin-top: 0;
+      text-align: center;
+    }
+    & .cv h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+    }
+    & .cv .contact {
+      justify-content: center;
+      column-gap: 0.35em;
+      padding-bottom: 0.75rem;
+      border-bottom: 1.5px solid #111;
+
+      & li + li::before {
+        content: "·";
+        margin-inline-end: 0.35em;
+      }
+    }
+    & .cv .prose > h2 {
+      margin-top: 1.25rem;
+      padding-bottom: 0.2rem;
+      border-bottom: 1px solid #111;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    /* in flow, so a PDF's text keeps each heading above its section */
+    & .cv .prose > h2 > a {
+      position: static;
+
+      &::before {
+        content: none;
+      }
+    }
+    & .cv .prose > .entry {
+      margin-top: 0.9rem;
+    }
+    & .cv .prose > h2 + .entry {
+      margin-top: 0.5rem;
+    }
+    & .cv .entry > div:first-child {
+      break-after: avoid;
+    }
+    & .cv .prose h3 {
+      font-weight: 600;
+    }
+    & .cv .prose,
+    & .cv .summary {
+      color: #111;
+    }
+    & .cv li {
+      break-inside: avoid;
+    }
+    & .cv a,
+    & .cv a * {
+      color: inherit;
+      text-decoration: none;
+    }
+    & .cv [data-paper-url]::after {
+      content: " (" attr(data-paper-url) ")";
+    }
+    & .cv p[data-paper] {
+      margin-top: 1.25rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid #999;
+      color: #444;
+      font-size: 0.8rem;
+    }
+  }
+}

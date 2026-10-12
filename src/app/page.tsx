@@ -232,12 +232,20 @@ export default async function Home() {
       <footer className={`${enter} mt-20 delay-900`}>
         <DitherStrip />
         <div className="mt-16 flex items-end justify-between">
-          <a
-            href="/index.md"
-            className="group rounded-sm font-mono text-muted-foreground text-sm outline-offset-2 transition-[color] duration-150 hover:text-foreground"
-          >
-            <span className={underline}>index.md</span>
-          </a>
+          <div className="flex gap-4">
+            <a
+              href="/index.md"
+              className="group rounded-sm font-mono text-muted-foreground text-sm outline-offset-2 transition-[color] duration-150 hover:text-foreground"
+            >
+              <span className={underline}>index.md</span>
+            </a>
+            <Link
+              href="/cv"
+              className="group rounded-sm font-mono text-muted-foreground text-sm outline-offset-2 transition-[color] duration-150 hover:text-foreground"
+            >
+              <span className={underline}>cv</span>
+            </Link>
+          </div>
           <Signature />
         </div>
       </footer>

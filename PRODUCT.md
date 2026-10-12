@@ -23,7 +23,7 @@ A front-end engineer who ships production ERPs and multi-tenant platforms at Loo
 - Stack: Next.js 16 (App Router, cache components, React Compiler), Tailwind CSS v4, coss UI (Base UI), Bun, Biome.
 - Language: English and Brazilian Portuguese via better-intl, picked from the `locale` cookie, else Accept-Language. Translated posts live in `src/content/writing/pt/`.
 - Theme: dark only.
-- Current sections: header (name, role, avatar), hero bio, projects. More sections later.
+- Current sections: header (name, role, avatar), hero bio, projects, writing, Lab row; the CV lives at `/cv` (linked from the home footer), not on the home page.
 - Source of facts: `LUAN FABRI.md` (RH-oriented, written ~April 2026, partly outdated) plus GitHub.
 
 ## Brand Commitments
@@ -39,7 +39,7 @@ A front-end engineer who ships production ERPs and multi-tenant platforms at Loo
 - echo: "The note taker that learns with you". https://useecho.dev, https://github.com/luannzin/echo. Mark: `src/assets/echo.png` (echo's own app icon).
 - better-intl: typed, file-based i18n for Next.js. https://github.com/luannzin/better-intl
 - Profiles: github.com/luannzin, x.com/__luannzin, linkedin.com/in/luannzin.
-- Work history and metrics live in `LUAN FABRI.md`; its numbers are self-reported estimates. Do not publish metrics, phone number or email without asking.
+- Work history and metrics live in `LUAN FABRI.md`; its numbers are self-reported estimates. Do not publish metrics, phone number or email without asking. The CV (`/cv` and its PDF) publishes the email, never the phone, and leaves the CV's numbers out (user decision, 2026-10-11).
 
 ## Product Principles
 

@@ -12,13 +12,15 @@
 - `writing/[slug]/page.tsx`: post page (breadcrumb, header, cover, contents, article, author footer, share)
 - `lab/page.tsx`: the Lab, one section per piece of the site's motion (seeded scenes, die, hint arrow, text reveal), each a live specimen with a timing sheet from `@/components/lab`, then its write-up
 - `lab.md/route.ts`: the Lab as plain markdown; its piece list matches the page's
+- `cv/page.tsx`: the CV: header with contact, Download PDF and Print, summary, a timeline of roles and study as a timing sheet (bars per role, playhead on today), then experience, projects, open source, skills, education and languages; `[data-screen]` parts stay on screen, `[data-paper]` parts only print
+- `cv.md/route.ts`: the CV as plain markdown
 - `writing/[slug]/md/route.ts`: post as plain markdown, served at `/writing/<slug>.md`
 - `writing/[slug]/opengraph-image.tsx`: post share card; `opengraph-image.tsx`: home share card
 - `writing/[slug]/tile.png/route.tsx`: still first frame of the post's scene, the home tile under `LiveTile`
 - `index.md/route.ts`: home as plain markdown, also served at `/llms.txt`
 - `robots.ts`, `sitemap.ts`, `icon.png`, `apple-icon.png`
-- `t.ts` (`t.app.meta`, `t.app.home`, `t.app.notFound`, `t.app.language`), `writing/t.ts` (`t.app.writing`), `lab/t.ts` (`t.app.lab`, written to `IDENTITY.md`)
-- `globals.css`: Tailwind v4 entry, theme tokens, and every custom component style (prose, code box, flow diagram, scene blocks, text reveal, action swap, signature, dice hint, locale flag, lab sections)
+- `t.ts` (`t.app.meta`, `t.app.home`, `t.app.notFound`, `t.app.language`), `writing/t.ts` (`t.app.writing`), `lab/t.ts` (`t.app.lab`, written to `IDENTITY.md`), `cv/t.ts` (`t.app.cv`, the CV's facts from April 2026 with the numbers left out)
+- `globals.css`: Tailwind v4 entry, theme tokens, and every custom component style (prose, code box, flow diagram, scene blocks, text reveal, action swap, signature, dice hint, locale flag, lab sections, CV timeline bars, the CV's print styles)
 
 ## Local Contracts
 
@@ -30,7 +32,8 @@
 - Post routes build `generateStaticParams` from `getPosts()`; share cards and twins are English, since crawlers send no locale cookie
 - `dangerouslySetInnerHTML` only for repo-authored markdown (`renderMarkdown`) and `JsonLd`
 - `globals.css` scans `src/` for classes but skips `components/ui/` and every `AGENTS.md`; each ui kit file the site uses needs its own `@source` line
-- Custom CSS sits in `@layer components` under a comment naming the component it styles, and respects `prefers-reduced-motion`
+- Custom CSS sits in `@layer components` under a comment naming the component it styles, and respects `prefers-reduced-motion`; the one exception is the CV's `@media print` block, unlayered so its paper tokens beat `.dark`
+- The CV prints as its PDF: what the page shows on paper is set only by the print block in `globals.css`, scoped to `:root:has(.cv)`; keep section heads in flow (no positioned anchors) so a PDF's text layer keeps each heading above its section
 
 ## Work Guidance
 
@@ -41,7 +44,8 @@
 
 - `bun run lint`, `bun run build`
 - Class scanning (`@source` lines): the dev server's CSS is not a reliable probe; list the files Tailwind scans with `Scanner` from `@tailwindcss/oxide`, fed the sources `compile` from `@tailwindcss/node` reads out of `globals.css`
-- Preview server `dev`: `/`, `/writing/art-from-a-seed`, `/index.md`, `/llms.txt`, `/writing/art-from-a-seed.md`, `/writing/art-from-a-seed/tile.png`, `/opengraph-image`, `/lab`, `/lab.md`, plus a language switch with the toggle
+- Preview server `dev`: `/`, `/writing/art-from-a-seed`, `/index.md`, `/llms.txt`, `/writing/art-from-a-seed.md`, `/writing/art-from-a-seed/tile.png`, `/opengraph-image`, `/lab`, `/lab.md`, `/cv`, `/cv.md`, plus a language switch with the toggle
+- Print styles and fresh `globals.css` edits: check on a production server (`bun run build`, `bunx next start -p 3001`), then `bun run cv:pdf http://localhost:3001` and read the PDFs
 
 ## Child DOX Index
 
