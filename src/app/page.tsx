@@ -201,26 +201,55 @@ export default async function Home() {
         <h2 id="lab" className="font-medium">
           {t.app.lab.title}
         </h2>
-        <Link
-          href="/lab"
-          prefetch
-          className="group mt-4 flex items-center gap-4 rounded-[14px] outline-offset-4"
-        >
-          <span className={bezel}>
-            <span className="grid size-11 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[color] duration-150 group-hover:text-foreground">
-              <Die seed={4} className="size-6 overflow-visible" />
-            </span>
-          </span>
-          <span className="leading-snug">
-            <span className="flex items-center gap-1 text-foreground">
-              <span className={underline}>{t.app.lab.row}</span>
-              <ArrowRightIcon className="size-3.5 -translate-x-1 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:opacity-100" />
-            </span>
-            <span className="block text-muted-foreground">
-              {t.app.lab.rowDescription}
-            </span>
-          </span>
-        </Link>
+        <ul className="mt-4 grid gap-6">
+          {[
+            {
+              href: "/lab",
+              title: t.app.lab.row,
+              description: t.app.lab.rowDescription,
+              tile: <Die seed={4} className="size-6 overflow-visible" />,
+            },
+            {
+              href: "/lab/bug-hunt",
+              title: t.app.lab.game.row,
+              description: t.app.lab.game.rowDescription,
+              // the hero's head from the game's own atlas, at 2x
+              tile: (
+                <Image
+                  src="/lab/bug-hunt/tile.png"
+                  alt=""
+                  width={44}
+                  height={44}
+                  unoptimized
+                  className="block size-11 [image-rendering:pixelated]"
+                />
+              ),
+            },
+          ].map(({ href, title, description, tile }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                prefetch
+                className="group flex items-center gap-4 rounded-[14px] outline-offset-4"
+              >
+                <span className={bezel}>
+                  <span className="grid size-11 place-items-center overflow-hidden rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[color] duration-150 group-hover:text-foreground">
+                    {tile}
+                  </span>
+                </span>
+                <span className="leading-snug">
+                  <span className="flex items-center gap-1 text-foreground">
+                    <span className={underline}>{title}</span>
+                    <ArrowRightIcon className="size-3.5 -translate-x-1 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:opacity-100" />
+                  </span>
+                  <span className="block text-muted-foreground">
+                    {description}
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <AskAI

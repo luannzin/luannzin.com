@@ -29,7 +29,7 @@ type Controls = typeof t.app.lab.controls;
 
 // One frame at 60fps: what a step moves by.
 export const FRAME = 1000 / 60;
-const SPEEDS = [1, 0.25, 0.1];
+export const SPEEDS = [1, 0.25, 0.1];
 
 // A row on a timing sheet: when something runs, in ms, and its curve, the
 // value it moves through as its run goes from 0 to 1.
@@ -139,6 +139,12 @@ export function useSeekCss(
   }, [host, t, runs]);
 }
 
+// The Well a specimen sits in: full-bleed with hairlines on a phone, framed
+// and hanging into the gutters from sm. On the Well and the Tile Grey of its
+// controls the page's muted grey falls under 4.5:1, so muted steps up.
+export const well =
+  "specimen -mx-6 [--muted-foreground:color-mix(in_srgb,var(--color-neutral-500)_80%,var(--color-white))] overflow-hidden bg-foreground/2.5 max-sm:shadow-[inset_0_1px_var(--border),inset_0_-1px_var(--border)] sm:rounded-[14px] sm:inset-ring sm:inset-ring-border lg:-mx-16";
+
 // One piece of the Lab: the piece itself, then its transport and timing
 // sheet. It performs once as it comes into view, unless the visitor asked for
 // less motion.
@@ -175,13 +181,7 @@ export function Specimen({
   }, []);
 
   return (
-    // It sits on the Well and its controls on Tile Grey, where the page's
-    // muted grey falls under 4.5:1: muted steps up just enough to hold.
-    <figure
-      ref={figure}
-      aria-labelledby={name}
-      className="specimen -mx-6 [--muted-foreground:color-mix(in_srgb,var(--color-neutral-500)_80%,var(--color-white))] overflow-hidden bg-foreground/2.5 max-sm:shadow-[inset_0_1px_var(--border),inset_0_-1px_var(--border)] sm:rounded-[14px] sm:inset-ring sm:inset-ring-border lg:-mx-16"
-    >
+    <figure ref={figure} aria-labelledby={name} className={well}>
       {children}
       <div className="border-border border-t px-6 pt-4 pb-5 lg:px-16">
         <Transport timeline={timeline} labels={labels} name={name} />
@@ -227,29 +227,51 @@ function Transport({
       <Tool label={labels.next} onClick={() => timeline.step(1)}>
         <NextFrameIcon className="size-4" />
       </Tool>
-      <fieldset className="ms-auto flex h-8 rounded-[8px] bg-muted p-0.5 inset-ring inset-ring-border">
-        <legend className="sr-only">{labels.speed}</legend>
-        {SPEEDS.map((speed) => (
-          <label
-            key={speed}
-            className="relative grid min-w-10 cursor-pointer place-items-center rounded-[6px] px-2 font-mono text-muted-foreground text-sm tabular-nums transition-[color,background-color,box-shadow] duration-150 hover:text-foreground has-checked:bg-foreground/7 has-checked:text-foreground has-checked:inset-ring has-checked:inset-ring-foreground/10 has-focus-visible:outline-2 has-focus-visible:outline-ring has-focus-visible:outline-offset-2"
-          >
-            <input
-              type="radio"
-              name={`${name}-speed`}
-              checked={timeline.speed === speed}
-              onChange={() => timeline.setSpeed(speed)}
-              className="sr-only"
-            />
-            {speed}×
-          </label>
-        ))}
-      </fieldset>
+      <Speeds
+        name={name}
+        label={labels.speed}
+        speed={timeline.speed}
+        onChange={timeline.setSpeed}
+      />
     </fieldset>
   );
 }
 
-function Tool({
+// 1x, 0.25x, 0.1x as a segmented control; Bug hunt slows down with it too.
+export function Speeds({
+  name,
+  label,
+  speed,
+  onChange,
+}: {
+  name: string;
+  label: string;
+  speed: number;
+  onChange: (speed: number) => void;
+}) {
+  return (
+    <fieldset className="ms-auto flex h-8 rounded-[8px] bg-muted p-0.5 inset-ring inset-ring-border">
+      <legend className="sr-only">{label}</legend>
+      {SPEEDS.map((value) => (
+        <label
+          key={value}
+          className="relative grid min-w-10 cursor-pointer place-items-center rounded-[6px] px-2 font-mono text-muted-foreground text-sm tabular-nums transition-[color,background-color,box-shadow] duration-150 hover:text-foreground has-checked:bg-foreground/7 has-checked:text-foreground has-checked:inset-ring has-checked:inset-ring-foreground/10 has-focus-visible:outline-2 has-focus-visible:outline-ring has-focus-visible:outline-offset-2"
+        >
+          <input
+            type="radio"
+            name={`${name}-speed`}
+            checked={speed === value}
+            onChange={() => onChange(value)}
+            className="sr-only"
+          />
+          {value}×
+        </label>
+      ))}
+    </fieldset>
+  );
+}
+
+export function Tool({
   label,
   onClick,
   children,

@@ -31,6 +31,7 @@ ${getPosts()
 ## Lab
 
 - [${lab.row}](${site}/lab.md) — ${lab.rowDescription}
+- [${lab.game.row}](${site}/lab/bug-hunt.md) — ${lab.game.rowDescription}
 
 ## CV
 
