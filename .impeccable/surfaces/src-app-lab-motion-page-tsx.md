@@ -1,11 +1,11 @@
 ---
 version: 1
-slug: "src-app-lab-page-tsx"
-primary_target: "src/app/lab/page.tsx"
+slug: "src-app-lab-motion-page-tsx"
+primary_target: "src/app/lab/motion/page.tsx"
 related_targets: ["src/components/lab/specimens.tsx","src/components/lab/timeline.tsx"]
 ---
 
-# Lab (src/app/lab/page.tsx)
+# Motion, frame by frame (src/app/lab/motion/page.tsx)
 
 Scope: one page of live, inspectable pieces of this site (seeded scenes with the melt and a seed field, the die, the hand-drawn arrow, the text reveal), each with a timing sheet and a short write-up. Visitor mode: Experience, read-like: the pieces lead, the prose under each explains them.
 
@@ -19,7 +19,7 @@ OWN-WORLD: Home and Writing unchanged: ground #161616, three ink tiers, Inter 16
 
 STORY: The visitor reads what the lab is, sees the contents, watches each piece perform once as it arrives, then replays it, slows it to a quarter or a tenth, steps it a frame at a time or scrubs, and reads how it works.
 
-FIRST VIEWPORT: Breadcrumb (Luan Fabri, Lab); title "Lab" over a muted subtitle; two-line intro; then the first entry heading and the Seeded scenes specimen: a 2:1 live scene breaking out at lg, its name and the seed field (die inside, at the end) under it, then the timing sheet (transport, ruler, melt / hop / tumble). Contents rail at xl.
+FIRST VIEWPORT: Breadcrumb (Lab, Motion, frame by frame); title "Motion, frame by frame" over a muted subtitle; two-line intro; then the first entry heading and the Seeded scenes specimen: a 2:1 live scene breaking out at lg, its name and the seed field (die inside, at the end) under it, then the timing sheet (transport, ruler, melt / hop / tumble). Contents rail at xl.
 
 FORM: Specimens with timing sheets, candidate 1 on the ordered list, user-locked with the steer "a description under each, like a post"; seed key 28dbfd26. Signature interaction: the playhead drives the real code (melt layer, die projection, CSS animations through the Web Animations API), so scrubbing moves the actual piece.
 

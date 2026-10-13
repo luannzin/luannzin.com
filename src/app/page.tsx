@@ -9,7 +9,6 @@ import {
 } from "react";
 import echoLogo from "@/assets/echo.png";
 import { AskAI } from "@/components/ask-ai";
-import { Die } from "@/components/die";
 import { DitherStrip, Signature } from "@/components/footer-art";
 import {
   ArrowRightIcon,
@@ -19,6 +18,7 @@ import {
   LinkedInIcon,
   LoopscapeIcon,
 } from "@/components/icons";
+import { LabRows } from "@/components/lab/rows";
 import { LiveTile } from "@/components/live-tile";
 import { TextReveal } from "@/components/motion/text-reveal";
 import { setLocale, translations } from "@/i18n/generated";
@@ -201,26 +201,7 @@ export default async function Home() {
         <h2 id="lab" className="font-medium">
           {t.app.lab.title}
         </h2>
-        <Link
-          href="/lab"
-          prefetch
-          className="group mt-4 flex items-center gap-4 rounded-[14px] outline-offset-4"
-        >
-          <span className={bezel}>
-            <span className="grid size-11 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[color] duration-150 group-hover:text-foreground">
-              <Die seed={4} className="size-6 overflow-visible" />
-            </span>
-          </span>
-          <span className="leading-snug">
-            <span className="flex items-center gap-1 text-foreground">
-              <span className={underline}>{t.app.lab.row}</span>
-              <ArrowRightIcon className="size-3.5 -translate-x-1 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:opacity-100" />
-            </span>
-            <span className="block text-muted-foreground">
-              {t.app.lab.rowDescription}
-            </span>
-          </span>
-        </Link>
+        <LabRows labels={t.app.lab} className="mt-4" />
       </section>
 
       <AskAI
