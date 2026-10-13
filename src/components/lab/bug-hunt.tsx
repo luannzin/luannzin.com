@@ -11,13 +11,16 @@ import {
   useState,
 } from "react";
 import {
+  CollapseIcon,
+  ExpandIcon,
   JumpIcon,
   LaptopIcon,
+  PauseIcon,
   PlayIcon,
   ReplayIcon,
   ThrowIcon,
 } from "@/components/icons";
-import { well } from "@/components/lab/timeline";
+import { ink, well } from "@/components/lab/timeline";
 import type { t } from "@/i18n/generated";
 import {
   type Action,
@@ -25,6 +28,7 @@ import {
   Game,
   H,
   type Point,
+  SKY,
   W,
 } from "@/lib/bug-hunt/game";
 import { press } from "@/lib/classes";
@@ -54,11 +58,14 @@ const BUTTONS: Record<number, Action> = {
 };
 
 const button = `${press} inline-flex h-9 items-center gap-2 rounded-[10px] bg-muted ps-3 pe-4 text-foreground inset-ring inset-ring-border outline-offset-2 hover:bg-foreground/7`;
+// a round button floating on the game, like the cover's die
+const float = `${press} grid size-10 place-items-center rounded-full bg-black/40 text-white/80 backdrop-blur-sm inset-ring inset-ring-white/10 outline-offset-2 hover:text-white`;
 
 // Bug hunt in its Well: the canvas, scaled by a whole number so every pixel
 // stays square, the overlays between runs, then how to play it: the controls
 // for a mouse and keyboard, or a joystick and buttons on a touch screen.
 // Keys only reach the game while it has focus, so the page still scrolls.
+// Fullscreen fills the screen with it, the touch controls floating on top.
 export function BugHunt({ labels }: { labels: Labels }) {
   const root = useRef<HTMLElement>(null);
   const frame = useRef<HTMLDivElement>(null);
@@ -70,6 +77,7 @@ export function BugHunt({ labels }: { labels: Labels }) {
   const [news, setNews] = useState("");
   // the view's width in game px, and its size on the page
   const [view, setView] = useState({ w: W, width: W, height: H });
+  const [full, setFull] = useState(false);
 
   const onEvent = useEffectEvent((event: Event) => {
     if (event.type === "level") setNews(`${labels.level} ${event.level}`);
@@ -115,22 +123,27 @@ export function BugHunt({ labels }: { labels: Labels }) {
   }, []);
 
   // A whole number of device pixels per game pixel, as many as keep the view
-  // at least 256px wide; the view then takes whatever width is left.
+  // at least 256px wide (and, in fullscreen, all 192px tall on the screen);
+  // the view then takes whatever width is left.
   useEffect(() => {
     const el = frame.current;
     if (!el) return;
     const fit = () => {
       const dpr = window.devicePixelRatio || 1;
       const room = Math.floor(el.clientWidth * dpr);
-      const k = Math.max(1, Math.floor(room / 256));
-      const w = Math.min(400, Math.floor(room / k));
+      const fits = room / 256;
+      const k = Math.max(
+        1,
+        Math.floor(full ? Math.min(fits, (el.clientHeight * dpr) / H) : fits),
+      );
+      const w = Math.min(full ? 480 : 400, Math.floor(room / k));
       setView({ w, width: (w * k) / dpr, height: (H * k) / dpr });
     };
     fit();
     const watch = new ResizeObserver(fit);
     watch.observe(el);
     return () => watch.disconnect();
-  }, []);
+  }, [full]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: redraw at the new width
   useEffect(() => {
@@ -157,7 +170,9 @@ export function BugHunt({ labels }: { labels: Labels }) {
     setState((s) => (s === "play" ? "paused" : s));
   };
 
-  // Out of sight, in another window or another tab: it waits.
+  // Out of sight, in another window or another tab: it waits. Leaving the
+  // browser's fullscreen another way (Esc, the back gesture) leaves ours too,
+  // and waits as well: the layout just changed under the player.
   useEffect(() => {
     const el = frame.current;
     if (!el) return;
@@ -166,16 +181,23 @@ export function BugHunt({ labels }: { labels: Labels }) {
       setState((s) => (s === "play" ? "paused" : s));
     };
     const hidden = () => document.hidden && pause();
+    const left = () => {
+      if (document.fullscreenElement) return;
+      setFull(false);
+      pause();
+    };
     const seen = new IntersectionObserver(
       ([e]) => !e.isIntersecting && pause(),
       { threshold: 0.25 },
     );
     seen.observe(el);
     document.addEventListener("visibilitychange", hidden);
+    document.addEventListener("fullscreenchange", left);
     window.addEventListener("blur", pause);
     return () => {
       seen.disconnect();
       document.removeEventListener("visibilitychange", hidden);
+      document.removeEventListener("fullscreenchange", left);
       window.removeEventListener("blur", pause);
     };
   }, []);
@@ -185,6 +207,49 @@ export function BugHunt({ labels }: { labels: Labels }) {
     setState("play");
     frame.current?.focus({ preventScroll: true });
   };
+
+  // The browser's fullscreen where there is one; where there isn't (an
+  // iPhone), the figure just covers the page. Either way it's the same
+  // layout, keyed off `full`.
+  const enter = () => {
+    setFull(true);
+    frame.current?.focus({ preventScroll: true });
+    if (document.fullscreenEnabled) {
+      root.current?.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+    }
+  };
+
+  // focus stays on the game, so its keys keep working once the bar is gone
+  const leave = () => {
+    setFull(false);
+    frame.current?.focus({ preventScroll: true });
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  };
+
+  const toggle = () => (full ? leave() : enter());
+
+  // Covering the page, the page under it holds still and out of reach: it
+  // doesn't scroll, and Tab and a screen reader don't wander into it.
+  useEffect(() => {
+    if (!full) return;
+    const html = document.documentElement;
+    const was = html.style.overflow;
+    html.style.overflow = "hidden";
+    // everything beside the figure, and beside each of its ancestors
+    const quiet: Element[] = [];
+    let el: Element | null = root.current;
+    for (; el && el !== document.body; el = el.parentElement) {
+      for (const other of el.parentElement?.children ?? []) {
+        if (other === el || other.hasAttribute("inert")) continue;
+        other.setAttribute("inert", "");
+        quiet.push(other);
+      }
+    }
+    return () => {
+      html.style.overflow = was;
+      for (const el of quiet) el.removeAttribute("inert");
+    };
+  }, [full]);
 
   // where a mouse event sits in the view, in game px
   const point = (event: MouseEvent): Point | undefined => {
@@ -198,6 +263,18 @@ export function BugHunt({ labels }: { labels: Labels }) {
 
   const key = (event: KeyboardEvent<HTMLDivElement>, down: boolean) => {
     if (event.target !== frame.current) return;
+    if (down && event.code === "KeyF" && state !== "loading") {
+      toggle();
+      event.preventDefault();
+      return;
+    }
+    // Esc leaves fullscreen first, as the browser's own fullscreen does
+    if (down && event.code === "Escape" && full) {
+      leave();
+      pause();
+      event.preventDefault();
+      return;
+    }
     if (down && (event.code === "Escape" || event.code === "KeyP")) {
       if (state === "play") pause();
       else if (state === "paused") play();
@@ -242,37 +319,80 @@ export function BugHunt({ labels }: { labels: Labels }) {
     else game.current?.release(action);
   };
 
+  // each overlay's main button, with fullscreen in or out beside it; from
+  // the title, fullscreen starts the run too
+  const title = state === "title" && !full;
+  const actions = (main: ReactNode) => (
+    <div className="flex gap-2">
+      {main}
+      <button
+        type="button"
+        onClick={() => {
+          toggle();
+          if (title) play();
+        }}
+        aria-label={
+          title
+            ? labels.playFullscreen
+            : full
+              ? labels.exitFullscreen
+              : labels.fullscreen
+        }
+        className={cn(button, "size-9 justify-center p-0")}
+      >
+        {full ? (
+          <CollapseIcon className="size-4" />
+        ) : (
+          <ExpandIcon className="size-4" />
+        )}
+      </button>
+    </div>
+  );
+
   const overlay =
     state === "loading" ? (
       <p className="text-muted-foreground">{labels.loading}</p>
     ) : state === "title" ? (
-      <button type="button" onClick={play} className={button}>
-        <PlayIcon className="size-4" />
-        {labels.play}
-      </button>
+      actions(
+        <button type="button" onClick={play} className={button}>
+          <PlayIcon className="size-4" />
+          {labels.play}
+        </button>,
+      )
     ) : state === "paused" ? (
       <>
-        <p className="font-medium">{labels.paused}</p>
-        <button type="button" onClick={play} className={cn(button, "mt-2")}>
-          <PlayIcon className="size-4" />
-          {labels.resume}
-        </button>
+        <p className="mb-2 font-medium">{labels.paused}</p>
+        {actions(
+          <button type="button" onClick={play} className={button}>
+            <PlayIcon className="size-4" />
+            {labels.resume}
+          </button>,
+        )}
       </>
     ) : state === "over" ? (
       <>
         <p className="font-medium">{labels.over}</p>
-        <p className="text-muted-foreground tabular-nums">
+        <p className="mb-3 text-muted-foreground tabular-nums">
           {labels.level} {result.level} · {result.fixed} {labels.fixed}
         </p>
-        <button type="button" onClick={play} className={cn(button, "mt-3")}>
-          <ReplayIcon className="size-4" />
-          {labels.again}
-        </button>
+        {actions(
+          <button type="button" onClick={play} className={button}>
+            <ReplayIcon className="size-4" />
+            {labels.again}
+          </button>,
+        )}
       </>
     ) : null;
 
   return (
-    <figure ref={root} aria-label={labels.title} className={well}>
+    <figure
+      ref={root}
+      aria-label={labels.title}
+      // fullscreen: over the whole screen (the language toggle too) on the
+      // game's own black, with the Well's muted ink
+      className={full ? `fixed inset-0 z-[60] flex flex-col ${ink}` : well}
+      style={full ? { background: SKY } : undefined}
+    >
       <div
         ref={frame}
         // biome-ignore lint/a11y/noNoninteractiveTabindex: the game takes keys while focused
@@ -285,7 +405,12 @@ export function BugHunt({ labels }: { labels: Labels }) {
         onBlur={(e) => {
           if (!root.current?.contains(e.relatedTarget)) pause();
         }}
-        className="grid place-items-center outline-none focus-visible:[&>div]:outline-2 focus-visible:[&>div]:outline-ring focus-visible:[&>div]:-outline-offset-2"
+        // no focus ring: it holds focus the whole time it's played, and a ring
+        // round the canvas just sits in the way; the overlays' buttons keep theirs
+        className={cn(
+          "grid place-items-center outline-none",
+          full && "min-h-0 flex-1",
+        )}
       >
         {/* biome-ignore lint/a11y/noStaticElementInteractions: mouse play only; the same moves have keys and a touch pad */}
         <div
@@ -317,12 +442,40 @@ export function BugHunt({ labels }: { labels: Labels }) {
         {news}
       </p>
 
+      {full && (
+        <div className="absolute inset-x-0 top-[max(0.75rem,env(safe-area-inset-top))] mx-auto flex w-fit gap-2">
+          {state === "play" && (
+            <button
+              type="button"
+              onClick={() => {
+                pause();
+                frame.current?.focus({ preventScroll: true });
+              }}
+              aria-label={labels.pause}
+              className={float}
+            >
+              <PauseIcon className="size-5" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={leave}
+            aria-label={labels.exitFullscreen}
+            className={float}
+          >
+            <CollapseIcon className="size-5" />
+          </button>
+        </div>
+      )}
       <Pad
         labels={labels.pad}
+        overlay={full}
+        fullscreen={labels.fullscreen}
+        onFullscreen={enter}
         onPress={pressed}
         onSteer={(x, y) => game.current?.steer(x, y)}
       />
-      <Keys labels={labels.keys} />
+      {!full && <Keys labels={labels.keys} />}
     </figure>
   );
 }
@@ -355,12 +508,13 @@ function Keys({ labels }: { labels: Labels["keys"] }) {
       labels.drop,
     ],
   ];
-  const fighting: Row[] = [
+  const acting: Row[] = [
     [<Kbd key="click">{labels.click}</Kbd>, labels.throw],
     [<Kbd key="right">{labels.rightClick}</Kbd>, labels.special],
+    [<Kbd key="f">F</Kbd>, labels.fullscreen],
     [<Kbd key="esc">Esc</Kbd>, labels.pause],
   ];
-  // two groups, moving and fighting, each a column of key and what it does
+  // two groups, moving and acting, each a column of key and what it does
   const group = (rows: Row[]) => (
     <dl className="grid grid-cols-[auto_1fr] content-start items-center gap-x-3 gap-y-2">
       {rows.map(([keys, label]) => (
@@ -378,7 +532,7 @@ function Keys({ labels }: { labels: Labels["keys"] }) {
     >
       <div className="grid gap-x-8 gap-y-2 sm:grid-cols-2">
         {group(moving)}
-        {group(fighting)}
+        {group(acting)}
       </div>
       <p className="mt-4">{labels.fallback}</p>
     </section>
@@ -386,16 +540,27 @@ function Keys({ labels }: { labels: Labels["keys"] }) {
 }
 
 // A touch screen's controls: a joystick on the leading side, the three moves
-// on the trailing side where the other thumb rests, jump lowest and nearest.
+// on the trailing side where the other thumb rests, jump lowest and nearest,
+// and fullscreen between them. In fullscreen they float over the game,
+// see-through, clear of the screen's rounded corners and notch.
 function Pad({
   labels,
+  overlay,
+  fullscreen,
+  onFullscreen,
   onPress,
   onSteer,
 }: {
   labels: Labels["pad"];
+  overlay: boolean;
+  fullscreen: string;
+  onFullscreen: () => void;
   onPress: (action: Action, down: boolean) => void;
   onSteer: (x: number, y: number) => void;
 }) {
+  const fill = overlay
+    ? "pointer-events-auto bg-white/8 backdrop-blur-sm inset-ring-white/15"
+    : "bg-muted inset-ring-border";
   const knob = useRef<HTMLSpanElement>(null);
   // which directions the stick is holding down, to send only the changes
   const leaning = useRef(new Set<Action>());
@@ -447,7 +612,8 @@ function Pad({
       onPointerCancel={() => onPress(name, false)}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
-        "grid size-14 touch-none select-none place-items-center rounded-full bg-muted text-foreground inset-ring inset-ring-border transition-[background-color,scale] duration-100 active:scale-95 active:bg-foreground/12",
+        "grid size-14 touch-none select-none place-items-center rounded-full text-foreground inset-ring transition-[background-color,scale] duration-100 active:scale-[0.96] active:bg-foreground/12",
+        fill,
         area,
       )}
     >
@@ -456,7 +622,14 @@ function Pad({
   );
 
   return (
-    <div className="hidden items-center justify-between gap-4 border-border border-t px-6 py-5 pointer-coarse:flex">
+    <div
+      className={cn(
+        "hidden items-center justify-between gap-4 pointer-coarse:flex",
+        overlay
+          ? "pointer-events-none absolute inset-x-0 bottom-0 items-end ps-[max(1.5rem,env(safe-area-inset-left))] pe-[max(1.5rem,env(safe-area-inset-right))] pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+          : "border-border border-t px-6 py-5",
+      )}
+    >
       <div
         role="img"
         aria-label={labels.stick}
@@ -470,13 +643,26 @@ function Pad({
         onPointerUp={center}
         onPointerCancel={center}
         onContextMenu={(e) => e.preventDefault()}
-        className="relative grid size-32 shrink-0 touch-none select-none place-items-center rounded-full bg-muted inset-ring inset-ring-border"
+        className={cn(
+          "relative grid size-32 shrink-0 touch-none select-none place-items-center rounded-full inset-ring",
+          fill,
+        )}
       >
         <span
           ref={knob}
           className="size-12 rounded-full bg-foreground/12 inset-ring inset-ring-foreground/15"
         />
       </div>
+      {!overlay && (
+        <button
+          type="button"
+          onClick={onFullscreen}
+          aria-label={fullscreen}
+          className={`${press} grid size-10 place-items-center rounded-full bg-muted text-muted-foreground inset-ring inset-ring-border outline-offset-2 active:text-foreground`}
+        >
+          <ExpandIcon className="size-5" />
+        </button>
+      )}
       {/* an arc round the thumb: special on top, throw out at the edge */}
       <div className="grid grid-cols-2 grid-rows-3 gap-1">
         {action(

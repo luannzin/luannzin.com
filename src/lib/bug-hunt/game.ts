@@ -29,6 +29,8 @@ type Anim = {
 };
 const ANIMS: Record<string, Anim> = atlas.anims;
 const C = atlas.colours;
+// the game's black, for whatever surrounds the view
+export const SKY = C.sky;
 
 export type Action = "left" | "right" | "jump" | "down" | "throw" | "special";
 

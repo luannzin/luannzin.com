@@ -147,6 +147,25 @@ export function PauseIcon(props: IconProps) {
   );
 }
 
+// Bug hunt's fullscreen, in and out.
+export function ExpandIcon(props: IconProps) {
+  return (
+    <Stroke
+      d="M4.75 9.25V6.75C4.75 5.65 5.65 4.75 6.75 4.75H9.25M14.75 4.75H17.25C18.35 4.75 19.25 5.65 19.25 6.75V9.25M19.25 14.75V17.25C19.25 18.35 18.35 19.25 17.25 19.25H14.75M9.25 19.25H6.75C5.65 19.25 4.75 18.35 4.75 17.25V14.75"
+      {...props}
+    />
+  );
+}
+
+export function CollapseIcon(props: IconProps) {
+  return (
+    <Stroke
+      d="M9.25 4.75V7.25C9.25 8.35 8.35 9.25 7.25 9.25H4.75M19.25 9.25H16.75C15.65 9.25 14.75 8.35 14.75 7.25V4.75M14.75 19.25V16.75C14.75 15.65 15.65 14.75 16.75 14.75H19.25M4.75 14.75H7.25C8.35 14.75 9.25 15.65 9.25 16.75V19.25"
+      {...props}
+    />
+  );
+}
+
 export function PreviousFrameIcon(props: IconProps) {
   return <Stroke d="M15.5 7L10.5 12L15.5 17M7.75 7V17" {...props} />;
 }
