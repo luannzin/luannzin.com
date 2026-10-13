@@ -3,7 +3,15 @@
 // inside the frame. Every sprite comes from the atlas
 // `scripts/bug-hunt-art.py` draws.
 import atlas from "./atlas.json";
-import { type Kind, type Level, makeLevel, PIT, ROWS, TILE } from "./level";
+import {
+  type Kind,
+  type Level,
+  makeLevel,
+  PIT,
+  ROWS,
+  TILE,
+  type Trap,
+} from "./level";
 
 // The view's width in px changes with the space the page gives it (the page
 // keeps the scale a whole number); its height never does.
@@ -22,14 +30,7 @@ type Anim = {
 const ANIMS: Record<string, Anim> = atlas.anims;
 const C = atlas.colours;
 
-export type Action =
-  | "left"
-  | "right"
-  | "jump"
-  | "down"
-  | "attack"
-  | "throw"
-  | "special";
+export type Action = "left" | "right" | "jump" | "down" | "throw" | "special";
 
 // A point in the view, in game px: where the mouse is.
 export type Point = { x: number; y: number };
@@ -39,18 +40,26 @@ export type Event =
   | { type: "open" }
   | { type: "over"; level: number; fixed: number };
 
-// Feel, in px and seconds. A jump peaks 60px up (3.7 tiles) and carries
-// about 4.5 tiles across at a run.
+// Feel, in px and seconds. A jump peaks a little over 60px up (3.7 tiles)
+// and carries about 4.5 tiles across at a run.
 const GRAVITY = 900;
 const JUMP = 330;
 const CUT = 120;
+// around the top of a held jump gravity eases off, so the arc rounds over
+// instead of turning on a point
+const APEX = 50;
+const HANG = 0.55;
 const RUN = 105;
 const ACCEL = 1100;
+// pushing against his own speed: a quick skid into the turn
+const TURN = 2400;
 const AIR = 700;
 const FRICTION = 1500;
 const FALL = 420;
 const COYOTE = 0.09;
 const BUFFER = 0.12;
+// px of ground his feet cover per frame of the run
+const STRIDE = 8;
 const HEARTS = 5;
 // kills it takes to fill the laptop
 const METER = 6;
@@ -58,83 +67,29 @@ const SAFE = 1.2;
 // his box: standing, then crouched
 const TALL = 30;
 const LOW = 20;
-// where a click switches punches, in px up from his feet: over his
-// shoulders an uppercut, under his belt a low punch
-const SHOULDER = 24;
-const BELT = 12;
-
-// The blows. A blow can land between `hit[0]` and `hit[1]` seconds in,
-// anywhere `reach` px ahead of his middle and `rise` px up from his feet.
-type Blow = "up" | "mid" | "low" | "kick";
-const BLOWS: Record<
-  Blow,
-  {
-    time: number;
-    hit: [number, number];
-    reach: [number, number];
-    rise: [number, number];
-    damage: number;
-    push: [number, number];
-    stun: number;
-    lunge: number;
-  }
-> = {
-  // an uppercut, for what flies over his head: it pops a bug up
-  up: {
-    time: 0.26,
-    hit: [0.04, 0.12],
-    reach: [2, 20],
-    rise: [16, 46],
-    damage: 1,
-    push: [60, -220],
-    stun: 0.5,
-    lunge: 0,
-  },
-  // straight ahead, with a half step in
-  mid: {
-    time: 0.22,
-    hit: [0.04, 0.11],
-    reach: [3, 24],
-    rise: [10, 28],
-    damage: 1,
-    push: [110, -50],
-    stun: 0.35,
-    lunge: 40,
-  },
-  // a hook to the floor, for the crawlers
-  low: {
-    time: 0.24,
-    hit: [0.05, 0.12],
-    reach: [3, 24],
-    rise: [0, 14],
-    damage: 1,
-    push: [100, -110],
-    stun: 0.45,
-    lunge: 20,
-  },
-  // from a crouch: low, long, and it knocks a bug off its feet
-  kick: {
-    time: 0.32,
-    hit: [0.07, 0.17],
-    reach: [3, 27],
-    rise: [0, 12],
-    damage: 1,
-    push: [150, -70],
-    stun: 0.7,
-    lunge: 0,
-  },
-};
-// a throw: its wind-up, its speed and how long it flies, the trail it leaves
+// a throw: how long his arm is out, when the thing leaves his hand, its
+// speed and how long it flies, the trail it leaves, how many fly at once
 const THROW = 0.22;
+const RELEASE = 0.05;
 const SHOT = 330;
 const RANGE = 0.8;
 const TRAIL = 56;
+const SHOTS = 3;
 // the special: typing, charging, then the beam
 const CODE = 0.9;
 const CHARGE = 0.45;
 const FIRE = 0.7;
+// the longest step the simulation takes; a frame is cut into steps this long
+// or shorter, so motion keeps the display's own pace
 const STEP = 1 / 120;
 const ITEMS = ["mouse", "keyboard", "headphones"] as const;
+// a laser's cycle: off, a warning, then firing for ON seconds
+const CYCLE = 2.6;
+const WARN = 0.5;
+const ON = 1.1;
+// a saw's speed along its track, and its radius
+const SAW = 48;
+const BLADE = 6;
 
 type Body = {
   x: number;
@@ -153,18 +108,18 @@ type Hero = Body & {
   buffer: number;
   hearts: number;
   safe: number;
-  action: "" | Blow | "throw" | "special" | "hurt" | "out";
+  action: "" | "throw" | "special" | "hurt" | "out";
   at: number;
-  // which swing a bug was last hit by, so a blow lands once
-  swing: number;
-  // a punch pressed before the one in the air finished, thrown right after
-  queued: Blow | null;
+  // a throw pressed while his arm is still out, thrown the moment it can be
+  cue: number;
   crouch: boolean;
   aim: Point;
   item: number;
   meter: number;
   drop: number;
   t: number;
+  // how far his feet have run, which picks the run's frame
+  stride: number;
   home: { x: number; y: number };
 };
 
@@ -177,7 +132,6 @@ type Bug = Body & {
   t: number;
   homeX: number;
   homeY: number;
-  struck: number;
 };
 
 type Shot = {
@@ -240,10 +194,12 @@ export class Game {
   wipe = 0;
   leaving = 0;
   over = 0;
-  freeze = 0;
   shake = 0;
   // the mouse over the view, for the crosshair; null when it isn't there
   pointer: Point | null = null;
+  // how far from the view's left edge he stands; it eases across when he
+  // turns, and the camera holds him there to the pixel
+  private look = W / 2 - 28;
   private seed: number;
   private decks = new Set<number>();
   private held = new Set<Action>();
@@ -252,7 +208,6 @@ export class Game {
   private target: Point | null = null;
   // the joystick's lean, -1 to 1 on each axis
   private stick: Point = { x: 0, y: 0 };
-  private acc = 0;
 
   constructor(
     private sheet: HTMLImageElement,
@@ -320,14 +275,14 @@ export class Game {
       safe: 0,
       action: "",
       at: 0,
-      swing: 0,
-      queued: null,
+      cue: 0,
       crouch: false,
       aim: { x: 1, y: 0 },
       item: 0,
       meter,
       drop: 0,
       t: 0,
+      stride: 0,
       home: { x, y },
     };
     this.bugs = this.level.bugs.map((s, i) => ({
@@ -346,7 +301,6 @@ export class Game {
       t: i * 0.37,
       homeX: s.x,
       homeY: s.y,
-      struck: -1,
     }));
     this.shots = [];
     this.fx = [];
@@ -355,6 +309,7 @@ export class Game {
     this.open = false;
     this.leaving = 0;
     this.cam = 0;
+    this.look = this.width / 2 - 28;
     this.intro = 1.6;
     this.emit({ type: "level", level: number });
   }
@@ -435,21 +390,20 @@ export class Game {
 
   // --- one frame -----------------------------------------------------------
 
-  // Advances the game by `seconds` of play, in fixed steps.
+  // Advances the game by `seconds` of play, in steps of at most STEP. Each
+  // frame is played out in full, never rounded to whole steps, so a 144Hz
+  // screen moves him as evenly as a 60Hz one.
   update(seconds: number) {
-    this.acc = Math.min(this.acc + seconds, 0.25);
-    while (this.acc >= STEP) {
-      this.acc -= STEP;
-      this.step(STEP);
+    let left = Math.min(seconds, 0.1);
+    while (left > 1e-6) {
+      const dt = Math.min(STEP, left);
+      this.step(dt);
+      left -= dt;
     }
   }
 
   private step(dt: number) {
     this.time += dt;
-    if (this.freeze > 0) {
-      this.freeze -= dt;
-      return;
-    }
     this.shake = Math.max(0, this.shake - dt);
     this.intro = Math.max(0, this.intro - dt);
     if (this.wipe > 0 && this.leaving === 0) {
@@ -486,10 +440,15 @@ export class Game {
       this.open = true;
       this.emit({ type: "open" });
     }
-    const target = this.hero.x - this.width / 2 + this.hero.dir * 28;
+    // He stands `look` px into the view, a little behind the middle so more
+    // of what's ahead shows, and that eases across when he turns. The camera
+    // itself follows him exactly: chasing him with a lag, the two would round
+    // to different pixels and he'd shimmer against the floor.
+    const goal = this.width / 2 - this.hero.dir * 28;
+    this.look += (goal - this.look) * Math.min(1, dt * 3);
+    if (Math.abs(goal - this.look) < 0.25) this.look = goal;
     const max = this.level.cols * TILE - this.width;
-    this.cam +=
-      (Math.max(0, Math.min(max, target)) - this.cam) * Math.min(1, dt * 6);
+    this.cam = Math.max(0, Math.min(max, this.hero.x - this.look));
   }
 
   // The direction a throw goes: at the mouse when it was clicked, along the
@@ -507,42 +466,6 @@ export class Game {
     }
     const d = Math.hypot(x, y) || 1;
     return { x: x / d, y: y / d };
-  }
-
-  // a click faces him toward where it pointed
-  private face(h: Hero) {
-    if (!this.target) return;
-    const dx = this.target.x + this.cam - h.x;
-    if (Math.abs(dx) > 2) h.dir = dx > 0 ? 1 : -1;
-  }
-
-  private begin(h: Hero, action: Hero["action"]) {
-    h.action = action;
-    h.at = 0;
-    h.queued = null;
-    if (action in BLOWS) {
-      h.swing++;
-      const lunge = BLOWS[action as Blow].lunge;
-      if (lunge && h.ground) h.vx = h.dir * lunge;
-    }
-  }
-
-  // The blow a press throws. From a crouch, a kick. Otherwise a punch high,
-  // in the middle or low, by where the press points: a click by the cursor's
-  // height against his body (over his shoulders, under his belt), however far
-  // away it is; the joystick or the jump key by leaning up.
-  private pick(h: Hero): Blow {
-    if (h.crouch && h.ground) return "kick";
-    if (this.target) {
-      if (this.target.y < h.y - SHOULDER) return "up";
-      return this.target.y > h.y - BELT ? "low" : "mid";
-    }
-    return this.stick.y < -0.5 || this.held.has("jump") ? "up" : "mid";
-  }
-
-  private attack(h: Hero) {
-    this.face(h);
-    this.begin(h, this.pick(h));
   }
 
   private stepHero(dt: number) {
@@ -577,41 +500,27 @@ export class Game {
       return;
     }
 
-    const blow = h.action in BLOWS ? BLOWS[h.action as Blow] : null;
-    if (blow) {
-      // a press once this blow has started landing is held for the next one,
-      // so fast clicks don't get lost
-      if (tap("attack") && h.at > blow.hit[0]) {
-        this.face(h);
-        h.queued = this.pick(h);
-      }
-      if (h.at >= blow.hit[0] && h.at <= blow.hit[1]) this.strike(blow);
-      if (h.at >= blow.time) {
-        const next = h.queued;
-        h.action = "";
-        if (next) this.begin(h, next);
-      }
-    } else if (h.action === "throw" && h.at >= THROW) {
-      h.action = "";
-    } else if (h.action === "hurt" && h.at >= 0.35) {
-      h.action = "";
-    }
+    if (h.action === "throw" && h.at >= THROW) h.action = "";
+    if (h.action === "hurt" && h.at >= 0.35) h.action = "";
 
-    const free = !h.action;
-    h.crouch = free && h.ground && held("down");
-    h.h = h.crouch || h.action === "kick" ? LOW : TALL;
+    // A throw leaves his legs free: he runs and jumps through it, still
+    // facing what he threw at. A hit takes them for a moment.
+    const hurt = h.action === "hurt";
+    h.crouch = !h.action && h.ground && held("down");
+    h.h = h.crouch ? LOW : TALL;
     let want = (held("right") ? 1 : 0) - (held("left") ? 1 : 0);
-    if (want !== 0 && free) h.dir = want > 0 ? 1 : -1;
-    // a crouch, a blow on the ground and a hit all hold him in place
-    if (h.crouch || h.action === "hurt" || (!free && h.ground)) want = 0;
-    const accel = h.ground ? (want ? ACCEL : FRICTION) : AIR;
+    if (want !== 0 && !h.action) h.dir = want > 0 ? 1 : -1;
+    if (h.crouch || hurt) want = 0;
     const goal = want * RUN;
+    let accel = AIR;
+    if (h.ground && !want) accel = FRICTION;
+    else if (h.ground) accel = goal * h.vx < 0 ? TURN : ACCEL;
     h.vx +=
       Math.sign(goal - h.vx) * Math.min(Math.abs(goal - h.vx), accel * dt);
 
     h.coyote = h.ground ? COYOTE : Math.max(0, h.coyote - dt);
     h.buffer = tap("jump") ? BUFFER : Math.max(0, h.buffer - dt);
-    if (h.buffer > 0 && h.coyote > 0 && free) {
+    if (h.buffer > 0 && h.coyote > 0 && !hurt) {
       if (held("down") && this.onDeck(h)) {
         h.drop = 0.25;
         h.y += 1;
@@ -623,31 +532,41 @@ export class Game {
       h.coyote = 0;
     }
     if (!held("jump") && h.vy < -CUT) h.vy = -CUT;
-    h.vy = Math.min(FALL, h.vy + GRAVITY * dt);
+    const hang = held("jump") && Math.abs(h.vy) < APEX ? HANG : 1;
+    h.vy = Math.min(FALL, h.vy + GRAVITY * hang * dt);
 
     const air = !h.ground;
     this.move(h, dt, h.drop === 0);
+    if (h.ground) h.stride += Math.abs(h.vx) * dt;
     if (air && h.ground && h.vy === 0) this.puff(h.x, h.y);
-    if (h.ground && !this.onDeck(h) && this.firm(h)) {
+    if (h.ground && !this.onDeck(h) && this.firm(h) && !this.trapNear(h.x)) {
       h.home = { x: h.x, y: h.y };
     }
 
-    if (free) {
-      if (tap("special") && h.meter >= METER) {
-        this.begin(h, "special");
-        h.meter = 0;
-        h.vx = 0;
-        return;
-      }
-      if (tap("attack")) {
-        this.attack(h);
-      } else if (tap("throw") && this.shots.length < 3) {
-        h.aim = this.aim(h);
-        if (Math.abs(h.aim.x) > 0.1) h.dir = h.aim.x > 0 ? 1 : -1;
-        this.begin(h, "throw");
-      }
+    // the laptop, once it's charged; it cuts a throw short
+    if (tap("special") && h.meter >= METER && !hurt) {
+      h.action = "special";
+      h.at = 0;
+      h.meter = 0;
+      h.vx = 0;
+      return;
     }
-    if (h.action === "throw" && h.at >= 0.06 && h.at - dt < 0.06) {
+
+    // A throw is aimed when it's pressed, and a press while his arm is still
+    // out waits for it, so quick clicks all land.
+    if (tap("throw")) {
+      h.cue = BUFFER;
+      h.aim = this.aim(h);
+    } else {
+      h.cue = Math.max(0, h.cue - dt);
+    }
+    if (h.cue > 0 && !h.action && this.shots.length < SHOTS) {
+      h.cue = 0;
+      if (Math.abs(h.aim.x) > 0.1) h.dir = h.aim.x > 0 ? 1 : -1;
+      h.action = "throw";
+      h.at = 0;
+    }
+    if (h.action === "throw" && h.at >= RELEASE && h.at - dt < RELEASE) {
       const x = h.x + h.dir * 8;
       const y = h.y - 22;
       this.shots.push({
@@ -663,14 +582,7 @@ export class Game {
       h.item = (h.item + 1) % ITEMS.length;
     }
 
-    // a pit: a heart, then back to the last firm floor
-    if (h.y > H + 40) {
-      this.hurt(0);
-      h.x = h.home.x;
-      h.y = h.home.y;
-      h.vx = 0;
-      h.vy = 0;
-    }
+    if (h.y > H + 40) this.fall();
 
     if (h.safe === 0) {
       const me = boxOf(h);
@@ -680,6 +592,7 @@ export class Game {
         break;
       }
     }
+    if (h.safe === 0) this.trapped(h);
 
     const door = this.level.exit * TILE + 8;
     if (this.open && h.ground && Math.abs(h.x - door) < 6) {
@@ -701,6 +614,77 @@ export class Game {
       this.solid(Math.floor((b.x - 8) / TILE), row) &&
       this.solid(Math.floor((b.x + 8) / TILE), row)
     );
+  }
+
+  // A trap he's touching: spikes send him back to the last firm floor, like
+  // a pit; a firing laser and a saw knock him away.
+  private trapped(h: Hero) {
+    const me = boxOf(h);
+    for (const trap of this.level.traps) {
+      let from = 0;
+      if (trap.kind === "spikes") {
+        // the points, 5px over the floor
+        const bed = {
+          l: trap.col * TILE + 1,
+          r: (trap.col + trap.w) * TILE - 1,
+          t: trap.row * TILE - 5,
+          b: trap.row * TILE,
+        };
+        if (!overlap(me, bed)) continue;
+      } else if (trap.kind === "laser") {
+        const x = (trap.col + 0.5) * TILE;
+        const beam = { l: x - 3, r: x + 3, t: 0, b: trap.row * TILE - 6 };
+        if (this.laser(trap) !== "on" || !overlap(me, beam)) continue;
+        from = h.x < x ? -1 : 1;
+      } else {
+        const saw = this.saw(trap);
+        const nx = Math.max(me.l, Math.min(me.r, saw.x));
+        const ny = Math.max(me.t, Math.min(me.b, saw.y));
+        if (Math.hypot(saw.x - nx, saw.y - ny) >= BLADE) continue;
+        from = h.x < saw.x ? -1 : 1;
+      }
+      this.burst(h.x, h.y - 12, 16, [C.red, C.ink], 150);
+      if (trap.kind === "spikes") this.fall();
+      else this.hurt(from);
+      return;
+    }
+  }
+
+  // within reach of a trap, so no place to come back to after a fall
+  private trapNear(x: number) {
+    return this.level.traps.some(
+      (t) => x > t.col * TILE - 12 && x < (t.col + t.w) * TILE + 12,
+    );
+  }
+
+  // Where a laser is in its cycle. Each runs on its own clock, offset by its
+  // column, so the lasers in a room don't all fire together.
+  private laser(t: Trap): "off" | "warn" | "on" {
+    const at = (this.time + t.col * 0.37) % CYCLE;
+    if (at >= CYCLE - ON) return "on";
+    return at >= CYCLE - ON - WARN ? "warn" : "off";
+  }
+
+  // a saw's middle, rolling back and forth along its track, and its heading
+  private saw(t: Trap) {
+    const from = t.col * TILE + BLADE + 1;
+    const span = t.w * TILE - 2 * (BLADE + 1);
+    const at = ((this.time * SAW) / span + t.col * 0.31) % 2;
+    return {
+      x: from + span * (at < 1 ? at : 2 - at),
+      y: t.row * TILE - BLADE + 1,
+      dir: at < 1 ? 1 : -1,
+    };
+  }
+
+  // a pit or spikes: a heart, then back to the last firm floor
+  private fall() {
+    const h = this.hero;
+    this.hurt(0);
+    h.x = h.home.x;
+    h.y = h.home.y;
+    h.vx = 0;
+    h.vy = 0;
   }
 
   private hurt(from: number) {
@@ -748,28 +732,6 @@ export class Game {
     }
   }
 
-  private strike(blow: (typeof BLOWS)[Blow]) {
-    const h = this.hero;
-    const [near, far] = blow.reach;
-    const reach: Box = {
-      l: h.dir > 0 ? h.x + near : h.x - far,
-      r: h.dir > 0 ? h.x + far : h.x - near,
-      t: h.y - blow.rise[1],
-      b: h.y - blow.rise[0],
-    };
-    for (const bug of this.bugs) {
-      if (bug.struck === h.swing || !overlap(reach, boxOf(bug))) continue;
-      bug.struck = h.swing;
-      const y = bug.y - bug.h / 2;
-      this.fx.push({ name: "impact", x: bug.x, y, t: 0, fps: 18 });
-      this.burst(bug.x, y, 8, [C.ink, C.yellow], 140, 20);
-      this.freeze = blow.damage > 1 ? 0.08 : 0.05;
-      if (blow.damage > 1 && !this.calm)
-        this.shake = Math.max(this.shake, 0.12);
-      this.damage(bug, blow.damage, h.dir, true, blow.push, blow.stun);
-    }
-  }
-
   private beam() {
     const h = this.hero;
     const { y, from, to } = this.beamSpan();
@@ -805,23 +767,16 @@ export class Game {
     return { y: h.y - 17, from, to: from + (edge - from) * grow };
   }
 
-  private damage(
-    bug: Bug,
-    amount: number,
-    dir: number,
-    counts: boolean,
-    push: [number, number] = [110, -80],
-    stun = 0.35,
-  ) {
+  private damage(bug: Bug, amount: number, dir: number, counts: boolean) {
     bug.hp -= amount;
     bug.flash = 0.12;
     if (amount < 99) {
       this.hits.push({ x: bug.x, y: bug.y - bug.h - 2, t: 0, value: amount });
     }
     if (bug.hp > 0) {
-      bug.stun = stun;
-      bug.vx = dir * push[0] * (bug.kind === "crawler" ? 1 : 1.3);
-      bug.vy = bug.kind === "crawler" ? push[1] : push[1] * 0.4;
+      bug.stun = 0.35;
+      bug.vx = dir * (bug.kind === "crawler" ? 110 : 143);
+      bug.vy = bug.kind === "crawler" ? -80 : -32;
       return;
     }
     this.bugs = this.bugs.filter((b) => b !== bug);
@@ -1015,6 +970,7 @@ export class Game {
         this.sprite(ctx, "catwalk", k, (d.col + i) * TILE, d.row * TILE);
       }
     }
+    this.drawTraps(ctx);
 
     for (const bug of this.bugs) {
       const side = bug.dir > 0 ? "r" : "l";
@@ -1091,6 +1047,42 @@ export class Game {
     if (this.wipe > 0) this.dither(ctx, this.wipe);
   }
 
+  private drawTraps(ctx: CanvasRenderingContext2D) {
+    for (const t of this.level.traps) {
+      const floor = t.row * TILE;
+      if (t.kind === "spikes") {
+        for (let i = 0; i < t.w; i++) {
+          this.put(ctx, "spikes", 0, (t.col + i) * TILE + 8, floor);
+        }
+      } else if (t.kind === "laser") {
+        const x = (t.col + 0.5) * TILE;
+        const state = this.laser(t);
+        const top = floor - ANIMS.emitter.h;
+        if (state === "on") {
+          const beam = ANIMS.laser;
+          const frame = Math.floor(this.time * 20);
+          for (let y = top - beam.h; y > -beam.h; y -= beam.h) {
+            this.sprite(ctx, "laser", frame, x - (beam.w >> 1), y);
+          }
+        } else if (state === "warn") {
+          // the warning: a dotted line where it's about to fire, climbing
+          ctx.fillStyle = C.red;
+          const rise = Math.floor(this.time * 48) % 4;
+          for (let y = top - 2 - rise; y > 0; y -= 4) ctx.fillRect(x, y, 1, 2);
+        }
+        const lens = state === "on" ? 2 : state === "warn" ? 1 : 0;
+        this.put(ctx, "emitter", lens, x, floor);
+      } else {
+        // its track: a groove cut along the floor's top line
+        ctx.fillStyle = C.sky;
+        ctx.fillRect(t.col * TILE + 2, floor, t.w * TILE - 4, 1);
+        const saw = this.saw(t);
+        const turn = Math.floor(this.time * 24) * saw.dir;
+        this.put(ctx, "saw", turn, saw.x, saw.y);
+      }
+    }
+  }
+
   // A thrown thing's wake: a white line back to where it left his hand,
   // solid at the front and thinning out in dither toward the tail.
   private trail(ctx: CanvasRenderingContext2D, shot: Shot) {
@@ -1124,28 +1116,28 @@ export class Game {
     ctx.fillRect(x, y, 1, 1);
   }
 
+  // His frame. The run steps with the ground his feet cover, so they never
+  // skate; a throw on the run or in the air keeps the legs of either.
   private pose(): [string, number] {
     const h = this.hero;
     const at = h.at;
+    const run = Math.abs(h.vx) > 12;
+    const legs = h.ground ? (run ? "run" : "") : h.vy < 0 ? "jump" : "fall";
+    const step = Math.floor(h.stride / STRIDE);
     switch (h.action) {
       case "special":
         if (at < CODE) return ["code", Math.floor(at * 8)];
         return [at < CODE + CHARGE ? "charge" : "fire", 0];
-      case "up":
-      case "mid":
-      case "low":
-        return [h.action, at < BLOWS[h.action].hit[1] + 0.02 ? 0 : 1];
-      case "kick":
-        return ["kick", at < 0.06 ? 0 : at < 0.2 ? 1 : 2];
       case "throw":
-        return ["throw", at < 0.06 ? 0 : 1];
+        if (legs) return [`${legs}-throw`, step];
+        return ["throw", at < RELEASE ? 0 : 1];
       case "hurt":
       case "out":
         return ["hurt", 0];
     }
     if (h.crouch) return ["crouch", 0];
-    if (!h.ground) return [h.vy < 0 ? "jump" : "fall", 0];
-    if (Math.abs(h.vx) > 12) return ["run", Math.floor(h.t * 12)];
+    if (legs === "run") return ["run", step];
+    if (legs) return [legs, 0];
     return ["idle", Math.floor(h.t * 2)];
   }
 

@@ -20,7 +20,8 @@
 - `dice-hint.tsx`: the hand-drawn arrow to a cover's die, drawn by `.dice-hint` in `globals.css`
 - `print-button.tsx`: the CV's Print button (`window.print()`)
 - `lab/timeline.tsx`: `useTimeline` (a piece's clock), `useSeekCss`, `bezier`, `Specimen` (transport plus timing sheet), and `well`, the specimen frame Bug hunt shares
-- `lab/bug-hunt.tsx`: Bug hunt's player: canvas scaled by whole device pixels, the loop, mouse buttons and aim, keys while focused, the touch pad (joystick and four buttons), the controls legend, overlays and pausing; the game itself is `@/lib/bug-hunt/game`
+- `lab/bug-hunt.tsx`: Bug hunt's player: canvas scaled by whole device pixels, the loop, mouse buttons (left throws, right is the special) and aim, keys while focused, the touch pad (joystick and three buttons), the controls legend, overlays and pausing; the game itself is `@/lib/bug-hunt/game`
+- `lab/rows.tsx`: `LabRows`, the Lab's pieces as rows, on the home page and the Lab's index
 - `lab/specimens.tsx`: the Lab's pieces, each driving the real component or library code at the sheet's time; `Piece` picks one by name for a post's `lab` fence
 - `ask-ai.tsx`: links that open ChatGPT, Claude, Perplexity and Grok with a prompt
 - `icons.tsx`: every icon and brand mark the site draws
@@ -43,7 +44,7 @@
 ## Verification
 
 - `bun run lint`
-- Bug hunt: start a run, move, punch high, straight and low with the cursor, crouch and kick, throw at the cursor, fill the laptop and fire with the scroll click, clear a level; check pausing on blur, and the joystick and buttons on a touch viewport
+- Bug hunt: start a run, move, throw at the cursor standing, running and in the air, fill the laptop and fire with the right click, get past spikes, a laser and a saw (levels 1 to 3 bring them in), clear a level; check pausing on blur, and the joystick and buttons on a touch viewport
 - Preview a post: copy button, scene gallery, roller, die, contents, share menu, locale toggle; hover a home tile
 
 ## Child DOX Index

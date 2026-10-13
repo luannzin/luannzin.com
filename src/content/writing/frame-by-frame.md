@@ -7,7 +7,7 @@ metaDescription: How the Lab plays this site’s real motion on one clock you ca
 seed: 98
 ---
 
-Most of the motion on this site is over before you can really look at it. The die tumbles for 1.1 seconds. The arrow that points at it is done in 2.26, and the name on the home page arrives in under one. So I made the [Lab](/lab): every piece on a timing sheet, where you can replay it, slow it down to a tenth, or step through it a frame at a time.
+Most of the motion on this site is over before you can really look at it. The die tumbles for 1.1 seconds. The arrow that points at it is done in 2.26, and the name on the home page arrives in under one. So I made the [Lab](/lab/motion): every piece on a timing sheet, where you can replay it, slow it down to a tenth, or step through it a frame at a time.
 
 None of it is a recording. A recording would only ever show one throw, and the real die lands on a different face every time you replay it, the same way the scenes grow from whatever you type. So the Lab runs the same code as the rest of the site, and this post is about how that code stops at whatever millisecond you ask for.
 

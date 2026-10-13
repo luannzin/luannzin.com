@@ -12,7 +12,7 @@ export function GET() {
 
 ${game.intro}
 
-Controls: A and D to ${keys.move}, W to ${keys.jump}, S to ${keys.crouch}, click to ${keys.punch}, S and click to ${keys.kick}, right click to ${keys.throw}, scroll click for the ${keys.special}, Esc to ${keys.pause}. ${keys.fallback} Touch screens get a joystick and buttons.
+Controls: A and D to ${keys.move}, W to ${keys.jump}, S to ${keys.crouch}, S and W to ${keys.drop}, click to ${keys.throw}, right click for the ${keys.special}, Esc to ${keys.pause}. ${keys.fallback} Touch screens get a joystick and buttons.
 
 ## ${made.title}
 

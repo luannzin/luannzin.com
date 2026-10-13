@@ -14,7 +14,6 @@ import {
   JumpIcon,
   LaptopIcon,
   PlayIcon,
-  PunchIcon,
   ReplayIcon,
   ThrowIcon,
 } from "@/components/icons";
@@ -34,7 +33,7 @@ import { cn } from "@/lib/utils";
 type Labels = typeof t.app.lab.game;
 type State = "loading" | "title" | "play" | "paused" | "over";
 
-// WASD and the mouse; arrows, Space, J, K and L as the fallback
+// WASD and the mouse; arrows, Space, J and K as the fallback
 const KEYS: Record<string, Action> = {
   KeyA: "left",
   ArrowLeft: "left",
@@ -45,15 +44,13 @@ const KEYS: Record<string, Action> = {
   Space: "jump",
   KeyS: "down",
   ArrowDown: "down",
-  KeyJ: "attack",
-  KeyK: "throw",
-  KeyL: "special",
+  KeyJ: "throw",
+  KeyK: "special",
 };
-// left button punches, the scroll wheel's click is the special, right throws
+// the left button throws, the right one is the special
 const BUTTONS: Record<number, Action> = {
-  0: "attack",
-  1: "special",
-  2: "throw",
+  0: "throw",
+  2: "special",
 };
 
 const button = `${press} inline-flex h-9 items-center gap-2 rounded-[10px] bg-muted ps-3 pe-4 text-foreground inset-ring inset-ring-border outline-offset-2 hover:bg-foreground/7`;
@@ -359,15 +356,8 @@ function Keys({ labels }: { labels: Labels["keys"] }) {
     ],
   ];
   const fighting: Row[] = [
-    [<Kbd key="click">{labels.click}</Kbd>, labels.punch],
-    [
-      <>
-        <Kbd>S</Kbd>+<Kbd>{labels.click}</Kbd>
-      </>,
-      labels.kick,
-    ],
-    [<Kbd key="right">{labels.rightClick}</Kbd>, labels.throw],
-    [<Kbd key="middle">{labels.middleClick}</Kbd>, labels.special],
+    [<Kbd key="click">{labels.click}</Kbd>, labels.throw],
+    [<Kbd key="right">{labels.rightClick}</Kbd>, labels.special],
     [<Kbd key="esc">Esc</Kbd>, labels.pause],
   ];
   // two groups, moving and fighting, each a column of key and what it does
@@ -395,7 +385,7 @@ function Keys({ labels }: { labels: Labels["keys"] }) {
   );
 }
 
-// A touch screen's controls: a joystick on the leading side, the four moves
+// A touch screen's controls: a joystick on the leading side, the three moves
 // on the trailing side where the other thumb rests, jump lowest and nearest.
 function Pad({
   labels,
@@ -487,30 +477,25 @@ function Pad({
           className="size-12 rounded-full bg-foreground/12 inset-ring inset-ring-foreground/15"
         />
       </div>
-      <div className="grid grid-cols-3 grid-rows-3 gap-1">
+      {/* an arc round the thumb: special on top, throw out at the edge */}
+      <div className="grid grid-cols-2 grid-rows-3 gap-1">
         {action(
           "special",
           labels.special,
           <LaptopIcon className="size-5" />,
-          "col-start-2 row-start-1",
+          "col-start-1 row-start-1",
         )}
         {action(
           "throw",
           labels.throw,
           <ThrowIcon className="size-5" />,
-          "col-start-1 row-start-2",
-        )}
-        {action(
-          "attack",
-          labels.punch,
-          <PunchIcon className="size-5" />,
-          "col-start-3 row-start-2",
+          "col-start-2 row-start-2",
         )}
         {action(
           "jump",
           labels.jump,
           <JumpIcon className="size-5" />,
-          "col-start-2 row-start-3",
+          "col-start-1 row-start-3",
         )}
       </div>
     </div>

@@ -23,7 +23,7 @@ A front-end engineer who ships production ERPs and multi-tenant platforms at Loo
 - Stack: Next.js 16 (App Router, cache components, React Compiler), Tailwind CSS v4, coss UI (Base UI), Bun, Biome.
 - Language: English and Brazilian Portuguese via better-intl, picked from the `locale` cookie, else Accept-Language. Translated posts live in `src/content/writing/pt/`.
 - Theme: dark only.
-- Current sections: header (name, role, avatar), hero bio, projects, writing, Lab (two rows: the motion, and Bug hunt, a platformer at `/lab/bug-hunt`); the CV lives at `/cv` (linked from the home footer), not on the home page.
+- Current sections: header (name, role, avatar), hero bio, projects, writing, Lab (two rows: the motion at `/lab/motion`, and Bug hunt, a platformer at `/lab/bug-hunt`; `/lab` lists them like posts); the CV lives at `/cv` (linked from the home footer), not on the home page.
 - Source of facts: `LUAN FABRI.md` (RH-oriented, written ~April 2026, partly outdated) plus GitHub.
 
 ## Brand Commitments

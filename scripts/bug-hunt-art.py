@@ -2,21 +2,27 @@
 
     python scripts/bug-hunt-art.py [preview-dir]
 
-Writes public/lab/bug-hunt/atlas.png, public/lab/bug-hunt/tile.png (the home
-row's tile) and src/lib/bug-hunt/atlas.json: where each animation sits in the
-atlas, its anchor, and the flat colours the game paints itself (particles,
-the HUD's bars, the sky). Output is deterministic; rerun it after any change
-and commit the three files with it. With a preview dir it also writes the
-atlas there at 2x, on the game's black.
+Writes public/lab/bug-hunt/atlas.png, public/lab/bug-hunt/tile.png (the Lab
+row's 44px tile, see `cover`) and src/lib/bug-hunt/atlas.json: where
+each animation sits in the atlas, its anchor, and the flat colours the game
+paints itself (particles, the HUD's bars, the sky). Output is deterministic;
+rerun it after any change and commit the three files with it. With a preview
+dir it also writes the atlas there at 2x, on the game's black.
 
 The look: line art on black, after Tomb of the Mask and the white-on-black
 wizard games. Every mass is a black fill closed by a 1px line in its own
 colour, and a mass in front draws its line over the one behind it, so the
 parts of a body read without any shading. Texture and depth are ordered
-dither (a 4x4 Bayer matrix), never a gradient: the curls, the bugs' shells,
+dither (a 4x4 Bayer matrix), never a gradient: the bugs' shells, the spikes,
 the floor's bricks fading into the dark, the door's light. Colour is a few
-flat neons, one per kind of thing: white for the world and the hero, rosé
-for his special, green and cyan for the bugs, yellow for the way out.
+flat neons, one per kind of thing: white for the world, rosé for his
+special, green and cyan for the bugs, red for what costs a heart, yellow for
+the way out.
+
+The hero is the one exception to the line art: solid masses lit from the
+upper left, his line light on the sides facing it and grey on the others,
+and a dark crease where a near limb crosses what's behind it. At 36px tall
+an outlined figure reads as a wireframe; solid, he reads as a person.
 """
 
 from __future__ import annotations
@@ -65,6 +71,7 @@ MAGENTA = rgb("#e23cff")
 YELLOW = rgb("#ffee00")
 YELLOW_DEEP = rgb("#7a6f00")
 RED = rgb("#ff3348")
+RED_DEEP = rgb("#7a1426")
 VIOLET = rgb("#6c4dff")
 VIOLET_DEEP = rgb("#2a1c70")
 
@@ -81,23 +88,44 @@ class Mat:
     black at `density`."""
 
     def __init__(self, line: RGBA, fill: RGBA = SKY, density: float = 0.0,
-                 shade: RGBA | None = None):
+                 shade: RGBA | None = None, lit: RGBA | None = None,
+                 seam: RGBA | None = None):
         self.line, self.fill, self.density = line, fill, density
         # the fill just inside its right and lower line: the side the light
         # from the upper left doesn't reach
         self.shade = shade
+        # A lit mass (the hero's) has a line in two tones, `lit` where it
+        # faces the light from the upper left and `line` where it faces away,
+        # and `seam` where it crosses a mass behind it.
+        self.lit, self.seam = lit, seam
 
 
-# black clothes: his outline round a black fill, a band of shade inside it
-HOODIE = Mat(INK, shade=DIM)
-HOODIE_FAR = Mat(GREY)
-SKIN = Mat(INK)
-SKIN_FAR = Mat(GREY)
-HAIR = Mat(AUBURN)
-SHOE = Mat(INK, INK, 1.0)
-SHOE_FAR = Mat(GREY, GREY, 1.0)
-LAPTOP = Mat(INK)
-SCREEN = Mat(ROSE, ROSE, 1.0)
+# The hero is solid masses, not outlines: black clothes over a fill a step
+# off the black, so his limbs read as limbs and not as tubes, white skin and
+# sneakers, auburn curls. A near limb is split from what's behind it by a
+# crease darker than both; the far limbs are a step darker all through.
+HOOD_FILL = rgb("#25232d")
+HOOD_SHADE = rgb("#18171e")
+SLEEVE_FILL = rgb("#302e39")  # the near sleeve, a step up so it reads on his chest
+PANTS_FILL = rgb("#211f28")
+FAR_FILL = rgb("#131218")
+CREASE = rgb("#0c0b10")
+SKIN_SHADE = rgb("#c8c3cf")
+AUBURN_DEEP = rgb("#8f4527")
+AUBURN_SHADE = rgb("#b5643a")
+AUBURN_LIGHT = rgb("#f5b07a")
+
+HOODIE = Mat(GREY, HOOD_FILL, 1.0, HOOD_SHADE, INK, CREASE)
+SLEEVE = Mat(GREY, SLEEVE_FILL, 1.0, None, INK, CREASE)
+HOODIE_FAR = Mat(DIM, FAR_FILL, 1.0, None, DIM, DIM)
+PANTS = Mat(DIM, PANTS_FILL, 1.0, None, GREY, CREASE)
+PANTS_FAR = Mat(DIM, FAR_FILL, 1.0, None, DIM, DIM)
+SKIN = Mat(SKIN_SHADE, INK, 1.0, None, INK, GREY)
+SKIN_FAR = Mat(DIM, GREY, 1.0, None, GREY, DIM)
+HAIR = Mat(AUBURN_DEEP, AUBURN, 1.0, AUBURN_SHADE, AUBURN_LIGHT, AUBURN_DEEP)
+SHOE = Mat(GREY, INK, 1.0, None, INK, GREY)
+SHOE_FAR = Mat(DIM, GREY, 1.0, None, GREY, DIM)
+LAPTOP = Mat(GREY, DIM, 1.0, None, INK, GREY)
 
 SHELL = Mat(GREEN, GREEN_DEEP, 0.5)
 CHITIN = Mat(GREEN)
@@ -118,7 +146,7 @@ class Sprite:
     def __init__(self, w: int, h: int):
         self.w, self.h = w, h
         self.cells: dict[tuple[int, int], tuple[Mat, int]] = {}
-        self.marks: dict[tuple[int, int], RGBA] = {}
+        self.marks: dict[tuple[int, int], tuple[RGBA, int]] = {}
         self.n = 0
 
     def fill(self, pts, mat: Mat) -> None:
@@ -129,10 +157,11 @@ class Sprite:
                 self.cells[(x, y)] = (mat, self.n)
 
     def mark(self, pts, colour: RGBA) -> None:
-        """Flat detail on top of the line art: eyes, a drawstring, an LED."""
+        """Flat detail on the masses drawn so far: eyes, a pocket, an LED. A
+        mass drawn after it covers it, like any other mass."""
         for x, y in pts:
             if 0 <= x < self.w and 0 <= y < self.h:
-                self.marks[(x, y)] = colour
+                self.marks[(x, y)] = (colour, self.n)
 
     def mirrored(self) -> "Sprite":
         out = Sprite(self.w, self.h)
@@ -146,7 +175,7 @@ def render(sp: Sprite, flash: bool = False) -> Image.Image:
     """A pixel is line where its mass ends: next to nothing, or next to a mass
     drawn before it (behind it). A mass drawn after (in front) owns the line
     between them. Everything else is fill. A flash is the whole silhouette in
-    its line colour, the frame a hit lands on."""
+    its line colour (its lit one, if it has one), the frame a hit lands on."""
     img = Image.new("RGBA", (sp.w, sp.h), CLEAR)
     px = img.load()
     def is_edge(x: int, y: int, blob: int) -> bool:
@@ -157,7 +186,17 @@ def render(sp: Sprite, flash: bool = False) -> Image.Image:
         return False
 
     for (x, y), (mat, blob) in sp.cells.items():
-        if flash or is_edge(x, y, blob):
+        if flash:
+            px[x, y] = mat.lit or mat.line
+        elif is_edge(x, y, blob) and mat.lit:
+            open_ = [d for d in N4 if (x + d[0], y + d[1]) not in sp.cells]
+            if not open_:
+                px[x, y] = mat.seam
+            elif (-1, 0) in open_ or (0, -1) in open_:
+                px[x, y] = mat.lit
+            else:
+                px[x, y] = mat.line
+        elif is_edge(x, y, blob):
             px[x, y] = mat.line
         elif mat.shade and any(
                 sp.cells.get(n, (None, -1))[1] == blob and is_edge(*n, blob)
@@ -167,7 +206,10 @@ def render(sp: Sprite, flash: bool = False) -> Image.Image:
             px[x, y] = mat.fill
         else:
             px[x, y] = SKY
-    for (x, y), colour in sp.marks.items():
+    for (x, y), (colour, n) in sp.marks.items():
+        cell = sp.cells.get((x, y))
+        if cell and cell[1] > n:
+            continue
         px[x, y] = INK if flash else colour
     return img
 
@@ -273,8 +315,9 @@ def capsule(a, b, ra: float, rb: float) -> set[tuple[int, int]]:
 
 def curls(sp: Sprite, circles, mat: Mat) -> None:
     """Hair as one mass whose line is bumpy where each curl bulges out, with
-    each curl's own upper-left arc drawn inside it: a row of C shapes, all lit
-    from the same side, which is what reads as curly at this size."""
+    each curl's own upper-left arc drawn inside it in the light: a row of C
+    shapes, all lit from the same side, which is what reads as curly at this
+    size."""
     mass: set[tuple[int, int]] = set()
     discs = [disc(cx, cy, r) for cx, cy, r in circles]
     for d in discs:
@@ -288,171 +331,156 @@ def curls(sp: Sprite, circles, mat: Mat) -> None:
                 continue
             inner = all(n in mass for n in ((x - 1, y), (x, y - 1), (x + 1, y), (x, y + 1)))
             if inner:
-                sp.marks[(x, y)] = mat.line
+                sp.marks[(x, y)] = (mat.lit, sp.n)
 
 
 def hero(p: dict) -> Sprite:
-    """Luan, facing right: curly auburn hair, a black hoodie and black cargo
-    pants, white sneakers, a chain and an earbud.
+    """Luan, facing right: curly auburn hair, a black hoodie with its hood
+    down, black cargo pants, white sneakers and an earbud. About three heads
+    tall, so the face and the hands still read at this size.
 
     `p` is the pose. `dy` lowers everything above the hips and `crouch` the
     hips themselves; `lean` tips the upper body; hands and ankles sit where
     the pose puts them, and elbows and knees fall out of `bend`. The far
-    limbs are drawn first, in grey, so the near ones cross them in white.
+    limbs go down first, a step darker, so the near ones cross them.
     """
     s = Sprite(PW, PH)
     crouch = p.get("crouch", 0)
     dy = p.get("dy", 0) + crouch
     lean = p.get("lean", 0)
     hip_y = 27 + crouch
-    near_sh, far_sh = (16 + lean, 18 + dy), (11 + lean, 18 + dy)
+    # the hoodie's middle and its shoulder line, and the head's middle
+    tx, ty = 13 + lean, 16 + dy
+    hx, hy = 14 + lean, 11 + dy
 
-    def arm(shoulder, hand, near, fist=False):
-        elbow = bend(shoulder, hand, 10.0, -1)
-        mat = HOODIE if near else HOODIE_FAR
-        s.fill(capsule(shoulder, elbow, 1.7, 1.5) | capsule(elbow, hand, 1.5, 1.3), mat)
-        s.fill(disc(hand[0], hand[1], 1.9 if fist else 1.4), SKIN if near else SKIN_FAR)
+    def arm(hand, near):
+        shoulder = (tx + 2, ty + 2) if near else (tx - 2, ty + 2)
+        elbow = bend(shoulder, hand, 9.0, -1)
+        s.fill(capsule(shoulder, elbow, 1.6, 1.4) | capsule(elbow, hand, 1.4, 1.2),
+               SLEEVE if near else HOODIE_FAR)
+        s.fill(disc(hand[0], hand[1], 1.5), SKIN if near else SKIN_FAR)
 
-    def leg(hip, ankle, near):
-        knee = bend(hip, ankle, 10.4, 1)
-        mat = HOODIE if near else HOODIE_FAR
-        s.fill(capsule(hip, knee, 2.2, 1.8) | capsule(knee, ankle, 1.8, 1.4), mat)
+    def leg(ankle, near):
+        hip = (14, hip_y) if near else (12, hip_y)
+        knee = bend(hip, ankle, 9.6, 1)
+        mass = capsule(hip, knee, 2.0, 1.7) | capsule(knee, ankle, 1.7, 1.3)
+        if near:  # the near leg and the seat of the pants are one mass
+            mass |= rect(10, hip_y - 2, 7, 3)
+        s.fill(mass, PANTS if near else PANTS_FAR)
         if near:  # the cargo pocket, on the thigh
-            kx, ky = round((hip[0] + knee[0]) / 2) + 1, round((hip[1] + knee[1]) / 2)
-            s.mark({(kx - 1, ky), (kx, ky), (kx + 1, ky), (kx - 1, ky + 1),
-                    (kx + 1, ky + 1)}, GREY)
+            kx = round((hip[0] + knee[0]) / 2)
+            ky = round((hip[1] + knee[1]) / 2)
+            s.mark({(kx, ky), (kx + 1, ky), (kx + 1, ky + 1)}, DIM)
         ax, ay = round(ankle[0]), round(ankle[1])
-        toe = p.get("toe", 1)
-        shoe = rect(ax - 1, ay, 3, 1) | rect(ax - 2, ay + 1, 5 + toe, 1) | rect(ax - 2, ay + 2, 6 + toe, 1)
+        shoe = rect(ax - 1, ay, 3, 1) | rect(ax - 2, ay + 1, 6, 1) | rect(ax - 2, ay + 2, 7, 1)
         s.fill(shoe, SHOE if near else SHOE_FAR)
-        s.mark({(x, ay + 2) for x in range(ax - 1, ax + 4 + toe)}, GREY if near else DIM)
+        s.mark({(x, ay + 2) for x in range(ax - 2, ax + 5)}, GREY if near else DIM)
 
-    arm(far_sh, p["back"], False)
-    leg((12, hip_y), p["far"], False)
-    leg((15, hip_y), p["near"], True)
+    arm(p["back"], False)
+    leg(p["far"], False)
+    leg(p["near"], True)
+    s.fill(rect(hx - 2, hy + 2, 3, 3), SKIN)  # the neck, under the jaw
 
-    # the hoodie and the hips are one mass, so one line goes round them
-    bx, by = 9 + lean, 16 + dy
-    body = (rect(bx + 2, by, 6, 1) | rect(bx + 1, by + 1, 8, 1) | rect(bx, by + 2, 10, 7)
-            | rect(bx + 1, by + 9, 9, 2) | rect(10, hip_y - 1, 8, 2)
-            | disc(bx + 1.6, by + 1.2, 2.0))
-    s.fill(body, HOODIE)
-    s.mark({(x, by + 9) for x in range(bx + 2, bx + 9)}, GREY)  # the hem
-    s.mark({(bx + 4, by + 5), (bx + 5, by + 5), (bx + 6, by + 5), (bx + 7, by + 5),
-            (bx + 3, by + 6), (bx + 3, by + 7), (bx + 8, by + 6)}, GREY)  # the pocket
-    s.mark({(bx + 6, by + 2), (bx + 6, by + 3), (bx + 8, by + 2), (bx + 8, by + 3),
-            (bx + 8, by + 4)}, ROSE)  # the drawstrings
-    s.mark({(bx + 3, by + 1), (bx + 4, by + 2), (bx + 5, by + 2)}, GREY)  # the chain
+    # the hoodie: square shoulders, a slight taper to the hem, and the hood
+    # lying on his back behind the neck
+    rows = ((-3, 2), (-4, 3), (-4, 4), (-4, 4), (-4, 4), (-4, 4), (-4, 4),
+            (-4, 4), (-4, 3), (-3, 3))
+    torso = {(tx + x, ty + i) for i, (a, b) in enumerate(rows) for x in range(a, b + 1)}
+    s.fill(torso | disc(tx - 3, ty + 0.4, 2.0), HOODIE)
+    s.mark({(x, ty + 8) for x in range(tx - 2, tx + 3)}, HOOD_SHADE)  # the hem's rib
+    s.mark({(tx + 4, ty + 2), (tx + 4, ty + 3)}, ROSE)  # a drawstring
 
-    hx, hy = 6 + lean, dy + 1
-    head = ellipse(hx + 7.5, hy + 9.0, 4.4, 4.9)
-    head -= {(x, y) for x, y in head if x < hx + 6 and y > hy + 11}  # jaw tucks in
-    head |= {(hx + 12, hy + 8), (hx + 12, hy + 9), (hx + 11, hy + 12), (hx + 10, hy + 13)}
+    head = ellipse(hx, hy, 4.2, 4.4)
+    head -= {(x, y) for x, y in head if x < hx - 1 and y > hy + 2}  # the jaw
+    head |= {(hx + 4, hy + 1), (hx + 5, hy + 1)}  # the nose
     s.fill(head, SKIN)
-    s.fill(disc(hx + 5.2, hy + 9.4, 1.3), SKIN)  # the ear
-    s.mark({(hx + 5, hy + 9)}, GREY)  # the earbud
+    # the curls sit back on his head, off the face
+    curls(s, [(hx - 2.6, hy - 3.2, 2.6), (hx + 0.4, hy - 4.4, 2.6),
+              (hx + 2.8, hy - 3.9, 2.0), (hx - 4.0, hy - 0.6, 2.2),
+              (hx - 3.4, hy + 2.0, 1.6), (hx - 1.2, hy - 2.6, 1.6),
+              (hx + 4.4, hy - 2.9, 1.0)], HAIR)
+    s.mark({(hx - 2, hy)}, INK)  # the ear
+    s.mark({(hx - 2, hy + 1)}, GREY)  # the earbud
 
-    curls(s, [(hx + 3.2, hy + 3.4, 2.4), (hx + 6.0, hy + 2.2, 2.6),
-              (hx + 9.2, hy + 2.6, 2.4), (hx + 11.4, hy + 4.4, 1.7),
-              (hx + 1.8, hy + 6.2, 2.2), (hx + 2.2, hy + 9.0, 1.7),
-              (hx + 8.0, hy + 5.2, 1.5), (hx + 10.3, hy + 5.6, 1.3)], HAIR)
-
-    face = p.get("face", "smirk")
+    face = p.get("face", "calm")
     if face == "wince":
-        s.mark({(hx + 8, hy + 8), (hx + 9, hy + 8), (hx + 11, hy + 8)}, INK)
+        s.mark({(hx + 1, hy + 1), (hx + 2, hy + 1)}, SKY)  # eye shut tight
     else:
-        s.mark({(hx + 8, hy + 7), (hx + 9, hy + 7), (hx + 11, hy + 7)}, INK)  # brows
-        s.mark({(hx + 9, hy + 8), (hx + 9, hy + 9), (hx + 11, hy + 8),
-                (hx + 11, hy + 9)}, INK)  # eyes
+        s.mark({(hx + 2, hy - 1), (hx + 3, hy - 1)}, AUBURN_DEEP)  # brow
+        s.mark({(hx + 2, hy), (hx + 2, hy + 1)}, SKY)  # eye
     if face == "shout":
-        s.mark({(hx + 9, hy + 11), (hx + 10, hy + 11), (hx + 9, hy + 12),
-                (hx + 10, hy + 12)}, INK)
+        s.mark({(hx + 2, hy + 3), (hx + 3, hy + 3)}, SKY)
     else:
-        s.mark({(hx + 9, hy + 11), (hx + 10, hy + 11), (hx + 11, hy + 10)}, INK)  # smirk
+        s.mark({(hx + 2, hy + 3), (hx + 3, hy + 3)}, GREY)
 
     if p.get("laptop"):
         # held open at the chest, hinge away from him, its screen lit at him
-        lx, ly = 16 + lean, 25 + dy
-        s.fill(rect(lx, ly, 10, 2), LAPTOP)
-        s.fill(capsule((lx + 9, ly - 1), (lx + 8, ly - 8), 1.0, 1.0), LAPTOP)
-        s.mark({(x - 1, y) for x, y in line(lx + 9, ly - 1, lx + 8, ly - 7)}, ROSE)
-    arm(near_sh, p["front"], True, p.get("fist", False))
-    if p.get("kick"):
-        leg((15, hip_y), p["kick"], True)
+        lx, ly = tx + 3, ty + 9
+        s.fill(rect(lx, ly, 9, 2), LAPTOP)
+        s.fill(capsule((lx + 8, ly - 1), (lx + 7, ly - 8), 0.8, 0.8), LAPTOP)
+        s.mark({(x - 1, y) for x, y in line(lx + 8, ly - 1, lx + 7, ly - 7)}, ROSE)
+    arm(p["front"], True)
     return s
 
 
-STAND = {"front": (17, 27), "back": (11, 27), "near": (16, FOOT - 2),
+STAND = {"front": (16, 26), "back": (10, 26), "near": (15, FOOT - 2),
          "far": (11, FOOT - 2)}
+# a throw's arm, out straight at the end of it
+OUT = (24, 19)
 
 
 def pose(**kw) -> dict:
     return {**STAND, **kw}
 
 
-def run_cycle() -> list[dict]:
+def run_cycle(**kw) -> list[dict]:
     # ankle offsets from the hips through a stride, with the opposite arm
     stride = [(5, 0), (2, -1), (-2, -3), (-5, -1), (-3, 0), (2, -4)]
     frames = []
     for i in range(6):
         nx, ny = stride[i]
         fx, fy = stride[(i + 3) % 6]
-        frames.append(pose(
-            dy=1 if i in (1, 4) else 0,
-            lean=1,
-            near=(15 + nx, FOOT - 2 + ny),
-            far=(12 + fx, FOOT - 2 + fy),
-            front=(17 - nx, 26),
-            back=(12 - fx, 26),
-        ))
+        frames.append(pose(**{
+            "dy": 1 if i in (1, 4) else 0,
+            "lean": 1,
+            "near": (14 + nx, FOOT - 2 + ny),
+            "far": (12 + fx, FOOT - 2 + fy),
+            "front": (17 - nx, 25),
+            "back": (12 - fx, 25),
+            **kw,
+        }))
     return frames
 
 
-CROUCH = 7
-LOW = {"crouch": CROUCH, "near": (19, FOOT - 2), "far": (10, FOOT - 2),
-       "front": (20, 29), "back": (14, 30)}
+LOW = {"crouch": 7, "near": (18, FOOT - 2), "far": (10, FOOT - 2),
+       "front": (19, 31), "back": (12, 32)}
+JUMP = {"near": (18, 31), "far": (11, 34), "front": (21, 21), "back": (7, 20)}
+FALL = {"near": (17, 35), "far": (11, 33), "front": (22, 16), "back": (6, 17)}
 
 HERO = {
     "idle": [pose(), pose(dy=1)],
     "run": run_cycle(),
-    "jump": [pose(near=(19, 32), far=(12, 35), front=(22, 22), back=(6, 21))],
-    "fall": [pose(near=(18, 36), far=(11, 34), front=(23, 19), back=(6, 18))],
-    # three punches, aimed: up over his head, straight ahead, down at the floor
-    "up": [
-        pose(lean=1, front=(22, 10), back=(10, 25), near=(18, FOOT - 3),
-             far=(12, FOOT - 2), fist=True, face="shout"),
-        pose(lean=1, front=(21, 14), back=(11, 26), near=(18, FOOT - 2), fist=True),
-    ],
-    "mid": [
-        pose(lean=1, front=(27, 22), back=(11, 25), near=(19, FOOT - 2),
-             far=(10, FOOT - 2), fist=True),
-        pose(front=(21, 23), back=(13, 26), near=(18, FOOT - 2), fist=True),
-    ],
-    "low": [
-        pose(dy=2, lean=2, front=(26, 32), back=(11, 27), near=(20, FOOT - 2),
-             far=(9, FOOT - 2), fist=True),
-        pose(dy=1, lean=1, front=(21, 29), back=(12, 27), near=(19, FOOT - 2),
-             far=(10, FOOT - 2), fist=True),
-    ],
+    "jump": [pose(**JUMP)],
+    "fall": [pose(**FALL)],
     "crouch": [pose(**LOW)],
-    # from the crouch, the near leg sweeps out low
-    "kick": [
-        pose(**{**LOW, "near": (20, FOOT - 5)}),
-        pose(**{**LOW, "near": (13, FOOT - 2), "kick": (26, FOOT - 3), "lean": -1}),
-        pose(**{**LOW, "near": (19, FOOT - 3)}),
-    ],
+    # the wind-up, the arm back over his head, then the arm out
     "throw": [
-        pose(lean=-1, front=(7, 21), back=(15, 27), near=(18, FOOT - 2)),
-        pose(lean=1, front=(26, 21), back=(10, 26), near=(19, FOOT - 2)),
+        pose(lean=-1, front=(9, 14), back=(17, 24), near=(17, FOOT - 2)),
+        pose(lean=1, front=OUT, back=(9, 25), near=(18, FOOT - 2)),
     ],
-    "hurt": [pose(lean=-2, front=(23, 21), back=(5, 20), face="wince")],
+    # the same arm out over the run, or a jump, or a fall
+    "run-throw": run_cycle(front=OUT),
+    "jump-throw": [pose(**{**JUMP, "front": OUT, "back": (8, 23)})],
+    "fall-throw": [pose(**{**FALL, "front": OUT, "back": (7, 18)})],
+    "hurt": [pose(lean=-2, front=(20, 17), back=(5, 18), near=(16, FOOT - 3),
+                  face="wince")],
     "code": [
-        pose(laptop=True, front=(19, 24), back=(22, 23)),
-        pose(laptop=True, front=(20, 23), back=(19, 24)),
+        pose(laptop=True, front=(18, 24), back=(21, 23)),
+        pose(laptop=True, front=(19, 23), back=(18, 24)),
     ],
-    "charge": [pose(dy=1, front=(11, 27), back=(10, 28), near=(19, FOOT - 2),
-                    far=(9, FOOT - 2), face="shout", fist=True)],
-    "fire": [pose(lean=2, front=(26, 22), back=(25, 23), near=(20, FOOT - 2),
+    "charge": [pose(dy=1, front=(10, 27), back=(9, 28), near=(18, FOOT - 2),
+                    far=(9, FOOT - 2), face="shout")],
+    "fire": [pose(lean=2, front=(25, 22), back=(24, 23), near=(19, FOOT - 2),
                   far=(8, FOOT - 2), face="shout")],
 }
 
@@ -618,6 +646,95 @@ def beam(piece: str, frame: int) -> Image.Image:
         for p in disc(4, mid, 3.5):
             cells[p] = ROSE_HOT
     return paint(w, BEAM_H, cells)
+
+
+# --- traps: red, the colour of what costs a heart ------------------------------
+
+
+def spikes() -> Image.Image:
+    """One tile of spikes standing on the floor's line: four points in red
+    line art, a dither of deep red inside, a white tip on each."""
+    cells: dict[tuple[int, int], RGBA] = {}
+    for cx in (2, 6, 10, 14):
+        for y in range(6):
+            half = round(y * 2 / 5)
+            for x in range(cx - half, cx + half + 1):
+                if y == 0:
+                    cells[(x, y)] = INK
+                elif abs(x - cx) == half or y == 5:
+                    cells[(x, y)] = RED
+                elif lit(x, y, 0.5):
+                    cells[(x, y)] = RED_DEEP
+    return paint(16, 6, cells)
+
+
+EW, EH = 13, 6
+
+
+def emitter(state: int) -> Image.Image:
+    """A laser's housing on the floor, its lens on top: dark while off, red
+    while warning, white while it fires."""
+    cells: dict[tuple[int, int], RGBA] = {}
+    for x in range(1, EW - 1):
+        cells[(x, 1)] = GREY
+        cells[(x, EH - 1)] = GREY
+    for y in range(1, EH):
+        cells[(1, y)] = GREY
+        cells[(EW - 2, y)] = GREY
+    glow = (None, RED_DEEP, RED)[state]
+    for x in range(2, EW - 2):
+        for y in range(2, EH - 1):
+            if glow and lit(x, y, 0.5):
+                cells[(x, y)] = glow
+    lens = (DIM, RED, INK)[state]
+    for x in (5, 6, 7):
+        cells[(x, 0)] = lens
+    return paint(EW, EH, cells)
+
+
+def laser(frame: int) -> Image.Image:
+    """A length of the beam, going up: a white core, red round it, and a
+    dithered edge that climbs a pixel a frame."""
+    cells: dict[tuple[int, int], RGBA] = {}
+    for y in range(16):
+        cells[(3, y)] = INK
+        cells[(2, y)] = RED
+        cells[(4, y)] = RED
+        for x in (1, 5):
+            if lit(x, y + frame * 2, 0.6):
+                cells[(x, y)] = RED_DEEP
+        for x in (0, 6):
+            if lit(x, y + frame * 2, 0.2):
+                cells[(x, y)] = RED_DEEP
+    return paint(7, 16, cells)
+
+
+SAW_R = 7
+
+
+def saw(frame: int) -> Image.Image:
+    """A saw blade: eight hooked red teeth round a grey ring, a dark plate
+    and a white hub. Three frames turn it one tooth, so it spins on a loop."""
+    cells: dict[tuple[int, int], RGBA] = {}
+    size = SAW_R * 2 + 1
+    tooth = math.pi / 4
+    for x in range(size):
+        for y in range(size):
+            dx, dy = x - SAW_R, y - SAW_R
+            r = math.hypot(dx, dy)
+            t = ((math.atan2(dy, dx) - frame * tooth / 3) / tooth) % 1
+            if r > 4.8 + 2.4 * (1 - t):
+                continue
+            if r > 4.6:
+                cells[(x, y)] = RED
+            elif r > 3.6:
+                cells[(x, y)] = GREY
+            elif r <= 1.6:
+                cells[(x, y)] = INK
+            elif lit(x, y, 0.25):
+                cells[(x, y)] = DIM
+    cells[(SAW_R, SAW_R)] = SKY
+    return paint(size, size, cells)
 
 
 # --- the world: floor, decks, the door ----------------------------------------
@@ -864,6 +981,12 @@ def build():
     anims["check"] = [render(check())]
     anims["dust"] = [dust(i) for i in range(3)]
     anchors["dust"] = (6, 5)
+    anims["spikes"] = [spikes()]
+    anchors["spikes"] = (8, 6)
+    anims["emitter"] = [emitter(i) for i in range(3)]
+    anchors["emitter"] = (EW // 2, EH)
+    anims["laser"] = [laser(i) for i in range(3)]
+    anims["saw"] = [saw(i) for i in range(3)]
     anims["orb"] = [orb(i) for i in range(3)]
     for piece in ("start", "body", "end"):
         anims[f"beam-{piece}"] = [beam(piece, i) for i in range(3)]
@@ -905,6 +1028,35 @@ def pack(anims: dict[str, list[Image.Image]]):
     return atlas, places
 
 
+COVER = 44
+
+
+# the cover's field, darkest to brightest
+FIELD = (rgb("#110d24"), VIOLET_DEEP, rgb("#5a1f6e"), ROSE_DEEP, ROSE)
+
+
+def cover(anims: dict[str, list[Image.Image]], anchors) -> Image.Image:
+    """The Lab row's tile, 44px at 1x, composed like a post's tile: one
+    subject in the middle of a field of dots that fills the square. The
+    dots sit on a 2px grid, like a scene's, from the room's dark violet at
+    the top to the rosé of the laptop's light round Luan, who stands in the
+    middle, typing."""
+    img = Image.new("RGBA", (COVER, COVER), SKY)
+    px = img.load()
+    feet = 42
+    light = (26, 29)  # the laptop's screen
+    for y in range(0, COVER, 2):
+        for x in range(0, COVER, 2):
+            near = max(0.0, 1 - math.hypot(x - light[0], (y - light[1]) * 1.15) / 24)
+            t = max(near * 1.25, 0.18 + 0.45 * (y / COVER) ** 2)
+            step = t * (len(FIELD) - 1) + BAYER[(y // 2) % 4][(x // 2) % 4] / 16 - 0.5
+            px[x, y] = FIELD[max(0, min(len(FIELD) - 1, round(step)))]
+    hero_ = anims["hero-code-r"][0]
+    ax, ay = anchors["hero-code-r"]
+    img.alpha_composite(hero_, (19 - ax, feet + 1 - ay))
+    return img
+
+
 def main() -> None:
     anims, anchors = build()
     atlas, places = pack(anims)
@@ -934,9 +1086,7 @@ def main() -> None:
                   lambda m: "[" + ", ".join(v.strip() for v in m.group(1).split(",")) + "]",
                   text)
     OUT_JSON.write_text(text + "\n", encoding="utf-8", newline="\n")
-    tile = Image.new("RGBA", (22, 22), SKY)
-    tile.alpha_composite(anims["hero-idle-r"][0].crop((3, 0, 25, 22)))
-    tile.save(OUT_TILE, optimize=True)
+    cover(anims, anchors).save(OUT_TILE, optimize=True)
 
     if len(sys.argv) > 1:
         preview = Path(sys.argv[1])

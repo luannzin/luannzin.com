@@ -21,6 +21,15 @@ const LOW = 10;
 export type Kind = "crawler" | "flyer";
 export type Deck = { col: number; row: number; w: number };
 export type Spawn = { kind: Kind; x: number; y: number };
+// Spikes cover `w` columns of floor; a laser stands in one column and fires
+// up on a cycle; a saw rolls back and forth over `w` columns.
+export type Trap = {
+  kind: "spikes" | "laser" | "saw";
+  col: number;
+  w: number;
+  // the surface row it stands on
+  row: number;
+};
 export type Level = {
   number: number;
   cols: number;
@@ -28,6 +37,7 @@ export type Level = {
   surface: number[];
   // one-way platforms
   decks: Deck[];
+  traps: Trap[];
   bugs: Spawn[];
   exit: number;
 };
@@ -87,6 +97,31 @@ export function makeLevel(number: number, seed: number): Level {
     if (clear) decks.push(deck);
   }
 
+  // Traps, one to a run between the start and the exit: spikes from the
+  // first level, lasers from the second, saws from the third. Each keeps a
+  // tile of plain floor at both ends of its run, to land on and take off
+  // from, and spikes are never wider than two tiles, a short hop.
+  const kinds = (["spikes", "laser", "saw"] as const).slice(0, number);
+  const traps: Trap[] = [];
+  const most = Math.min(1 + number, 8);
+  for (const run of runs) {
+    const len = run.to - run.from + 1;
+    if (traps.length >= most || run.from < START + 2 || run.to > exit - 4) {
+      continue;
+    }
+    if (len < 4 || rnd() < 0.35) continue;
+    const kind = kinds[int(0, kinds.length - 1)];
+    if (kind === "spikes") {
+      const w = int(1, 2);
+      const col = run.from + int(1, len - 1 - w);
+      traps.push({ kind, col, w, row: run.row });
+    } else if (kind === "laser") {
+      traps.push({ kind, col: run.from + int(1, len - 2), w: 1, row: run.row });
+    } else if (len >= 5) {
+      traps.push({ kind, col: run.from + 1, w: len - 2, row: run.row });
+    }
+  }
+
   // Bugs: crawlers walk a run or a deck, flyers hang over the floor. None
   // near the start, so a level never opens with a hit.
   const count = Math.min(4 + number * 2, 18);
@@ -121,5 +156,5 @@ export function makeLevel(number: number, seed: number): Level {
       y: Math.max(40, floor * TILE - int(44, 72)),
     });
   }
-  return { number, cols, surface, decks, bugs, exit };
+  return { number, cols, surface, decks, traps, bugs, exit };
 }

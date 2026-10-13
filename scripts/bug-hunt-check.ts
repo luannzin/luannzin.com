@@ -1,6 +1,8 @@
 // Grows a few thousand Bug hunt levels and checks each can be finished:
-// every step and gap is jumpable, decks leave room under them, crawlers stand
-// on something and the exit sits on flat floor. Run: bun scripts/bug-hunt-check.ts
+// every step and gap is jumpable, decks leave room under them, every trap
+// sits on flat floor with plain floor at both ends and spikes are a short hop,
+// crawlers stand on something and the exit sits on flat floor.
+// Run: bun scripts/bug-hunt-check.ts
 import {
   END,
   GAP,
@@ -15,7 +17,7 @@ let levels = 0;
 for (let seed = 0; seed < 300; seed++) {
   for (let number = 1; number <= 12; number++) {
     const level = makeLevel(number, seed);
-    const { surface, cols, decks, bugs, exit } = level;
+    const { surface, cols, decks, traps, bugs, exit } = level;
     const where = `seed ${seed}, level ${number}`;
     const fail = (why: string) => {
       throw new Error(`${where}: ${why}`);
@@ -45,6 +47,22 @@ for (let seed = 0; seed < 300; seed++) {
     for (const deck of decks) {
       for (let c = deck.col - 1; c <= deck.col + deck.w; c++) {
         if (surface[c] < deck.row + 2) fail(`no room under the deck at ${c}`);
+      }
+    }
+    const covered = new Set<number>();
+    for (const trap of traps) {
+      const at = `${trap.kind} at ${trap.col}`;
+      // the trap's columns and a plain one at each end, all one flat floor
+      for (let c = trap.col - 1; c <= trap.col + trap.w; c++) {
+        if (surface[c] !== trap.row) fail(`${at} not on flat floor`);
+        if (covered.has(c)) fail(`${at} shares floor with another trap`);
+        covered.add(c);
+      }
+      if (trap.kind === "spikes" && trap.w > 2) fail(`${at} too wide`);
+      if (trap.kind === "laser" && trap.w !== 1) fail(`${at} not one column`);
+      if (trap.kind === "saw" && trap.w < 3) fail(`${at} has no track`);
+      if (trap.col < START + 2 || trap.col + trap.w > exit - 3) {
+        fail(`${at} by the start or the exit`);
       }
     }
     if (bugs.length < 4) fail(`only ${bugs.length} bugs`);

@@ -261,7 +261,7 @@ export function plainMarkdown(source: string) {
       /^```(flow|scenes|roll|lab)[^\n]*\n([\s\S]*?)^```[ \t\r]*$/gm,
       (_, fence: string, text: string) => {
         if (fence === "lab") {
-          return `*Live on the page: a piece of [the Lab](/lab#${text.trim()}), on its timing sheet.*`;
+          return `*Live on the page: a piece of [the Lab](/lab/motion#${text.trim()}), on its timing sheet.*`;
         }
         if (fence === "flow") {
           return flowNodes(text)

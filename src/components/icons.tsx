@@ -250,18 +250,9 @@ export function GlobeIcon(props: IconProps) {
   );
 }
 
-// Bug hunt's touch pad: jump, punch, throw and the special.
+// Bug hunt's touch pad: jump, throw and the special.
 export function JumpIcon(props: IconProps) {
   return <Stroke d="M12 19.25V5.75M6.75 11L12 5.75L17.25 11" {...props} />;
-}
-
-export function PunchIcon(props: IconProps) {
-  return (
-    <Stroke
-      d="M12 4.75V8.25M12 15.75V19.25M4.75 12H8.25M15.75 12H19.25M6.87 6.87L9.35 9.35M14.65 14.65L17.13 17.13M6.87 17.13L9.35 14.65M14.65 9.35L17.13 6.87"
-      {...props}
-    />
-  );
 }
 
 export function ThrowIcon(props: IconProps) {

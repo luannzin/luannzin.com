@@ -7,7 +7,7 @@ metaDescription: Como o Lab roda o movimento de verdade deste site num relógio 
 seed: 98
 ---
 
-Quase todo movimento deste site acaba antes de dar tempo de olhar direito. O dado gira por 1,1 segundo. A seta que aponta pra ele termina em 2,26, e o nome na página inicial chega em menos de um. Então eu fiz o [Lab](/lab): cada peça numa folha de tempo, onde dá pra repetir, deixar em um décimo da velocidade ou avançar frame a frame.
+Quase todo movimento deste site acaba antes de dar tempo de olhar direito. O dado gira por 1,1 segundo. A seta que aponta pra ele termina em 2,26, e o nome na página inicial chega em menos de um. Então eu fiz o [Lab](/lab/motion): cada peça numa folha de tempo, onde dá pra repetir, deixar em um décimo da velocidade ou avançar frame a frame.
 
 Nada ali é gravação. Uma gravação ia mostrar sempre a mesma jogada, e o dado de verdade cai numa face diferente toda vez que você repete, do mesmo jeito que as cenas nascem do que você digitar. Então o Lab roda o mesmo código do resto do site, e esse post é sobre como esse código para no milissegundo que você pedir.
 
