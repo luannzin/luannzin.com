@@ -19,8 +19,8 @@
 - `footer-art.tsx`: home footer art: `DitherStrip` (canvas of four Bayer-dithered dusk blocks whose dots the pointer pushes aside) and `Signature` (hand-drawn "Luan", drawn by `.signature` in `globals.css` once in view)
 - `dice-hint.tsx`: the hand-drawn arrow to a cover's die, drawn by `.dice-hint` in `globals.css`
 - `print-button.tsx`: the CV's Print button (`window.print()`)
-- `lab/timeline.tsx`: `useTimeline` (a piece's clock), `useSeekCss`, `bezier`, `Specimen` (transport plus timing sheet), and the parts Bug hunt shares with it: `well` (the specimen frame), `Tool`, `Speeds`
-- `lab/bug-hunt.tsx`: Bug hunt's player: canvas scaled by whole device pixels, the loop, keys while focused, the touch pad, overlays and pausing; the game itself is `@/lib/bug-hunt/game`
+- `lab/timeline.tsx`: `useTimeline` (a piece's clock), `useSeekCss`, `bezier`, `Specimen` (transport plus timing sheet), and `well`, the specimen frame Bug hunt shares
+- `lab/bug-hunt.tsx`: Bug hunt's player: canvas scaled by whole device pixels, the loop, mouse buttons and aim, keys while focused, the touch pad (joystick and four buttons), the controls legend, overlays and pausing; the game itself is `@/lib/bug-hunt/game`
 - `lab/specimens.tsx`: the Lab's pieces, each driving the real component or library code at the sheet's time; `Piece` picks one by name for a post's `lab` fence
 - `ask-ai.tsx`: links that open ChatGPT, Claude, Perplexity and Grok with a prompt
 - `icons.tsx`: every icon and brand mark the site draws
@@ -43,7 +43,7 @@
 ## Verification
 
 - `bun run lint`
-- Bug hunt: start a run, move, punch, throw, fill the laptop and fire, clear a level; check pausing on blur and the pad on a touch viewport
+- Bug hunt: start a run, move, punch high, straight and low with the cursor, crouch and kick, throw at the cursor, fill the laptop and fire with the scroll click, clear a level; check pausing on blur, and the joystick and buttons on a touch viewport
 - Preview a post: copy button, scene gallery, roller, die, contents, share menu, locale toggle; hover a home tile
 
 ## Child DOX Index

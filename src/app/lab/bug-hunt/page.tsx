@@ -56,24 +56,24 @@ export default async function BugHuntPage() {
           {game.subtitle}
         </p>
       </header>
+      {/* the game first: it's what the page is for, and on a phone the intro
+          would push it under the fold */}
+      <div className={`${enter} mt-10 delay-300`}>
+        <BugHunt labels={game} />
+      </div>
       <p className={`${enter} mt-8 text-pretty text-foreground/70 delay-400`}>
         {game.intro}
       </p>
 
-      <div className={`${enter} mt-12 delay-500`}>
-        <BugHunt labels={game} speed={lab.controls.speed} />
-      </div>
-
       <section
         aria-labelledby="made"
-        className={`${enter} prose mt-20 delay-600`}
+        className={`${enter} prose mt-20 delay-500`}
       >
         <h2 id="made">
           <a href="#made">{game.made.title}</a>
         </h2>
         <p>{game.made.p1}</p>
         <p>{game.made.p2}</p>
-        <p>{game.made.p3}</p>
       </section>
 
       <AuthorFooter role={t.app.home.role}>

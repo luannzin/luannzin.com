@@ -86,8 +86,8 @@ export default {
   game: {
     meta: {
       description: {
-        en: "A pixel art platformer where I'm the main character and the bugs are actual bugs. Punch them, throw a keyboard at them, and when you've fixed enough, open the laptop. Every level is new, grown from a seed.",
-        pt: "Um jogo de plataforma em pixel art em que eu sou o personagem principal e os bugs são bugs de verdade. Dá soco neles, joga um teclado neles e, quando já tiver resolvido bastante, abre o notebook. Cada fase é nova, gerada a partir de uma seed.",
+        en: "A pixel art platformer where I'm the main character and the bugs are actual bugs. Punch them, kick them, throw a keyboard at them, and when you've fixed enough, open the laptop. Every level is new, grown from a seed.",
+        pt: "Um jogo de plataforma em pixel art em que eu sou o personagem principal e os bugs são bugs de verdade. Dá soco, chuta, joga um teclado neles e, quando já tiver resolvido bastante, abre o notebook. Cada fase é nova, gerada a partir de uma seed.",
       },
     },
     title: { en: "Bug hunt", pt: "Caça aos bugs" },
@@ -96,8 +96,8 @@ export default {
       pt: "Um jogo de plataforma em que os bugs são bugs de verdade",
     },
     intro: {
-      en: "I’m the one in the black hoodie. Every level is a server room full of bugs, and I fix them by punching them, or by throwing a mouse, a keyboard or my headphones at them. Fix enough of them and the laptop comes out: a few lines of code, then a rosé beam takes out everything in front of me. Once the room is clean, the exit opens to the next one.",
-      pt: "Eu sou o de moletom preto. Cada fase é uma sala de servidores cheia de bug, e eu resolvo eles no soco, ou jogando um mouse, um teclado ou o meu fone neles. Depois de resolver uns quantos, sai o notebook: umas linhas de código e um raio rosé leva tudo que tiver na minha frente. Com a sala limpa, a saída abre pra próxima.",
+      en: "I’m the one in the black hoodie. Every level is a server room full of bugs, and I fix them with punches aimed high, straight or low, a kick from a crouch, or by throwing a mouse, a keyboard or my headphones at them. Fix enough of them and the laptop comes out: a few lines of code, then a rosé beam takes out everything in front of me. Once the room is clean, the exit opens to the next one.",
+      pt: "Eu sou o de moletom preto. Cada fase é uma sala de servidores cheia de bug, e eu resolvo eles no soco, por cima, reto ou por baixo, num chute agachado ou jogando um mouse, um teclado ou o meu fone neles. Depois de resolver uns quantos, sai o notebook: umas linhas de código e um raio rosé leva tudo que tiver na minha frente. Com a sala limpa, a saída abre pra próxima.",
     },
     row: { en: "Bug hunt", pt: "Caça aos bugs" },
     rowDescription: {
@@ -110,8 +110,6 @@ export default {
     },
     play: { en: "Play", pt: "Jogar" },
     resume: { en: "Resume", pt: "Continuar" },
-    pause: { en: "Pause", pt: "Pausar" },
-    restart: { en: "Start over", pt: "Recomeçar" },
     again: { en: "Play again", pt: "Jogar de novo" },
     paused: { en: "Paused", pt: "Pausado" },
     loading: { en: "Loading", pt: "Carregando" },
@@ -122,24 +120,38 @@ export default {
       en: "Every bug fixed. The exit is open.",
       pt: "Todos os bugs resolvidos. A saída tá aberta.",
     },
-    // the keys, under the game
+    // the controls under the game, for a mouse and keyboard
     keys: {
       label: { en: "Controls", pt: "Controles" },
       move: { en: "move", pt: "anda" },
       jump: { en: "jump", pt: "pula" },
+      crouch: { en: "crouch", pt: "agacha" },
       drop: { en: "drop through", pt: "desce da plataforma" },
-      punch: { en: "punch", pt: "soco" },
-      throw: { en: "throw", pt: "arremessa" },
+      punch: {
+        en: "punch toward the cursor",
+        pt: "soco na direção da mira",
+      },
+      kick: { en: "kick", pt: "chute" },
+      throw: { en: "throw at the cursor", pt: "arremessa na mira" },
       special: { en: "special", pt: "especial" },
+      pause: { en: "pause", pt: "pausa" },
+      click: { en: "Click", pt: "Clique" },
+      rightClick: { en: "Right click", pt: "Botão direito" },
+      middleClick: { en: "Scroll click", pt: "Clique no scroll" },
+      fallback: {
+        en: "Arrows, Space, J, K and L work too.",
+        pt: "Setas, espaço, J, K e L também funcionam.",
+      },
     },
-    // the buttons on a touch screen
+    // a touch screen's joystick and buttons
     pad: {
-      left: { en: "Left", pt: "Esquerda" },
-      right: { en: "Right", pt: "Direita" },
-      down: { en: "Down", pt: "Baixo" },
-      jump: { en: "Jump", pt: "Pula" },
-      punch: { en: "Punch", pt: "Soco" },
-      throw: { en: "Throw", pt: "Joga" },
+      stick: { en: "Move", pt: "Mover" },
+      jump: { en: "Jump", pt: "Pular" },
+      punch: {
+        en: "Punch, or kick from a crouch",
+        pt: "Soco, ou chute agachado",
+      },
+      throw: { en: "Throw", pt: "Arremessar" },
       special: { en: "Special", pt: "Especial" },
     },
     made: {
@@ -151,10 +163,6 @@ export default {
       p2: {
         en: "The levels come from a seed, a new one each run: the floor, the gaps, the platforms and where every bug starts. Since nobody designed them, nobody played them either, so a script grows a few thousand and checks that every gap can be jumped and every bug can be reached.",
         pt: "As fases saem de uma seed, uma nova a cada partida: o chão, os buracos, as plataformas e onde cada bug começa. Como ninguém desenhou elas, ninguém jogou elas também, então um script gera alguns milhares e confere se dá pra pular cada buraco e chegar em cada bug.",
-      },
-      p3: {
-        en: "And since it lives in the Lab, it slows down like everything else here. At 0.1× you can watch every frame of a punch.",
-        pt: "E como ele mora no Lab, ele desacelera igual a todo o resto aqui. Em 0.1× dá pra ver cada frame de um soco.",
       },
     },
   },

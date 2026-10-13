@@ -80,16 +80,20 @@ class Mat:
     """A mass's line colour, and its fill: black, or a dither of `fill` over
     black at `density`."""
 
-    def __init__(self, line: RGBA, fill: RGBA = SKY, density: float = 0.0):
+    def __init__(self, line: RGBA, fill: RGBA = SKY, density: float = 0.0,
+                 shade: RGBA | None = None):
         self.line, self.fill, self.density = line, fill, density
+        # the fill just inside its right and lower line: the side the light
+        # from the upper left doesn't reach
+        self.shade = shade
 
 
-# black clothes: his outline round a black fill, a sparse dither for the cloth
-HOODIE = Mat(INK, DIM, 0.25)
-HOODIE_FAR = Mat(GREY, DIM, 0.25)
+# black clothes: his outline round a black fill, a band of shade inside it
+HOODIE = Mat(INK, shade=DIM)
+HOODIE_FAR = Mat(GREY)
 SKIN = Mat(INK)
 SKIN_FAR = Mat(GREY)
-HAIR = Mat(AUBURN, AUBURN, 0.5)
+HAIR = Mat(AUBURN)
 SHOE = Mat(INK, INK, 1.0)
 SHOE_FAR = Mat(GREY, GREY, 1.0)
 LAPTOP = Mat(INK)
@@ -145,15 +149,20 @@ def render(sp: Sprite, flash: bool = False) -> Image.Image:
     its line colour, the frame a hit lands on."""
     img = Image.new("RGBA", (sp.w, sp.h), CLEAR)
     px = img.load()
-    for (x, y), (mat, blob) in sp.cells.items():
-        edge = False
+    def is_edge(x: int, y: int, blob: int) -> bool:
         for dx, dy in N4:
             near = sp.cells.get((x + dx, y + dy))
             if near is None or near[1] < blob:
-                edge = True
-                break
-        if flash or edge:
+                return True
+        return False
+
+    for (x, y), (mat, blob) in sp.cells.items():
+        if flash or is_edge(x, y, blob):
             px[x, y] = mat.line
+        elif mat.shade and any(
+                sp.cells.get(n, (None, -1))[1] == blob and is_edge(*n, blob)
+                for n in ((x + 1, y), (x, y + 1))):
+            px[x, y] = mat.shade
         elif mat.density and lit(x, y, mat.density):
             px[x, y] = mat.fill
         else:
@@ -239,89 +248,142 @@ def bend(a, b, length: float, toward: float):
 
 # --- the hero ----------------------------------------------------------------
 
-PW, PH = 24, 32
-FOOT = 30  # the row his soles stand on
+PW, PH = 28, 40
+FOOT = 38  # the row his soles stand on
+
+
+def capsule(a, b, ra: float, rb: float) -> set[tuple[int, int]]:
+    """A limb segment: every pixel within a radius that tapers from `ra` at
+    `a` to `rb` at `b`. Tapered segments are what make a leg read as a leg
+    rather than as a stroke of a fixed-width brush."""
+    (ax, ay), (bx, by) = a, b
+    dx, dy = bx - ax, by - ay
+    span = dx * dx + dy * dy or 1e-9
+    r = max(ra, rb)
+    pts = set()
+    for x in range(math.floor(min(ax, bx) - r) - 1, math.ceil(max(ax, bx) + r) + 2):
+        for y in range(math.floor(min(ay, by) - r) - 1, math.ceil(max(ay, by) + r) + 2):
+            t = max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / span))
+            px, py = ax + t * dx, ay + t * dy
+            rad = ra + (rb - ra) * t
+            if (x - px) ** 2 + (y - py) ** 2 <= rad * rad:
+                pts.add((x, y))
+    return pts
+
+
+def curls(sp: Sprite, circles, mat: Mat) -> None:
+    """Hair as one mass whose line is bumpy where each curl bulges out, with
+    each curl's own upper-left arc drawn inside it: a row of C shapes, all lit
+    from the same side, which is what reads as curly at this size."""
+    mass: set[tuple[int, int]] = set()
+    discs = [disc(cx, cy, r) for cx, cy, r in circles]
+    for d in discs:
+        mass |= d
+    sp.fill(mass, mat)
+    for (cx, cy, r), d in zip(circles, discs):
+        for x, y in d:
+            if (x - 1, y) in d and (x, y - 1) in d:
+                continue
+            if x > cx + 0.3 or y > cy + 0.3:
+                continue
+            inner = all(n in mass for n in ((x - 1, y), (x, y - 1), (x + 1, y), (x, y + 1)))
+            if inner:
+                sp.marks[(x, y)] = mat.line
 
 
 def hero(p: dict) -> Sprite:
-    """Luan, facing right: curly auburn hair, black hoodie, black cargo pants,
-    white sneakers, a chain and an earbud.
+    """Luan, facing right: curly auburn hair, a black hoodie and black cargo
+    pants, white sneakers, a chain and an earbud.
 
-    `p` is the pose: `dy` bobs everything above the hips, `lean` tips the
-    upper body, hands and ankles are where they are, and elbows and knees
-    fall out of `bend`. The far limbs are drawn first, in grey, so the near
-    ones cross in front of them in white.
+    `p` is the pose. `dy` lowers everything above the hips and `crouch` the
+    hips themselves; `lean` tips the upper body; hands and ankles sit where
+    the pose puts them, and elbows and knees fall out of `bend`. The far
+    limbs are drawn first, in grey, so the near ones cross them in white.
     """
     s = Sprite(PW, PH)
-    dy, lean = p.get("dy", 0), p.get("lean", 0)
-    hip_y = 22 + dy
-    near_sh, far_sh = (14 + lean, 15 + dy), (9 + lean, 15 + dy)
+    crouch = p.get("crouch", 0)
+    dy = p.get("dy", 0) + crouch
+    lean = p.get("lean", 0)
+    hip_y = 27 + crouch
+    near_sh, far_sh = (16 + lean, 18 + dy), (11 + lean, 18 + dy)
 
     def arm(shoulder, hand, near, fist=False):
-        elbow = bend(shoulder, hand, 7.5, -1)
-        s.fill(polyline([shoulder, elbow, hand], 1), HOODIE if near else HOODIE_FAR)
-        hx, hy = round(hand[0]), round(hand[1])
-        size = 3 if fist else 2
-        s.fill(rect(hx - (size - 2), hy, size, size), SKIN if near else SKIN_FAR)
+        elbow = bend(shoulder, hand, 10.0, -1)
+        mat = HOODIE if near else HOODIE_FAR
+        s.fill(capsule(shoulder, elbow, 1.7, 1.5) | capsule(elbow, hand, 1.5, 1.3), mat)
+        s.fill(disc(hand[0], hand[1], 1.9 if fist else 1.4), SKIN if near else SKIN_FAR)
 
     def leg(hip, ankle, near):
-        knee = bend(hip, ankle, 6.6, 1)
-        s.fill(polyline([hip, knee, (ankle[0], ankle[1] - 1)], 3),
-               HOODIE if near else HOODIE_FAR)
+        knee = bend(hip, ankle, 10.4, 1)
+        mat = HOODIE if near else HOODIE_FAR
+        s.fill(capsule(hip, knee, 2.2, 1.8) | capsule(knee, ankle, 1.8, 1.4), mat)
+        if near:  # the cargo pocket, on the thigh
+            kx, ky = round((hip[0] + knee[0]) / 2) + 1, round((hip[1] + knee[1]) / 2)
+            s.mark({(kx - 1, ky), (kx, ky), (kx + 1, ky), (kx - 1, ky + 1),
+                    (kx + 1, ky + 1)}, GREY)
         ax, ay = round(ankle[0]), round(ankle[1])
-        s.fill(rect(ax - 1, ay, 4, 2) | {(ax + 3, ay + 1)}, SHOE if near else SHOE_FAR)
+        toe = p.get("toe", 1)
+        shoe = rect(ax - 1, ay, 3, 1) | rect(ax - 2, ay + 1, 5 + toe, 1) | rect(ax - 2, ay + 2, 6 + toe, 1)
+        s.fill(shoe, SHOE if near else SHOE_FAR)
+        s.mark({(x, ay + 2) for x in range(ax - 1, ax + 4 + toe)}, GREY if near else DIM)
 
     arm(far_sh, p["back"], False)
-    leg((10, hip_y + 1), p["far"], False)
-    leg((13, hip_y + 1), p["near"], True)
-    nx, ny = p["near"]
-    s.mark({(round(nx) - 1, ny - 4), (round(nx), ny - 4)}, GREY)  # cargo pocket
-    # the hoodie and the hips under it are one mass: one line round it all
-    body = (rect(8 + lean, 14 + dy, 8, 8) | rect(9, hip_y, 6, 2)
-            | rect(7 + lean, 13 + dy, 3, 3)) - {(7 + lean, 13 + dy), (15 + lean, 14 + dy)}
+    leg((12, hip_y), p["far"], False)
+    leg((15, hip_y), p["near"], True)
+
+    # the hoodie and the hips are one mass, so one line goes round them
+    bx, by = 9 + lean, 16 + dy
+    body = (rect(bx + 2, by, 6, 1) | rect(bx + 1, by + 1, 8, 1) | rect(bx, by + 2, 10, 7)
+            | rect(bx + 1, by + 9, 9, 2) | rect(10, hip_y - 1, 8, 2)
+            | disc(bx + 1.6, by + 1.2, 2.0))
     s.fill(body, HOODIE)
-    s.mark({(9 + lean, 20 + dy), (14 + lean, 20 + dy)}, INK)  # the hem's ends
-    s.mark({(13 + lean, 16 + dy), (13 + lean, 17 + dy)}, ROSE)  # drawstring
-    s.mark({(11 + lean, 15 + dy), (12 + lean, 16 + dy)}, GREY)  # the chain
+    s.mark({(x, by + 9) for x in range(bx + 2, bx + 9)}, GREY)  # the hem
+    s.mark({(bx + 4, by + 5), (bx + 5, by + 5), (bx + 6, by + 5), (bx + 7, by + 5),
+            (bx + 3, by + 6), (bx + 3, by + 7), (bx + 8, by + 6)}, GREY)  # the pocket
+    s.mark({(bx + 6, by + 2), (bx + 6, by + 3), (bx + 8, by + 2), (bx + 8, by + 3),
+            (bx + 8, by + 4)}, ROSE)  # the drawstrings
+    s.mark({(bx + 3, by + 1), (bx + 4, by + 2), (bx + 5, by + 2)}, GREY)  # the chain
 
-    hx, hy = 8 + lean, 3 + dy
-    head = (rect(hx, hy + 2, 9, 9) | {(hx + 9, hy + 7), (hx + 9, hy + 8)}) - {
-        (hx, hy + 10), (hx + 1, hy + 10), (hx, hy + 9), (hx + 8, hy + 10)}
+    hx, hy = 6 + lean, dy + 1
+    head = ellipse(hx + 7.5, hy + 9.0, 4.4, 4.9)
+    head -= {(x, y) for x, y in head if x < hx + 6 and y > hy + 11}  # jaw tucks in
+    head |= {(hx + 12, hy + 8), (hx + 12, hy + 9), (hx + 11, hy + 12), (hx + 10, hy + 13)}
     s.fill(head, SKIN)
-    s.mark({(hx + 2, hy + 7), (hx + 2, hy + 8)}, GREY)  # the earbud
+    s.fill(disc(hx + 5.2, hy + 9.4, 1.3), SKIN)  # the ear
+    s.mark({(hx + 5, hy + 9)}, GREY)  # the earbud
 
-    # the curls as one mass: the bumps in its line are the curls, the dither
-    # inside is their texture
-    curls = set()
-    for cx, cy, r in ((2.0, 1.4, 2.2), (5.0, 0.6, 2.4), (8.0, 1.6, 2.0),
-                      (-0.2, 3.6, 2.0), (0.4, 6.4, 1.5), (3.4, 3.4, 1.6),
-                      (6.0, 3.6, 1.5), (8.4, 4.0, 1.2)):
-        curls |= disc(hx + cx, hy + cy, r)
-    s.fill(curls, HAIR)
+    curls(s, [(hx + 3.2, hy + 3.4, 2.4), (hx + 6.0, hy + 2.2, 2.6),
+              (hx + 9.2, hy + 2.6, 2.4), (hx + 11.4, hy + 4.4, 1.7),
+              (hx + 1.8, hy + 6.2, 2.2), (hx + 2.2, hy + 9.0, 1.7),
+              (hx + 8.0, hy + 5.2, 1.5), (hx + 10.3, hy + 5.6, 1.3)], HAIR)
 
     face = p.get("face", "smirk")
     if face == "wince":
-        s.mark({(hx + 4, hy + 7), (hx + 5, hy + 7), (hx + 7, hy + 7)}, INK)
+        s.mark({(hx + 8, hy + 8), (hx + 9, hy + 8), (hx + 11, hy + 8)}, INK)
     else:
-        s.mark({(hx + 5, hy + 6), (hx + 5, hy + 7), (hx + 7, hy + 6),
-                (hx + 7, hy + 7)}, INK)
+        s.mark({(hx + 8, hy + 7), (hx + 9, hy + 7), (hx + 11, hy + 7)}, INK)  # brows
+        s.mark({(hx + 9, hy + 8), (hx + 9, hy + 9), (hx + 11, hy + 8),
+                (hx + 11, hy + 9)}, INK)  # eyes
     if face == "shout":
-        s.mark(rect(hx + 5, hy + 9, 2, 1), INK)
+        s.mark({(hx + 9, hy + 11), (hx + 10, hy + 11), (hx + 9, hy + 12),
+                (hx + 10, hy + 12)}, INK)
     else:
-        s.mark({(hx + 5, hy + 9), (hx + 6, hy + 9), (hx + 7, hy + 8)}, INK)
+        s.mark({(hx + 9, hy + 11), (hx + 10, hy + 11), (hx + 11, hy + 10)}, INK)  # smirk
 
     if p.get("laptop"):
         # held open at the chest, hinge away from him, its screen lit at him
-        lx, ly = 14 + lean, 19 + dy
-        s.fill(rect(lx, ly, 8, 2), LAPTOP)
-        s.fill(polyline([(lx + 7, ly - 1), (lx + 6, ly - 6)], 2), LAPTOP)
-        s.mark({(x - 1, y) for x, y in line(lx + 7, ly - 1, lx + 6, ly - 6)}, ROSE)
+        lx, ly = 16 + lean, 25 + dy
+        s.fill(rect(lx, ly, 10, 2), LAPTOP)
+        s.fill(capsule((lx + 9, ly - 1), (lx + 8, ly - 8), 1.0, 1.0), LAPTOP)
+        s.mark({(x - 1, y) for x, y in line(lx + 9, ly - 1, lx + 8, ly - 7)}, ROSE)
     arm(near_sh, p["front"], True, p.get("fist", False))
+    if p.get("kick"):
+        leg((15, hip_y), p["kick"], True)
     return s
 
 
-STAND = {"front": (15, 21), "back": (9, 21), "near": (14, FOOT - 1),
-         "far": (9, FOOT - 1)}
+STAND = {"front": (17, 27), "back": (11, 27), "near": (16, FOOT - 2),
+         "far": (11, FOOT - 2)}
 
 
 def pose(**kw) -> dict:
@@ -329,8 +391,8 @@ def pose(**kw) -> dict:
 
 
 def run_cycle() -> list[dict]:
-    # ankle offsets from the hips through a stride, and the opposite arm swing
-    stride = [(4, 0), (1, -1), (-2, -2), (-4, -1), (-2, 0), (2, -3)]
+    # ankle offsets from the hips through a stride, with the opposite arm
+    stride = [(5, 0), (2, -1), (-2, -3), (-5, -1), (-3, 0), (2, -4)]
     frames = []
     for i in range(6):
         nx, ny = stride[i]
@@ -338,38 +400,60 @@ def run_cycle() -> list[dict]:
         frames.append(pose(
             dy=1 if i in (1, 4) else 0,
             lean=1,
-            near=(13 + nx, FOOT - 1 + ny),
-            far=(10 + fx, FOOT - 1 + fy),
-            front=(14 - nx // 2 + 1, 20),
-            back=(10 - fx // 2, 20),
+            near=(15 + nx, FOOT - 2 + ny),
+            far=(12 + fx, FOOT - 2 + fy),
+            front=(17 - nx, 26),
+            back=(12 - fx, 26),
         ))
     return frames
 
 
+CROUCH = 7
+LOW = {"crouch": CROUCH, "near": (19, FOOT - 2), "far": (10, FOOT - 2),
+       "front": (20, 29), "back": (14, 30)}
+
 HERO = {
     "idle": [pose(), pose(dy=1)],
     "run": run_cycle(),
-    "jump": [pose(near=(16, 26), far=(10, 28), front=(19, 17), back=(5, 14))],
-    "fall": [pose(near=(15, 29), far=(9, 28), front=(20, 14), back=(5, 12))],
-    "punch": [
-        pose(lean=-1, front=(11, 17), back=(8, 19), fist=True),
-        pose(lean=1, front=(22, 16), back=(8, 20), near=(16, FOOT - 1), fist=True),
-        pose(front=(18, 17), back=(9, 20), fist=True),
+    "jump": [pose(near=(19, 32), far=(12, 35), front=(22, 22), back=(6, 21))],
+    "fall": [pose(near=(18, 36), far=(11, 34), front=(23, 19), back=(6, 18))],
+    # three punches, aimed: up over his head, straight ahead, down at the floor
+    "up": [
+        pose(lean=1, front=(22, 10), back=(10, 25), near=(18, FOOT - 3),
+             far=(12, FOOT - 2), fist=True, face="shout"),
+        pose(lean=1, front=(21, 14), back=(11, 26), near=(18, FOOT - 2), fist=True),
+    ],
+    "mid": [
+        pose(lean=1, front=(27, 22), back=(11, 25), near=(19, FOOT - 2),
+             far=(10, FOOT - 2), fist=True),
+        pose(front=(21, 23), back=(13, 26), near=(18, FOOT - 2), fist=True),
+    ],
+    "low": [
+        pose(dy=2, lean=2, front=(26, 32), back=(11, 27), near=(20, FOOT - 2),
+             far=(9, FOOT - 2), fist=True),
+        pose(dy=1, lean=1, front=(21, 29), back=(12, 27), near=(19, FOOT - 2),
+             far=(10, FOOT - 2), fist=True),
+    ],
+    "crouch": [pose(**LOW)],
+    # from the crouch, the near leg sweeps out low
+    "kick": [
+        pose(**{**LOW, "near": (20, FOOT - 5)}),
+        pose(**{**LOW, "near": (13, FOOT - 2), "kick": (26, FOOT - 3), "lean": -1}),
+        pose(**{**LOW, "near": (19, FOOT - 3)}),
     ],
     "throw": [
-        pose(lean=-1, front=(5, 17), back=(13, 20)),
-        pose(lean=1, front=(21, 14), back=(8, 20), near=(16, FOOT - 1)),
-        pose(front=(18, 19), back=(8, 20)),
+        pose(lean=-1, front=(7, 21), back=(15, 27), near=(18, FOOT - 2)),
+        pose(lean=1, front=(26, 21), back=(10, 26), near=(19, FOOT - 2)),
     ],
-    "hurt": [pose(lean=-1, front=(19, 15), back=(5, 14), face="wince")],
+    "hurt": [pose(lean=-2, front=(23, 21), back=(5, 20), face="wince")],
     "code": [
-        pose(laptop=True, front=(16, 18), back=(18, 17)),
-        pose(laptop=True, front=(17, 17), back=(16, 18)),
+        pose(laptop=True, front=(19, 24), back=(22, 23)),
+        pose(laptop=True, front=(20, 23), back=(19, 24)),
     ],
-    "charge": [pose(dy=1, front=(9, 20), back=(8, 21), near=(15, FOOT - 1),
-                    far=(8, FOOT - 1), face="shout", fist=True)],
-    "fire": [pose(lean=1, front=(21, 16), back=(20, 17), near=(16, FOOT - 1),
-                  far=(7, FOOT - 1), face="shout")],
+    "charge": [pose(dy=1, front=(11, 27), back=(10, 28), near=(19, FOOT - 2),
+                    far=(9, FOOT - 2), face="shout", fist=True)],
+    "fire": [pose(lean=2, front=(26, 22), back=(25, 23), near=(20, FOOT - 2),
+                  far=(8, FOOT - 2), face="shout")],
 }
 
 
@@ -757,12 +841,13 @@ def build():
         sprites = [hero(p) for p in poses]
         anims[f"hero-{name}-r"] = [render(s) for s in sprites]
         anims[f"hero-{name}-l"] = [render(s.mirrored()) for s in sprites]
-        anims[f"hero-{name}-hit-r"] = [render(sprites[0], flash=True)]
-        anims[f"hero-{name}-hit-l"] = [render(sprites[0].mirrored(), flash=True)]
-        for key in (f"hero-{name}-r", f"hero-{name}-hit-r"):
-            anchors[key] = (12, FOOT + 1)
-        for key in (f"hero-{name}-l", f"hero-{name}-hit-l"):
-            anchors[key] = (PW - 1 - 12, FOOT + 1)
+        anchors[f"hero-{name}-r"] = (13, FOOT + 1)
+        anchors[f"hero-{name}-l"] = (PW - 1 - 13, FOOT + 1)
+    # the frame a hit lands on: his silhouette, solid
+    for side, flip in (("r", False), ("l", True)):
+        sp = hero(HERO["hurt"][0])
+        anims[f"hero-hurt-hit-{side}"] = [render(sp.mirrored() if flip else sp, flash=True)]
+        anchors[f"hero-hurt-hit-{side}"] = anchors[f"hero-hurt-{side}"]
     for kind, make, frames, foot in (("crawler", crawler, 4, 11),
                                      ("flyer", flyer, 3, 8)):
         sprites = [make(i) for i in range(frames)]
@@ -850,7 +935,7 @@ def main() -> None:
                   text)
     OUT_JSON.write_text(text + "\n", encoding="utf-8", newline="\n")
     tile = Image.new("RGBA", (22, 22), SKY)
-    tile.alpha_composite(anims["hero-idle-r"][0].crop((1, 0, 23, 22)))
+    tile.alpha_composite(anims["hero-idle-r"][0].crop((3, 0, 25, 22)))
     tile.save(OUT_TILE, optimize=True)
 
     if len(sys.argv) > 1:

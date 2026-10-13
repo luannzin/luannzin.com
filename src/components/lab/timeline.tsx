@@ -29,7 +29,7 @@ type Controls = typeof t.app.lab.controls;
 
 // One frame at 60fps: what a step moves by.
 export const FRAME = 1000 / 60;
-export const SPEEDS = [1, 0.25, 0.1];
+const SPEEDS = [1, 0.25, 0.1];
 
 // A row on a timing sheet: when something runs, in ms, and its curve, the
 // value it moves through as its run goes from 0 to 1.
@@ -237,8 +237,8 @@ function Transport({
   );
 }
 
-// 1x, 0.25x, 0.1x as a segmented control; Bug hunt slows down with it too.
-export function Speeds({
+// 1x, 0.25x, 0.1x as a segmented control.
+function Speeds({
   name,
   label,
   speed,
@@ -271,7 +271,7 @@ export function Speeds({
   );
 }
 
-export function Tool({
+function Tool({
   label,
   onClick,
   children,

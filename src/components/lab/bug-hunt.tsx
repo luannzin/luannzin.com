@@ -2,6 +2,8 @@
 
 import {
   type KeyboardEvent,
+  type MouseEvent,
+  type PointerEvent,
   type ReactNode,
   useEffect,
   useEffectEvent,
@@ -9,58 +11,64 @@ import {
   useState,
 } from "react";
 import {
-  ChevronRightIcon,
-  PauseIcon,
+  JumpIcon,
+  LaptopIcon,
   PlayIcon,
+  PunchIcon,
   ReplayIcon,
+  ThrowIcon,
 } from "@/components/icons";
-import { Speeds, Tool, well } from "@/components/lab/timeline";
-import { ActionSwapIcon } from "@/components/motion/action-swap";
+import { well } from "@/components/lab/timeline";
 import type { t } from "@/i18n/generated";
-import { type Action, type Event, Game, H, W } from "@/lib/bug-hunt/game";
+import {
+  type Action,
+  type Event,
+  Game,
+  H,
+  type Point,
+  W,
+} from "@/lib/bug-hunt/game";
 import { press } from "@/lib/classes";
 import { cn } from "@/lib/utils";
 
 type Labels = typeof t.app.lab.game;
 type State = "loading" | "title" | "play" | "paused" | "over";
 
+// WASD and the mouse; arrows, Space, J, K and L as the fallback
 const KEYS: Record<string, Action> = {
-  ArrowLeft: "left",
   KeyA: "left",
-  ArrowRight: "right",
+  ArrowLeft: "left",
   KeyD: "right",
-  ArrowUp: "jump",
+  ArrowRight: "right",
   KeyW: "jump",
+  ArrowUp: "jump",
   Space: "jump",
-  ArrowDown: "down",
   KeyS: "down",
-  KeyJ: "punch",
-  KeyZ: "punch",
+  ArrowDown: "down",
+  KeyJ: "attack",
   KeyK: "throw",
-  KeyX: "throw",
   KeyL: "special",
-  KeyC: "special",
+};
+// left button punches, the scroll wheel's click is the special, right throws
+const BUTTONS: Record<number, Action> = {
+  0: "attack",
+  1: "special",
+  2: "throw",
 };
 
 const button = `${press} inline-flex h-9 items-center gap-2 rounded-[10px] bg-muted ps-3 pe-4 text-foreground inset-ring inset-ring-border outline-offset-2 hover:bg-foreground/7`;
 
 // Bug hunt in its Well: the canvas, scaled by a whole number so every pixel
-// stays square, the overlays between runs, then play, start over and speed.
+// stays square, the overlays between runs, then how to play it: the controls
+// for a mouse and keyboard, or a joystick and buttons on a touch screen.
 // Keys only reach the game while it has focus, so the page still scrolls.
-export function BugHunt({
-  labels,
-  speed: speedLabel,
-}: {
-  labels: Labels;
-  speed: string;
-}) {
+export function BugHunt({ labels }: { labels: Labels }) {
   const root = useRef<HTMLElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const game = useRef<Game | null>(null);
   const sheet = useRef<HTMLImageElement | null>(null);
   const [state, setState] = useState<State>("loading");
-  const [speed, setSpeed] = useState(1);
   const [result, setResult] = useState({ level: 1, fixed: 0 });
   const [news, setNews] = useState("");
   // the view's width in game px, and its size on the page
@@ -131,22 +139,21 @@ export function BugHunt({
   useEffect(() => {
     if (!game.current) return;
     game.current.width = view.w;
-    const ctx = canvas.current?.getContext("2d");
-    if (ctx) game.current.draw(ctx);
+    draw();
   }, [view.w, state]);
 
   useEffect(() => {
     if (state !== "play") return;
     let last = performance.now();
     let id = requestAnimationFrame(function tick(now) {
-      game.current?.update((Math.min(100, now - last) / 1000) * speed);
+      game.current?.update(Math.min(100, now - last) / 1000);
       const ctx = canvas.current?.getContext("2d");
       if (ctx) game.current?.draw(ctx);
       last = now;
       id = requestAnimationFrame(tick);
     });
     return () => cancelAnimationFrame(id);
-  }, [state, speed]);
+  }, [state]);
 
   const pause = () => {
     game.current?.releaseAll();
@@ -164,9 +171,7 @@ export function BugHunt({
     const hidden = () => document.hidden && pause();
     const seen = new IntersectionObserver(
       ([e]) => !e.isIntersecting && pause(),
-      {
-        threshold: 0.25,
-      },
+      { threshold: 0.25 },
     );
     seen.observe(el);
     document.addEventListener("visibilitychange", hidden);
@@ -181,18 +186,21 @@ export function BugHunt({
   const play = () => {
     if (state === "over") fresh();
     setState("play");
-    frame.current?.focus();
+    frame.current?.focus({ preventScroll: true });
   };
 
-  const restart = () => {
-    fresh();
-    setState("play");
-    frame.current?.focus();
+  // where a mouse event sits in the view, in game px
+  const point = (event: MouseEvent): Point | undefined => {
+    const box = canvas.current?.getBoundingClientRect();
+    if (!box) return undefined;
+    return {
+      x: ((event.clientX - box.left) / box.width) * view.w,
+      y: ((event.clientY - box.top) / box.height) * H,
+    };
   };
 
   const key = (event: KeyboardEvent<HTMLDivElement>, down: boolean) => {
     if (event.target !== frame.current) return;
-    const action = KEYS[event.code];
     if (down && (event.code === "Escape" || event.code === "KeyP")) {
       if (state === "play") pause();
       else if (state === "paused") play();
@@ -208,10 +216,27 @@ export function BugHunt({
       event.preventDefault();
       return;
     }
+    const action = KEYS[event.code];
     if (!action || state !== "play") return;
     event.preventDefault();
     if (down) game.current?.press(action);
     else game.current?.release(action);
+  };
+
+  // Mouse buttons by mouseDown and mouseUp rather than pointer events: a
+  // second button held with the first fires no pointerdown of its own.
+  const click = (event: MouseEvent, down: boolean) => {
+    const action = BUTTONS[event.button];
+    if (!action || state !== "play") return;
+    event.preventDefault();
+    frame.current?.focus({ preventScroll: true });
+    if (down) game.current?.press(action, point(event));
+    else game.current?.release(action);
+  };
+
+  const aim = (event: PointerEvent) => {
+    if (event.pointerType !== "mouse" || !game.current) return;
+    game.current.pointer = state === "play" ? (point(event) ?? null) : null;
   };
 
   const pressed = (action: Action, down: boolean) => {
@@ -231,7 +256,7 @@ export function BugHunt({
     ) : state === "paused" ? (
       <>
         <p className="font-medium">{labels.paused}</p>
-        <button type="button" onClick={play} className={button}>
+        <button type="button" onClick={play} className={cn(button, "mt-2")}>
           <PlayIcon className="size-4" />
           {labels.resume}
         </button>
@@ -242,7 +267,7 @@ export function BugHunt({
         <p className="text-muted-foreground tabular-nums">
           {labels.level} {result.level} · {result.fixed} {labels.fixed}
         </p>
-        <button type="button" onClick={play} className={cn(button, "mt-2")}>
+        <button type="button" onClick={play} className={cn(button, "mt-3")}>
           <ReplayIcon className="size-4" />
           {labels.again}
         </button>
@@ -265,9 +290,17 @@ export function BugHunt({
         }}
         className="grid place-items-center outline-none focus-visible:[&>div]:outline-2 focus-visible:[&>div]:outline-ring focus-visible:[&>div]:-outline-offset-2"
       >
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: mouse play only; the same moves have keys and a touch pad */}
         <div
-          className="relative"
+          className={cn("relative", state === "play" && "cursor-none")}
           style={{ width: view.width, height: view.height }}
+          onMouseDown={(e) => click(e, true)}
+          onMouseUp={(e) => click(e, false)}
+          onContextMenu={(e) => e.preventDefault()}
+          onPointerMove={aim}
+          onPointerLeave={() => {
+            if (game.current) game.current.pointer = null;
+          }}
         >
           <canvas
             ref={canvas}
@@ -277,7 +310,7 @@ export function BugHunt({
             className="block size-full [image-rendering:pixelated]"
           />
           {overlay && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-background/70 text-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-background/70 px-6 text-center">
               {overlay}
             </div>
           )}
@@ -287,140 +320,198 @@ export function BugHunt({
         {news}
       </p>
 
-      <Pad labels={labels.pad} onPress={pressed} />
-
-      <div className="border-border border-t px-6 pt-4 pb-5 lg:px-16">
-        <fieldset
-          aria-label={labels.title}
-          className="flex flex-wrap items-center gap-2"
-        >
-          <Tool
-            label={state === "play" ? labels.pause : labels.play}
-            onClick={state === "play" ? pause : play}
-          >
-            <ActionSwapIcon value={state === "play" ? "pause" : "play"}>
-              {state === "play" ? (
-                <PauseIcon className="size-4" />
-              ) : (
-                <PlayIcon className="size-4" />
-              )}
-            </ActionSwapIcon>
-          </Tool>
-          <Tool label={labels.restart} onClick={restart}>
-            <ReplayIcon className="size-4" />
-          </Tool>
-          <Speeds
-            name="game"
-            label={speedLabel}
-            speed={speed}
-            onChange={(value) => {
-              setSpeed(value);
-              if (state === "play") frame.current?.focus();
-            }}
-          />
-        </fieldset>
-        <Keys labels={labels.keys} />
-      </div>
+      <Pad
+        labels={labels.pad}
+        onPress={pressed}
+        onSteer={(x, y) => game.current?.steer(x, y)}
+      />
+      <Keys labels={labels.keys} />
     </figure>
   );
 }
 
 function Kbd({ children }: { children: ReactNode }) {
   return (
-    <kbd className="inline-grid min-w-6 place-items-center rounded-[6px] bg-muted px-1.5 font-mono text-foreground text-sm leading-6 inset-ring inset-ring-border">
+    <kbd className="inline-grid h-6 min-w-6 place-items-center rounded-[6px] bg-muted px-1.5 font-mono text-foreground text-sm inset-ring inset-ring-border">
       {children}
     </kbd>
   );
 }
 
-// The keys, for a keyboard; a touch screen gets the pad instead.
+// The controls for a mouse and keyboard; a touch screen gets the pad instead.
 function Keys({ labels }: { labels: Labels["keys"] }) {
-  const rows: [ReactNode, string][] = [
+  type Row = [ReactNode, string];
+  const moving: Row[] = [
     [
       <>
-        <Kbd>←</Kbd> <Kbd>→</Kbd>
+        <Kbd>A</Kbd>
+        <Kbd>D</Kbd>
       </>,
       labels.move,
     ],
-    [<Kbd key="up">↑</Kbd>, labels.jump],
+    [<Kbd key="w">W</Kbd>, labels.jump],
+    [<Kbd key="s">S</Kbd>, labels.crouch],
     [
       <>
-        <Kbd>↓</Kbd> + <Kbd>↑</Kbd>
+        <Kbd>S</Kbd>+<Kbd>W</Kbd>
       </>,
       labels.drop,
     ],
-    [<Kbd key="j">J</Kbd>, labels.punch],
-    [<Kbd key="k">K</Kbd>, labels.throw],
-    [<Kbd key="l">L</Kbd>, labels.special],
   ];
-  return (
-    <dl
-      aria-label={labels.label}
-      className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-muted-foreground text-sm pointer-coarse:hidden"
-    >
+  const fighting: Row[] = [
+    [<Kbd key="click">{labels.click}</Kbd>, labels.punch],
+    [
+      <>
+        <Kbd>S</Kbd>+<Kbd>{labels.click}</Kbd>
+      </>,
+      labels.kick,
+    ],
+    [<Kbd key="right">{labels.rightClick}</Kbd>, labels.throw],
+    [<Kbd key="middle">{labels.middleClick}</Kbd>, labels.special],
+    [<Kbd key="esc">Esc</Kbd>, labels.pause],
+  ];
+  // two groups, moving and fighting, each a column of key and what it does
+  const group = (rows: Row[]) => (
+    <dl className="grid grid-cols-[auto_1fr] content-start items-center gap-x-3 gap-y-2">
       {rows.map(([keys, label]) => (
-        <div key={label} className="flex items-center gap-1.5">
+        <div key={label} className="contents">
           <dt className="flex items-center gap-1">{keys}</dt>
           <dd>{label}</dd>
         </div>
       ))}
     </dl>
   );
+  return (
+    <section
+      aria-label={labels.label}
+      className="border-border border-t px-6 pt-4 pb-5 text-muted-foreground text-sm pointer-coarse:hidden lg:px-16"
+    >
+      <div className="grid gap-x-8 gap-y-2 sm:grid-cols-2">
+        {group(moving)}
+        {group(fighting)}
+      </div>
+      <p className="mt-4">{labels.fallback}</p>
+    </section>
+  );
 }
 
-// On a touch screen: hold to move, tap to act. Each pad button reports its
-// press and release, so a held thumb runs and a lifted one stops.
+// A touch screen's controls: a joystick on the leading side, the four moves
+// on the trailing side where the other thumb rests, jump lowest and nearest.
 function Pad({
   labels,
   onPress,
+  onSteer,
 }: {
   labels: Labels["pad"];
   onPress: (action: Action, down: boolean) => void;
+  onSteer: (x: number, y: number) => void;
 }) {
-  const pad = (
-    action: Action,
+  const knob = useRef<HTMLSpanElement>(null);
+  // which directions the stick is holding down, to send only the changes
+  const leaning = useRef(new Set<Action>());
+
+  const steer = (x: number, y: number) => {
+    onSteer(x, y);
+    const now = new Set<Action>();
+    if (x < -0.35) now.add("left");
+    if (x > 0.35) now.add("right");
+    if (y > 0.55) now.add("down");
+    for (const a of leaning.current) if (!now.has(a)) onPress(a, false);
+    for (const a of now) if (!leaning.current.has(a)) onPress(a, true);
+    leaning.current = now;
+  };
+
+  const move = (event: PointerEvent<HTMLDivElement>) => {
+    const box = event.currentTarget.getBoundingClientRect();
+    const travel = box.width / 2 - 20;
+    let dx = event.clientX - (box.left + box.width / 2);
+    let dy = event.clientY - (box.top + box.height / 2);
+    const d = Math.hypot(dx, dy);
+    if (d > travel) {
+      dx *= travel / d;
+      dy *= travel / d;
+    }
+    if (knob.current) knob.current.style.translate = `${dx}px ${dy}px`;
+    steer(dx / travel, dy / travel);
+  };
+
+  const center = () => {
+    if (knob.current) knob.current.style.translate = "0 0";
+    steer(0, 0);
+  };
+
+  const action = (
+    name: Action,
     label: string,
-    children: ReactNode,
-    wide = false,
+    icon: ReactNode,
+    area: string,
   ) => (
     <button
       type="button"
       aria-label={label}
       onPointerDown={(e) => {
         e.currentTarget.setPointerCapture(e.pointerId);
-        onPress(action, true);
+        onPress(name, true);
       }}
-      onPointerUp={() => onPress(action, false)}
-      onPointerCancel={() => onPress(action, false)}
+      onPointerUp={() => onPress(name, false)}
+      onPointerCancel={() => onPress(name, false)}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
-        "grid h-12 touch-none select-none place-items-center rounded-[10px] bg-muted text-foreground inset-ring inset-ring-border active:bg-foreground/10",
-        wide ? "px-3 text-sm" : "w-12",
+        "grid size-14 touch-none select-none place-items-center rounded-full bg-muted text-foreground inset-ring inset-ring-border transition-[background-color,scale] duration-100 active:scale-95 active:bg-foreground/12",
+        area,
       )}
     >
-      {children}
+      {icon}
     </button>
   );
+
   return (
-    <div className="hidden justify-between gap-2 border-border border-t px-6 py-4 pointer-coarse:flex">
-      <div className="flex gap-2">
-        {pad(
-          "left",
-          labels.left,
-          <ChevronRightIcon className="size-5 rotate-180" />,
-        )}
-        {pad(
-          "down",
-          labels.down,
-          <ChevronRightIcon className="size-5 rotate-90" />,
-        )}
-        {pad("right", labels.right, <ChevronRightIcon className="size-5" />)}
+    <div className="hidden items-center justify-between gap-4 border-border border-t px-6 py-5 pointer-coarse:flex">
+      <div
+        role="img"
+        aria-label={labels.stick}
+        onPointerDown={(e) => {
+          e.currentTarget.setPointerCapture(e.pointerId);
+          move(e);
+        }}
+        onPointerMove={(e) => {
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) move(e);
+        }}
+        onPointerUp={center}
+        onPointerCancel={center}
+        onContextMenu={(e) => e.preventDefault()}
+        className="relative grid size-32 shrink-0 touch-none select-none place-items-center rounded-full bg-muted inset-ring inset-ring-border"
+      >
+        <span
+          ref={knob}
+          className="size-12 rounded-full bg-foreground/12 inset-ring inset-ring-foreground/15"
+        />
       </div>
-      <div className="flex flex-wrap justify-end gap-2">
-        {pad("special", labels.special, labels.special, true)}
-        {pad("throw", labels.throw, labels.throw, true)}
-        {pad("punch", labels.punch, labels.punch, true)}
-        {pad("jump", labels.jump, labels.jump, true)}
+      <div className="grid grid-cols-3 grid-rows-3 gap-1">
+        {action(
+          "special",
+          labels.special,
+          <LaptopIcon className="size-5" />,
+          "col-start-2 row-start-1",
+        )}
+        {action(
+          "throw",
+          labels.throw,
+          <ThrowIcon className="size-5" />,
+          "col-start-1 row-start-2",
+        )}
+        {action(
+          "attack",
+          labels.punch,
+          <PunchIcon className="size-5" />,
+          "col-start-3 row-start-2",
+        )}
+        {action(
+          "jump",
+          labels.jump,
+          <JumpIcon className="size-5" />,
+          "col-start-2 row-start-3",
+        )}
       </div>
     </div>
   );

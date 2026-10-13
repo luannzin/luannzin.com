@@ -1,6 +1,7 @@
-// Bug hunt: the simulation and the drawing, on one 320x192 canvas. The page
-// owns the loop, the keys and the overlays; this owns everything inside the
-// frame. Every sprite comes from the atlas `scripts/bug-hunt-art.py` draws.
+// Bug hunt: the simulation and the drawing, on one canvas 192px tall. The page
+// owns the loop, the input devices and the overlays; this owns everything
+// inside the frame. Every sprite comes from the atlas
+// `scripts/bug-hunt-art.py` draws.
 import atlas from "./atlas.json";
 import { type Kind, type Level, makeLevel, PIT, ROWS, TILE } from "./level";
 
@@ -26,9 +27,12 @@ export type Action =
   | "right"
   | "jump"
   | "down"
-  | "punch"
+  | "attack"
   | "throw"
   | "special";
+
+// A point in the view, in game px: where the mouse is.
+export type Point = { x: number; y: number };
 
 export type Event =
   | { type: "level"; level: number }
@@ -51,8 +55,80 @@ const HEARTS = 5;
 // kills it takes to fill the laptop
 const METER = 6;
 const SAFE = 1.2;
-const PUNCH = 0.28;
-const THROW = 0.3;
+// his box: standing, then crouched
+const TALL = 30;
+const LOW = 20;
+// where a click switches punches, in px up from his feet: over his
+// shoulders an uppercut, under his belt a low punch
+const SHOULDER = 24;
+const BELT = 12;
+
+// The blows. A blow can land between `hit[0]` and `hit[1]` seconds in,
+// anywhere `reach` px ahead of his middle and `rise` px up from his feet.
+type Blow = "up" | "mid" | "low" | "kick";
+const BLOWS: Record<
+  Blow,
+  {
+    time: number;
+    hit: [number, number];
+    reach: [number, number];
+    rise: [number, number];
+    damage: number;
+    push: [number, number];
+    stun: number;
+    lunge: number;
+  }
+> = {
+  // an uppercut, for what flies over his head: it pops a bug up
+  up: {
+    time: 0.26,
+    hit: [0.04, 0.12],
+    reach: [2, 20],
+    rise: [16, 46],
+    damage: 1,
+    push: [60, -220],
+    stun: 0.5,
+    lunge: 0,
+  },
+  // straight ahead, with a half step in
+  mid: {
+    time: 0.22,
+    hit: [0.04, 0.11],
+    reach: [3, 24],
+    rise: [10, 28],
+    damage: 1,
+    push: [110, -50],
+    stun: 0.35,
+    lunge: 40,
+  },
+  // a hook to the floor, for the crawlers
+  low: {
+    time: 0.24,
+    hit: [0.05, 0.12],
+    reach: [3, 24],
+    rise: [0, 14],
+    damage: 1,
+    push: [100, -110],
+    stun: 0.45,
+    lunge: 20,
+  },
+  // from a crouch: low, long, and it knocks a bug off its feet
+  kick: {
+    time: 0.32,
+    hit: [0.07, 0.17],
+    reach: [3, 27],
+    rise: [0, 12],
+    damage: 1,
+    push: [150, -70],
+    stun: 0.7,
+    lunge: 0,
+  },
+};
+// a throw: its wind-up, its speed and how long it flies, the trail it leaves
+const THROW = 0.22;
+const SHOT = 330;
+const RANGE = 0.8;
+const TRAIL = 56;
 // the special: typing, charging, then the beam
 const CODE = 0.9;
 const CHARGE = 0.45;
@@ -77,9 +153,14 @@ type Hero = Body & {
   buffer: number;
   hearts: number;
   safe: number;
-  action: "" | "punch" | "throw" | "special" | "hurt" | "out";
+  action: "" | Blow | "throw" | "special" | "hurt" | "out";
   at: number;
+  // which swing a bug was last hit by, so a blow lands once
   swing: number;
+  // a punch pressed before the one in the air finished, thrown right after
+  queued: Blow | null;
+  crouch: boolean;
+  aim: Point;
   item: number;
   meter: number;
   drop: number;
@@ -106,6 +187,9 @@ type Shot = {
   vx: number;
   vy: number;
   t: number;
+  // where it left his hand, so the trail never reaches behind it
+  x0: number;
+  y0: number;
 };
 type Fx = { name: string; x: number; y: number; t: number; fps: number };
 // a pixel of a burst: it flies, falls and thins out in dither as it dies
@@ -158,10 +242,16 @@ export class Game {
   over = 0;
   freeze = 0;
   shake = 0;
+  // the mouse over the view, for the crosshair; null when it isn't there
+  pointer: Point | null = null;
   private seed: number;
   private decks = new Set<number>();
   private held = new Set<Action>();
   private tapped = new Set<Action>();
+  // where the press that's waiting to be handled pointed, if it did
+  private target: Point | null = null;
+  // the joystick's lean, -1 to 1 on each axis
+  private stick: Point = { x: 0, y: 0 };
   private acc = 0;
 
   constructor(
@@ -183,9 +273,11 @@ export class Game {
     this.load(1);
   }
 
-  press(action: Action) {
+  // A press, and for a mouse click the point in the view it was aimed at.
+  press(action: Action, at?: Point) {
     if (!this.held.has(action)) this.tapped.add(action);
     this.held.add(action);
+    if (at) this.target = at;
   }
 
   release(action: Action) {
@@ -195,6 +287,11 @@ export class Game {
   releaseAll() {
     this.held.clear();
     this.tapped.clear();
+    this.stick = { x: 0, y: 0 };
+  }
+
+  steer(x: number, y: number) {
+    this.stick = { x, y };
   }
 
   private load(number: number) {
@@ -214,7 +311,7 @@ export class Game {
       vx: 0,
       vy: 0,
       w: 10,
-      h: 24,
+      h: TALL,
       ground: true,
       dir: 1,
       coyote: 0,
@@ -224,6 +321,9 @@ export class Game {
       action: "",
       at: 0,
       swing: 0,
+      queued: null,
+      crouch: false,
+      aim: { x: 1, y: 0 },
       item: 0,
       meter,
       drop: 0,
@@ -342,7 +442,6 @@ export class Game {
       this.acc -= STEP;
       this.step(STEP);
     }
-    this.tapped.clear();
   }
 
   private step(dt: number) {
@@ -353,8 +452,9 @@ export class Game {
     }
     this.shake = Math.max(0, this.shake - dt);
     this.intro = Math.max(0, this.intro - dt);
-    if (this.wipe > 0 && this.leaving === 0)
+    if (this.wipe > 0 && this.leaving === 0) {
       this.wipe = Math.max(0, this.wipe - dt * 2.5);
+    }
     if (this.leaving > 0) {
       this.leaving += dt;
       this.wipe = Math.min(1, this.leaving * 2.5);
@@ -362,6 +462,9 @@ export class Game {
       return;
     }
     this.stepHero(dt);
+    // a press is handled once, by the first step that sees it
+    this.tapped.clear();
+    this.target = null;
     for (const bug of this.bugs) this.stepBug(bug, dt);
     this.stepShots(dt);
     for (const f of this.fx) f.t += dt;
@@ -387,6 +490,59 @@ export class Game {
     const max = this.level.cols * TILE - this.width;
     this.cam +=
       (Math.max(0, Math.min(max, target)) - this.cam) * Math.min(1, dt * 6);
+  }
+
+  // The direction a throw goes: at the mouse when it was clicked, along the
+  // joystick when it leans, straight ahead otherwise.
+  private aim(h: Hero): Point {
+    const from = { x: h.x + h.dir * 6, y: h.y - 22 };
+    let x = h.dir as number;
+    let y = 0;
+    if (this.target) {
+      x = this.target.x + this.cam - from.x;
+      y = this.target.y - from.y;
+    } else if (Math.hypot(this.stick.x, this.stick.y) > 0.5) {
+      x = this.stick.x;
+      y = this.stick.y;
+    }
+    const d = Math.hypot(x, y) || 1;
+    return { x: x / d, y: y / d };
+  }
+
+  // a click faces him toward where it pointed
+  private face(h: Hero) {
+    if (!this.target) return;
+    const dx = this.target.x + this.cam - h.x;
+    if (Math.abs(dx) > 2) h.dir = dx > 0 ? 1 : -1;
+  }
+
+  private begin(h: Hero, action: Hero["action"]) {
+    h.action = action;
+    h.at = 0;
+    h.queued = null;
+    if (action in BLOWS) {
+      h.swing++;
+      const lunge = BLOWS[action as Blow].lunge;
+      if (lunge && h.ground) h.vx = h.dir * lunge;
+    }
+  }
+
+  // The blow a press throws. From a crouch, a kick. Otherwise a punch high,
+  // in the middle or low, by where the press points: a click by the cursor's
+  // height against his body (over his shoulders, under his belt), however far
+  // away it is; the joystick or the jump key by leaning up.
+  private pick(h: Hero): Blow {
+    if (h.crouch && h.ground) return "kick";
+    if (this.target) {
+      if (this.target.y < h.y - SHOULDER) return "up";
+      return this.target.y > h.y - BELT ? "low" : "mid";
+    }
+    return this.stick.y < -0.5 || this.held.has("jump") ? "up" : "mid";
+  }
+
+  private attack(h: Hero) {
+    this.face(h);
+    this.begin(h, this.pick(h));
   }
 
   private stepHero(dt: number) {
@@ -420,26 +576,42 @@ export class Game {
       if (h.at > CODE + CHARGE + FIRE) h.action = "";
       return;
     }
-    if (
-      h.action &&
-      h.at >
-        (h.action === "punch" ? PUNCH : h.action === "throw" ? THROW : 0.35)
-    ) {
+
+    const blow = h.action in BLOWS ? BLOWS[h.action as Blow] : null;
+    if (blow) {
+      // a press once this blow has started landing is held for the next one,
+      // so fast clicks don't get lost
+      if (tap("attack") && h.at > blow.hit[0]) {
+        this.face(h);
+        h.queued = this.pick(h);
+      }
+      if (h.at >= blow.hit[0] && h.at <= blow.hit[1]) this.strike(blow);
+      if (h.at >= blow.time) {
+        const next = h.queued;
+        h.action = "";
+        if (next) this.begin(h, next);
+      }
+    } else if (h.action === "throw" && h.at >= THROW) {
+      h.action = "";
+    } else if (h.action === "hurt" && h.at >= 0.35) {
       h.action = "";
     }
 
-    const busy = h.action === "hurt";
-    let want = 0;
-    if (!busy) want = (held("right") ? 1 : 0) - (held("left") ? 1 : 0);
-    if (want !== 0 && !h.action) h.dir = want > 0 ? 1 : -1;
+    const free = !h.action;
+    h.crouch = free && h.ground && held("down");
+    h.h = h.crouch || h.action === "kick" ? LOW : TALL;
+    let want = (held("right") ? 1 : 0) - (held("left") ? 1 : 0);
+    if (want !== 0 && free) h.dir = want > 0 ? 1 : -1;
+    // a crouch, a blow on the ground and a hit all hold him in place
+    if (h.crouch || h.action === "hurt" || (!free && h.ground)) want = 0;
     const accel = h.ground ? (want ? ACCEL : FRICTION) : AIR;
-    const goal = want * RUN * (h.action === "punch" && h.ground ? 0.3 : 1);
+    const goal = want * RUN;
     h.vx +=
       Math.sign(goal - h.vx) * Math.min(Math.abs(goal - h.vx), accel * dt);
 
     h.coyote = h.ground ? COYOTE : Math.max(0, h.coyote - dt);
     h.buffer = tap("jump") ? BUFFER : Math.max(0, h.buffer - dt);
-    if (h.buffer > 0 && h.coyote > 0 && !busy) {
+    if (h.buffer > 0 && h.coyote > 0 && free) {
       if (held("down") && this.onDeck(h)) {
         h.drop = 0.25;
         h.y += 1;
@@ -456,35 +628,37 @@ export class Game {
     const air = !h.ground;
     this.move(h, dt, h.drop === 0);
     if (air && h.ground && h.vy === 0) this.puff(h.x, h.y);
-    if (h.ground && !this.onDeck(h) && this.firm(h))
+    if (h.ground && !this.onDeck(h) && this.firm(h)) {
       h.home = { x: h.x, y: h.y };
+    }
 
-    if (!busy && !h.action) {
+    if (free) {
       if (tap("special") && h.meter >= METER) {
-        h.action = "special";
-        h.at = 0;
+        this.begin(h, "special");
         h.meter = 0;
         h.vx = 0;
         return;
       }
-      if (tap("punch")) {
-        h.action = "punch";
-        h.at = 0;
-        h.swing++;
+      if (tap("attack")) {
+        this.attack(h);
       } else if (tap("throw") && this.shots.length < 3) {
-        h.action = "throw";
-        h.at = 0;
+        h.aim = this.aim(h);
+        if (Math.abs(h.aim.x) > 0.1) h.dir = h.aim.x > 0 ? 1 : -1;
+        this.begin(h, "throw");
       }
     }
-    if (h.action === "punch" && h.at > 0.06 && h.at < 0.16) this.punch();
-    if (h.action === "throw" && h.at >= 0.08 && h.at - dt < 0.08) {
+    if (h.action === "throw" && h.at >= 0.06 && h.at - dt < 0.06) {
+      const x = h.x + h.dir * 8;
+      const y = h.y - 22;
       this.shots.push({
         item: h.item,
-        x: h.x + h.dir * 8,
-        y: h.y - 18,
-        vx: h.dir * 230 + h.vx * 0.3,
-        vy: -140,
+        x,
+        y,
+        vx: h.aim.x * SHOT,
+        vy: h.aim.y * SHOT,
         t: 0,
+        x0: x,
+        y0: y,
       });
       h.item = (h.item + 1) % ITEMS.length;
     }
@@ -507,11 +681,8 @@ export class Game {
       }
     }
 
-    if (
-      this.open &&
-      h.ground &&
-      Math.abs(h.x - (this.level.exit * TILE + 8)) < 6
-    ) {
+    const door = this.level.exit * TILE + 8;
+    if (this.open && h.ground && Math.abs(h.x - door) < 6) {
       this.leaving = 0.001;
       h.action = "";
     }
@@ -538,6 +709,8 @@ export class Game {
     h.safe = SAFE;
     h.action = "hurt";
     h.at = 0;
+    h.crouch = false;
+    h.h = TALL;
     h.vx = from * 140;
     h.vy = -180;
     if (!this.calm) this.shake = 0.2;
@@ -575,27 +748,25 @@ export class Game {
     }
   }
 
-  private punch() {
+  private strike(blow: (typeof BLOWS)[Blow]) {
     const h = this.hero;
+    const [near, far] = blow.reach;
     const reach: Box = {
-      l: h.dir > 0 ? h.x + 2 : h.x - 20,
-      r: h.dir > 0 ? h.x + 20 : h.x - 2,
-      t: h.y - 22,
-      b: h.y - 8,
+      l: h.dir > 0 ? h.x + near : h.x - far,
+      r: h.dir > 0 ? h.x + far : h.x - near,
+      t: h.y - blow.rise[1],
+      b: h.y - blow.rise[0],
     };
     for (const bug of this.bugs) {
       if (bug.struck === h.swing || !overlap(reach, boxOf(bug))) continue;
       bug.struck = h.swing;
-      this.fx.push({
-        name: "impact",
-        x: bug.x,
-        y: bug.y - bug.h / 2,
-        t: 0,
-        fps: 18,
-      });
-      this.burst(bug.x, bug.y - bug.h / 2, 8, [C.ink, C.yellow], 140, 20);
-      this.freeze = 0.05;
-      this.damage(bug, 1, h.dir, true);
+      const y = bug.y - bug.h / 2;
+      this.fx.push({ name: "impact", x: bug.x, y, t: 0, fps: 18 });
+      this.burst(bug.x, y, 8, [C.ink, C.yellow], 140, 20);
+      this.freeze = blow.damage > 1 ? 0.08 : 0.05;
+      if (blow.damage > 1 && !this.calm)
+        this.shake = Math.max(this.shake, 0.12);
+      this.damage(bug, blow.damage, h.dir, true, blow.push, blow.stun);
     }
   }
 
@@ -625,24 +796,32 @@ export class Game {
     if (!this.calm) this.shake = Math.max(this.shake, 0.05);
   }
 
+  // the beam leaves his hands and grows to the edge of the view
   private beamSpan() {
     const h = this.hero;
-    const from = h.x + h.dir * 9;
+    const from = h.x + h.dir * 13;
     const grow = Math.min(1, (h.at - CODE - CHARGE) / 0.15);
     const edge = h.dir > 0 ? this.cam + this.width + 16 : this.cam - 16;
-    return { y: h.y - 15, from, to: from + (edge - from) * grow };
+    return { y: h.y - 17, from, to: from + (edge - from) * grow };
   }
 
-  private damage(bug: Bug, amount: number, dir: number, counts: boolean) {
+  private damage(
+    bug: Bug,
+    amount: number,
+    dir: number,
+    counts: boolean,
+    push: [number, number] = [110, -80],
+    stun = 0.35,
+  ) {
     bug.hp -= amount;
     bug.flash = 0.12;
     if (amount < 99) {
       this.hits.push({ x: bug.x, y: bug.y - bug.h - 2, t: 0, value: amount });
     }
     if (bug.hp > 0) {
-      bug.stun = 0.35;
-      bug.vx = dir * (bug.kind === "crawler" ? 110 : 140);
-      bug.vy = bug.kind === "crawler" ? -110 : -40;
+      bug.stun = stun;
+      bug.vx = dir * push[0] * (bug.kind === "crawler" ? 1 : 1.3);
+      bug.vy = bug.kind === "crawler" ? push[1] : push[1] * 0.4;
       return;
     }
     this.bugs = this.bugs.filter((b) => b !== bug);
@@ -683,14 +862,15 @@ export class Game {
         bug.vy *= 1 - Math.min(1, dt * 4);
       } else if (near) {
         const dx = h.x - bug.x;
-        const dy = h.y - 14 - bug.y;
+        const dy = h.y - 16 - bug.y;
         const d = Math.hypot(dx, dy) || 1;
         bug.vx = (dx / d) * speed;
         bug.vy = (dy / d) * speed + Math.sin(bug.t * 4) * 20;
         bug.dir = dx > 0 ? 1 : -1;
       } else {
-        if (Math.abs(bug.x - bug.homeX) > 40)
+        if (Math.abs(bug.x - bug.homeX) > 40) {
           bug.dir = bug.x > bug.homeX ? -1 : 1;
+        }
         bug.vx = bug.dir * speed * 0.6;
         bug.vy = (bug.homeY + Math.sin(bug.t * 3) * 8 - bug.y) * 3;
       }
@@ -704,16 +884,16 @@ export class Game {
     if (bug.hp <= 0) this.bugs = this.bugs.filter((b) => b !== bug);
   }
 
+  // Throws fly straight, at one speed, until they hit a bug or a wall or run
+  // out of range.
   private stepShots(dt: number) {
     for (const shot of this.shots) {
       shot.t += dt;
-      shot.vy = Math.min(FALL, shot.vy + 700 * dt);
       shot.x += shot.vx * dt;
       shot.y += shot.vy * dt;
-      let spent = this.solid(
-        Math.floor(shot.x / TILE),
-        Math.floor(shot.y / TILE),
-      );
+      let spent =
+        shot.t > RANGE ||
+        this.solid(Math.floor(shot.x / TILE), Math.floor(shot.y / TILE));
       const box: Box = {
         l: shot.x - 5,
         r: shot.x + 5,
@@ -722,7 +902,8 @@ export class Game {
       };
       for (const bug of this.bugs) {
         if (spent || !overlap(box, boxOf(bug))) continue;
-        this.damage(bug, shot.item === 1 ? 2 : 1, Math.sign(shot.vx), true);
+        const dir = Math.sign(shot.vx) || this.hero.dir;
+        this.damage(bug, shot.item === 1 ? 2 : 1, dir, true);
         spent = true;
       }
       if (spent) {
@@ -731,7 +912,9 @@ export class Game {
         shot.t = -1;
       }
     }
-    this.shots = this.shots.filter((s) => s.t >= 0 && s.y < H + 32);
+    this.shots = this.shots.filter(
+      (s) => s.t >= 0 && s.y < H + 32 && s.y > -32,
+    );
   }
 
   // --- drawing -------------------------------------------------------------
@@ -845,8 +1028,9 @@ export class Game {
     }
 
     for (const shot of this.shots) {
-      const frame = Math.floor(shot.t * 16) * Math.sign(shot.vx);
-      this.put(ctx, ITEMS[shot.item], frame, shot.x, shot.y);
+      this.trail(ctx, shot);
+      const turn = Math.floor(shot.t * 16) * (shot.vx < 0 ? -1 : 1);
+      this.put(ctx, ITEMS[shot.item], turn, shot.x, shot.y);
     }
 
     const blinking = h.safe > 0 && Math.floor(h.safe * 12) % 2 === 1;
@@ -862,7 +1046,7 @@ export class Game {
       const charge = h.at - CODE;
       if (charge < CHARGE) {
         const grow = Math.min(2, Math.floor((charge / CHARGE) * 3));
-        this.put(ctx, "orb", grow, h.x - h.dir * 4, h.y - 11);
+        this.put(ctx, "orb", grow, h.x - h.dir * 2, h.y - 12);
       } else {
         this.drawBeam(ctx);
       }
@@ -903,23 +1087,63 @@ export class Game {
     ctx.restore();
 
     this.hud(ctx, cam);
+    if (this.pointer && h.action !== "out") this.crosshair(ctx, this.pointer);
     if (this.wipe > 0) this.dither(ctx, this.wipe);
+  }
+
+  // A thrown thing's wake: a white line back to where it left his hand,
+  // solid at the front and thinning out in dither toward the tail.
+  private trail(ctx: CanvasRenderingContext2D, shot: Shot) {
+    const length = Math.min(
+      TRAIL,
+      Math.hypot(shot.x - shot.x0, shot.y - shot.y0),
+    );
+    const speed = Math.hypot(shot.vx, shot.vy) || 1;
+    const ux = shot.vx / speed;
+    const uy = shot.vy / speed;
+    ctx.fillStyle = C.ink;
+    for (let d = 4; d < length; d++) {
+      const x = Math.round(shot.x - ux * d);
+      const y = Math.round(shot.y - uy * d);
+      if (BAYER[(y & 3) * 4 + (x & 3)] >= (1 - d / length) * 16) continue;
+      ctx.fillRect(x, y, 1, 1);
+    }
+  }
+
+  private crosshair(ctx: CanvasRenderingContext2D, at: Point) {
+    const x = Math.round(at.x);
+    const y = Math.round(at.y);
+    ctx.fillStyle = C.ink;
+    for (const d of [2, 3, 4]) {
+      ctx.fillRect(x + d, y, 1, 1);
+      ctx.fillRect(x - d, y, 1, 1);
+      ctx.fillRect(x, y + d, 1, 1);
+      ctx.fillRect(x, y - d, 1, 1);
+    }
+    ctx.fillStyle = C.rose[1];
+    ctx.fillRect(x, y, 1, 1);
   }
 
   private pose(): [string, number] {
     const h = this.hero;
+    const at = h.at;
     switch (h.action) {
       case "special":
-        if (h.at < CODE) return ["code", Math.floor(h.at * 8)];
-        return [h.at < CODE + CHARGE ? "charge" : "fire", 0];
-      case "punch":
-        return ["punch", h.at < 0.06 ? 0 : h.at < 0.18 ? 1 : 2];
+        if (at < CODE) return ["code", Math.floor(at * 8)];
+        return [at < CODE + CHARGE ? "charge" : "fire", 0];
+      case "up":
+      case "mid":
+      case "low":
+        return [h.action, at < BLOWS[h.action].hit[1] + 0.02 ? 0 : 1];
+      case "kick":
+        return ["kick", at < 0.06 ? 0 : at < 0.2 ? 1 : 2];
       case "throw":
-        return ["throw", h.at < 0.08 ? 0 : h.at < 0.18 ? 1 : 2];
+        return ["throw", at < 0.06 ? 0 : 1];
       case "hurt":
       case "out":
         return ["hurt", 0];
     }
+    if (h.crouch) return ["crouch", 0];
     if (!h.ground) return [h.vy < 0 ? "jump" : "fall", 0];
     if (Math.abs(h.vx) > 12) return ["run", Math.floor(h.t * 12)];
     return ["idle", Math.floor(h.t * 2)];

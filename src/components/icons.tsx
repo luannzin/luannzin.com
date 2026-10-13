@@ -249,3 +249,35 @@ export function GlobeIcon(props: IconProps) {
     </Svg>
   );
 }
+
+// Bug hunt's touch pad: jump, punch, throw and the special.
+export function JumpIcon(props: IconProps) {
+  return <Stroke d="M12 19.25V5.75M6.75 11L12 5.75L17.25 11" {...props} />;
+}
+
+export function PunchIcon(props: IconProps) {
+  return (
+    <Stroke
+      d="M12 4.75V8.25M12 15.75V19.25M4.75 12H8.25M15.75 12H19.25M6.87 6.87L9.35 9.35M14.65 14.65L17.13 17.13M6.87 17.13L9.35 14.65M14.65 9.35L17.13 6.87"
+      {...props}
+    />
+  );
+}
+
+export function ThrowIcon(props: IconProps) {
+  return (
+    <Stroke
+      d="M8.75 9C8.75 6.93 10.43 5.25 12.5 5.25C14.57 5.25 16.25 6.93 16.25 9V15C16.25 17.07 14.57 18.75 12.5 18.75C10.43 18.75 8.75 17.07 8.75 15V9ZM12.5 8.25V10.75M3.75 9.75H6.25M3.75 13.75H6.25"
+      {...props}
+    />
+  );
+}
+
+export function LaptopIcon(props: IconProps) {
+  return (
+    <Stroke
+      d="M5.75 7.75C5.75 6.65 6.65 5.75 7.75 5.75H16.25C17.35 5.75 18.25 6.65 18.25 7.75V15.25H5.75V7.75ZM3.75 18.25H20.25"
+      {...props}
+    />
+  );
+}
