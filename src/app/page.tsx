@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  type ComponentType,
-  type ReactNode,
-  type SVGProps,
-  ViewTransition,
-} from "react";
+import type { ComponentType, ReactNode, SVGProps } from "react";
+import { seeds } from "@/app/projects/seeded-scenes/seeds";
 import echoLogo from "@/assets/echo.png";
 import { AskAI } from "@/components/ask-ai";
 import { DitherStrip, Signature } from "@/components/footer-art";
@@ -21,6 +17,7 @@ import {
 import { LabRows } from "@/components/lab/rows";
 import { LiveTile } from "@/components/live-tile";
 import { TextReveal } from "@/components/motion/text-reveal";
+import { PostRow } from "@/components/post-row";
 import { setLocale, translations } from "@/i18n/generated";
 import { bezel, enter, underline } from "@/lib/classes";
 import { home, JsonLd } from "@/lib/json-ld";
@@ -37,33 +34,52 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const projects = [
-  {
-    name: "echo",
-    blurb: "echo",
-    href: "https://useecho.dev",
-    mark: (
-      <Image
-        src={echoLogo}
-        alt=""
-        width={44}
-        height={44}
-        className="rounded-[10px] outline -outline-offset-1 outline-white/10"
-      />
-    ),
-  },
-  {
-    name: "better-intl",
-    blurb: "betterIntl",
-    href: "https://github.com/luannzin/better-intl",
-    mark: <GlobeIcon className="size-5" />,
-  },
-] as const;
-
 export default async function Home() {
   const locale = await setLocale();
   const t = translations[locale];
   const copy = t.app.home;
+  const { scenes } = t.app.projects;
+  const projects = [
+    {
+      name: "echo",
+      blurb: copy.echo,
+      href: "https://useecho.dev",
+      mark: (
+        <Image
+          src={echoLogo}
+          alt=""
+          width={44}
+          height={44}
+          className="rounded-[10px] outline -outline-offset-1 outline-white/10"
+        />
+      ),
+    },
+    {
+      name: "better-intl",
+      blurb: copy.betterIntl,
+      href: "https://github.com/luannzin/better-intl",
+      mark: <GlobeIcon className="size-5" />,
+    },
+    {
+      name: scenes.title,
+      blurb: scenes.rowDescription,
+      href: "/projects/seeded-scenes",
+      // its own scene, still until hovered, like a post's tile
+      mark: (
+        <span className="relative size-11 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-white/10">
+          <Image
+            src="/projects/seeded-scenes/tile.png"
+            alt=""
+            width={44}
+            height={44}
+            unoptimized
+            className="block size-full"
+          />
+          <LiveTile seed={seeds.tile} />
+        </span>
+      ),
+    },
+  ];
   return (
     <main className="mx-auto w-full max-w-xl px-6 pt-20 pb-24 leading-relaxed sm:pt-28">
       <JsonLd data={home} />
@@ -119,35 +135,43 @@ export default async function Home() {
         aria-labelledby="projects"
         className={`${enter} mt-20 delay-500`}
       >
-        <h2 id="projects" className="font-medium">
+        <h2 id="projects" className="scroll-mt-12 font-medium">
           {copy.projects}
         </h2>
         <ul className="mt-4 grid gap-6">
-          {projects.map(({ name, blurb, href, mark }) => (
-            <li key={name}>
-              <a
-                href={href}
-                className="group flex items-center gap-4 rounded-[14px] outline-offset-4"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className={bezel}>
-                  <span className="grid size-11 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[color] duration-150 group-hover:text-foreground">
-                    {mark}
+          {projects.map(({ name, blurb, href, mark }) => {
+            const external = href.startsWith("https://");
+            return (
+              <li key={href}>
+                <Link
+                  href={href}
+                  prefetch={!external}
+                  className="group flex items-center gap-4 rounded-[14px] outline-offset-4"
+                  {...(external && {
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                  })}
+                >
+                  <span className={bezel}>
+                    <span className="grid size-11 place-items-center rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[color] duration-150 group-hover:text-foreground">
+                      {mark}
+                    </span>
                   </span>
-                </span>
-                <span className="leading-snug">
-                  <span className="flex items-center gap-1 text-foreground">
-                    <span className={underline}>{name}</span>
-                    <ArrowUpRightIcon className="size-3.5 -translate-x-0.5 translate-y-0.5 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100" />
+                  <span className="leading-snug">
+                    <span className="flex items-center gap-1 text-foreground">
+                      <span className={underline}>{name}</span>
+                      {external ? (
+                        <ArrowUpRightIcon className="size-3.5 -translate-x-0.5 translate-y-0.5 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100" />
+                      ) : (
+                        <ArrowRightIcon className="size-3.5 -translate-x-1 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:opacity-100" />
+                      )}
+                    </span>
+                    <span className="block text-muted-foreground">{blurb}</span>
                   </span>
-                  <span className="block text-muted-foreground">
-                    {copy[blurb]}
-                  </span>
-                </span>
-              </a>
-            </li>
-          ))}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </section>
 
@@ -156,42 +180,9 @@ export default async function Home() {
           {t.app.writing.title}
         </h2>
         <ul className="mt-4 grid gap-6">
-          {getPosts(locale).map(({ slug, title, description, seed }) => (
-            <li key={slug}>
-              <Link
-                href={`/writing/${slug}`}
-                prefetch
-                className="group flex items-center gap-4 rounded-[14px] outline-offset-4"
-              >
-                <span className={bezel}>
-                  <ViewTransition
-                    name={`art-${slug}`}
-                    share="morph"
-                    default="none"
-                  >
-                    <span className="relative block size-11 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-white/10">
-                      <Image
-                        src={`/writing/${slug}/tile.png`}
-                        alt=""
-                        width={44}
-                        height={44}
-                        unoptimized
-                        className="block size-full"
-                      />
-                      <LiveTile seed={seed} />
-                    </span>
-                  </ViewTransition>
-                </span>
-                <span className="leading-snug">
-                  <span className="flex items-center gap-1 text-foreground">
-                    <span className={underline}>{title}</span>
-                    <ArrowRightIcon className="size-3.5 -translate-x-1 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:opacity-100" />
-                  </span>
-                  <span className="block text-muted-foreground">
-                    {description}
-                  </span>
-                </span>
-              </Link>
+          {getPosts(locale).map((post) => (
+            <li key={post.slug}>
+              <PostRow post={post} />
             </li>
           ))}
         </ul>

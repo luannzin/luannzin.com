@@ -25,19 +25,26 @@ const SLOW = 30;
 // One post's scene on a canvas. The full scene is 2:1; `crop` shows a square
 // around its landmark, for the home page tile. `stir` lets the pointer carry a
 // small light and taps drop shooting stars or ripples; otherwise the scene only
-// plays while the link or card around it is hovered or focused.
+// plays while the link or card around it is hovered or focused. `cell` pins a
+// cell's size in CSS pixels, for the dot size on Seeded scenes.
 export function SceneArt({
   seed,
   crop = false,
   stir = false,
+  cell,
   className,
 }: {
   seed: number;
   crop?: boolean;
   stir?: boolean;
+  cell?: number;
   className?: string;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  // A new cell size lays the frame out again in place, so the scene plays on
+  // from where it was instead of starting over.
+  const pinned = useRef(cell);
+  const relayout = useRef<() => void>(undefined);
   const scene = createScene(seed);
   const view = viewOf(scene, crop);
 
@@ -83,15 +90,17 @@ export function SceneArt({
       const most = painter.fine ? 320 : 200;
       const nextCols = crop
         ? 18
-        : Math.round(
-            Math.max(
-              64,
-              Math.min(
-                most,
-                width / (cellSize(width, dpr, painter.fine) * coarse),
+        : pinned.current
+          ? Math.round(Math.min(most, width / pinned.current))
+          : Math.round(
+              Math.max(
+                64,
+                Math.min(
+                  most,
+                  width / (cellSize(width, dpr, painter.fine) * coarse),
+                ),
               ),
-            ),
-          );
+            );
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       if (nextCols !== cols) {
@@ -117,7 +126,7 @@ export function SceneArt({
       paint();
       // a device that cannot keep up gets fewer, larger dots
       slow = performance.now() - started > SLOW ? slow + 1 : 0;
-      if (slow >= 8 && coarse < 2 && !crop) {
+      if (slow >= 8 && coarse < 2 && !crop && !pinned.current) {
         coarse *= 1.4;
         slow = 0;
         layout();
@@ -141,6 +150,7 @@ export function SceneArt({
     if (box.bottom > 0 && box.top < window.innerHeight) wake();
     const resize = new ResizeObserver(layout);
     resize.observe(canvas);
+    relayout.current = layout;
     const seen = new IntersectionObserver(
       ([entry]) => {
         visible = entry.isIntersecting;
@@ -195,8 +205,14 @@ export function SceneArt({
       resize.disconnect();
       seen.disconnect();
       listening.abort();
+      relayout.current = undefined;
     };
   }, [scene, crop, stir]);
+
+  useLayoutEffect(() => {
+    pinned.current = cell;
+    relayout.current?.();
+  }, [cell]);
 
   return (
     <canvas

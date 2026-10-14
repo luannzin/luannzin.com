@@ -6,6 +6,7 @@ import { formatDate, getPosts } from "@/lib/writing";
 // The bio and projects repeat the home page's; keep the two in step.
 export function GET() {
   const lab = translations.en.app.lab;
+  const { scenes } = translations.en.app.projects;
   const text = `# Luan Fabri
 
 > Luan Fabri (luannzin), front-end engineer at Loopscape, and the author of the open source tools echo and better-intl.
@@ -18,6 +19,7 @@ On the side, I build open source tools for problems I keep running into. You can
 
 - [echo](https://useecho.dev) — The note taker that learns with you
 - [better-intl](https://github.com/luannzin/better-intl) — Typed, file-based i18n for Next.js
+- [${scenes.title}](${site}/projects/seeded-scenes.md) — ${scenes.rowDescription}
 
 ## Writing
 

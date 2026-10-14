@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
   return [
     { url: site, lastModified: posts[0]?.lastModified },
+    { url: `${site}/projects/seeded-scenes` },
     { url: `${site}/lab` },
     { url: `${site}/lab/motion` },
     { url: `${site}/lab/bug-hunt` },

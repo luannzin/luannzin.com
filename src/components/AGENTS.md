@@ -7,7 +7,9 @@
 ## Ownership
 
 - `article-islands.tsx`: finds the `[data-island]` placeholders (`copy`, `scene`, `roll`, `lab`) that `@/lib/markdown` leaves in the article and portals client components into them; a `lab` placeholder lazy-loads `Piece` from `lab/specimens.tsx`, so posts without one never load the Lab
-- `scene-art.tsx`: canvas player for a seeded scene (`@/lib/scene` frames drawn by `@/lib/dots`)
+- `scene-art.tsx`: canvas player for a seeded scene (`@/lib/scene` frames drawn by `@/lib/dots`); `cell` pins the cell size in CSS pixels (Seeded scenes' dot size)
+- `scene-playground.tsx`: Seeded scenes' pieces, each a live scene in a specimen's Well: `PlaceScene` (a place picked as radio chips finds a seed that lands there, with what the place allows) and `DotScene` (one scene at a chosen dot size)
+- `post-row.tsx`: `PostRow`, a post as a row (scene tile with the morph to the post's figure, title, description); home's Writing list and Seeded scenes
 - `cover-art.tsx`: post cover (with `DiceHint`); the die draws a new scene through the `@/lib/melt` transition; remembers the first-roll hint in `localStorage` key `cover-dice-hint`
 - `die.tsx`: line-art die, geometry and throws from `@/lib/die`
 - `live-tile.tsx`: lazy-loads `SceneArt` over the home tile's still PNG on hover or focus
@@ -19,7 +21,7 @@
 - `footer-art.tsx`: home footer art: `DitherStrip` (canvas of four Bayer-dithered dusk blocks whose dots the pointer pushes aside) and `Signature` (hand-drawn "Luan", drawn by `.signature` in `globals.css` once in view)
 - `dice-hint.tsx`: the hand-drawn arrow to a cover's die, drawn by `.dice-hint` in `globals.css`
 - `print-button.tsx`: the CV's Print button (`window.print()`)
-- `lab/timeline.tsx`: `useTimeline` (a piece's clock), `useSeekCss`, `bezier`, `Specimen` (transport plus timing sheet), and `well`, the specimen frame Bug hunt shares
+- `lab/timeline.tsx`: `useTimeline` (a piece's clock), `useSeekCss`, `bezier`, `Specimen` (transport plus timing sheet), `Segmented` (the speeds, and Seeded scenes' dot sizes), and `well`, the specimen frame Bug hunt and Seeded scenes share
 - `lab/bug-hunt.tsx`: Bug hunt's player: canvas scaled by whole device pixels, the loop, mouse buttons (left throws, right is the special) and aim, keys while focused, the touch pad (joystick and three buttons), the controls legend, overlays and pausing, and fullscreen (the Fullscreen API, or the figure covering the page where there is none, with everything else `inert`; the pad floats over the game there); the game itself is `@/lib/bug-hunt/game`
 - `lab/rows.tsx`: `LabRows`, the Lab's pieces as rows, on the home page and the Lab's index
 - `lab/specimens.tsx`: the Lab's pieces, each driving the real component or library code at the sheet's time; `Piece` picks one by name for a post's `lab` fence
@@ -46,6 +48,7 @@
 - `bun run lint`
 - Bug hunt: start a run, move, throw at the cursor standing, running and in the air, fill the laptop and fire with the right click, get past spikes, a laser and a saw (levels 1 to 3 bring them in), clear a level; enter fullscreen from the title, with F and from the pad, play in it on a phone in landscape and portrait, Tab inside it (focus never leaves the game), leave with Esc and with the exit button; check pausing on blur, and the joystick and buttons on a touch viewport
 - Preview a post: copy button, scene gallery, roller, die, contents, share menu, locale toggle; hover a home tile
+- Seeded scenes: type a seed (it melts on the sheet), pick each place and "Another scene", every dot size
 
 ## Child DOX Index
 

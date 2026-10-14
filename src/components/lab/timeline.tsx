@@ -230,44 +230,60 @@ function Transport({
       <Tool label={labels.next} onClick={() => timeline.step(1)}>
         <NextFrameIcon className="size-4" />
       </Tool>
-      <Speeds
-        name={name}
+      <Segmented
+        name={`${name}-speed`}
         label={labels.speed}
-        speed={timeline.speed}
+        options={SPEEDS}
+        unit="×"
+        value={timeline.speed}
         onChange={timeline.setSpeed}
+        className="ms-auto"
       />
     </fieldset>
   );
 }
 
-// 1x, 0.25x, 0.1x as a segmented control.
-function Speeds({
+// Numbers as a segmented control: the sheet's 1x, 0.25x and 0.1x, or the dot
+// sizes on Seeded scenes.
+export function Segmented({
   name,
   label,
-  speed,
+  options,
+  unit,
+  value,
   onChange,
+  className,
 }: {
   name: string;
   label: string;
-  speed: number;
-  onChange: (speed: number) => void;
+  options: number[];
+  unit: string;
+  value: number;
+  onChange: (value: number) => void;
+  className?: string;
 }) {
   return (
-    <fieldset className="ms-auto flex h-8 rounded-[8px] bg-muted p-0.5 inset-ring inset-ring-border">
+    <fieldset
+      className={cn(
+        "flex h-8 rounded-[8px] bg-muted p-0.5 inset-ring inset-ring-border",
+        className,
+      )}
+    >
       <legend className="sr-only">{label}</legend>
-      {SPEEDS.map((value) => (
+      {options.map((option) => (
         <label
-          key={value}
+          key={option}
           className="relative grid min-w-10 cursor-pointer place-items-center rounded-[6px] px-2 font-mono text-muted-foreground text-sm tabular-nums transition-[color,background-color,box-shadow] duration-150 hover:text-foreground has-checked:bg-foreground/7 has-checked:text-foreground has-checked:inset-ring has-checked:inset-ring-foreground/10 has-focus-visible:outline-2 has-focus-visible:outline-ring has-focus-visible:outline-offset-2"
         >
           <input
             type="radio"
-            name={`${name}-speed`}
-            checked={speed === value}
-            onChange={() => onChange(value)}
+            name={name}
+            checked={value === option}
+            onChange={() => onChange(option)}
             className="sr-only"
           />
-          {value}×
+          {option}
+          {unit}
         </label>
       ))}
     </fieldset>

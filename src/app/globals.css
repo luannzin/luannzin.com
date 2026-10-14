@@ -1007,9 +1007,11 @@
   }
 }
 
-/* The motion, frame by frame (app/lab/motion/page.tsx): each piece is a section of the prose, its
-   heading, its specimen and timing sheet, then how it works. Pieces sit a
-   home section's distance apart; the write-up keeps the code box's air. */
+/* The motion, frame by frame (app/lab/motion/page.tsx) and Seeded scenes
+   (app/projects/seeded-scenes/page.tsx): each piece is a section of the
+   prose, its heading, its specimen (or gallery), then how it works. Pieces
+   sit a home section's distance apart; the write-up keeps the code box's
+   air. */
 @layer components {
   .lab {
     & > section + section {
@@ -1021,7 +1023,7 @@
     & section > h2 + * {
       margin-top: 0.75rem;
     }
-    & section > .specimen + * {
+    & section > :is(.specimen, .scenes) + * {
       margin-top: 1.5rem;
     }
   }

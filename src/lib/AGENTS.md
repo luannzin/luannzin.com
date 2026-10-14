@@ -6,7 +6,8 @@
 
 ## Ownership
 
-- `scene.ts`: seeded scene engine; one seed picks place, time of day, landmark and every shape, and each frame is a colour plus dot size per cell, ordered-dithered; exports `seedFrom`, `createScene`, `renderer`, `viewOf`, `START`, `RADIUS`; pure, runs on server and client
+- `scene.ts`: seeded scene engine; one seed picks place, time of day, landmark and every shape, and each frame is a colour plus dot size per cell, ordered-dithered; exports `seedFrom`, `createScene`, `renderer`, `viewOf`, `START`, `RADIUS` and the `Place` type; pure, runs on server and client
+- `scene-tile.tsx`: `sceneTile(seed)`, a scene's 44px home tile as a PNG through `next/og` (first frame, the landmark crop, 18 dots across at 3x); posts' and Seeded scenes' `tile.png` routes
 - `die.ts`: the die's geometry (`drawDie`), throws (`throwTo`, `angleAt`) and hop keyframes; pure, shared by `Die` and the Lab
 - `dots.ts`: draws a frame on a canvas (WebGL, 2D fallback); client only
 - `melt.ts`: WebGL melt between two scenes for the cover die (a plain crossfade under reduced motion); `meltLayer` holds one at a given point for the Lab; client only
@@ -24,7 +25,7 @@
 
 ## Local Contracts
 
-- Scenes are deterministic: a seed gives the same scene and frames on server and client; `tile.png` draws frame `START` and the live tile starts there, so they must match; changing `scene.ts` output repaints every post
+- Scenes are deterministic: a seed gives the same scene and frames on server and client; `sceneTile` draws frame `START` and the live tile starts there, so they must match; changing `scene.ts` output repaints every post
 - `markdown.ts` output is trusted HTML (posts are repo files) but every interpolated string still goes through `escapeHtml`
 - `markdown.ts` owns the fence contract with `src/content` (`flow`, `scenes`, `roll`, `lab`, code meta, lone images); a new fence needs its HTML block, its `plainMarkdown` text form and, if it mounts client code, an island kind in `@/components/article-islands`
 - `renderMarkdown` runs inside `"use cache"`: it takes the locale and never reads request state

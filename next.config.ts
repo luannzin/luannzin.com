@@ -26,10 +26,13 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // There is no writing index yet; the home page's list is it. Temporary, so
-  // a real /writing can take the address later.
+  // There is no writing or projects index yet; the home page's lists are
+  // them. Temporary, so a real index can take the address later.
   async redirects() {
-    return [{ source: "/writing", destination: "/#writing", permanent: false }];
+    return [
+      { source: "/writing", destination: "/#writing", permanent: false },
+      { source: "/projects", destination: "/#projects", permanent: false },
+    ];
   },
   // Markdown twins for agents: /index.md is the home page, also at the
   // llms.txt convention's path; each post sits beside its page as .md.

@@ -8,18 +8,20 @@ import { cn } from "@/lib/utils";
 export function TextReveal({
   text,
   as: Comp = "span",
+  id,
   className,
   stagger = 0.05,
   delay = 0,
 }: {
   text: string;
   as?: ElementType;
+  id?: string;
   className?: string;
   stagger?: number;
   delay?: number;
 }) {
   return (
-    <Comp className={cn("block", className)}>
+    <Comp id={id} className={cn("block", className)}>
       {text.match(/\S+\s*/g)?.map((word, i) => (
         <span
           // biome-ignore lint/suspicious/noArrayIndexKey: static text, never reorders

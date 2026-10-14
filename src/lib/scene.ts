@@ -295,7 +295,7 @@ const TIMES = {
 } satisfies Record<string, Time>;
 type TimeKey = keyof typeof TIMES;
 
-type Place =
+export type Place =
   | "coast"
   | "fjord"
   | "lake"
