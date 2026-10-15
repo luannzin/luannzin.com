@@ -119,7 +119,7 @@ export default {
     },
     rowDescription: {
       en: "A platformer where I fix bugs by throwing things at them",
-      pt: "Um jogo de plataforma em que eu resolvo bug jogando coisa neles",
+      pt: "Um jogo em que eu resolvo bug jogando coisa neles",
     },
     canvas: {
       en: "Bug hunt: a pixel art platformer",

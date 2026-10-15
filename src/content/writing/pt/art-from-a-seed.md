@@ -1,6 +1,6 @@
 ---
 title: Arte a partir de uma seed
-description: A imagem de cada post, desenhada a partir de um único número
+description: A imagem de cada post sai de um número só
 date: 2026-10-08
 updated: 2026-10-11
 metaTitle: Arte a partir de uma seed: arte generativa em TypeScript
