@@ -11,6 +11,13 @@ export default {
     ogLocale: { en: "en_US", pt: "pt_BR" },
   },
   language: { en: "Language", pt: "Idioma" },
+  theme: { en: "Theme", pt: "Tema" },
+  dock: { en: "Theme and language", pt: "Tema e idioma" },
+  themes: {
+    dark: { en: "Dark", pt: "Escuro" },
+    light: { en: "Light", pt: "Claro" },
+    dawn: { en: "Dawn", pt: "Amanhecer" },
+  },
   home: {
     role: {
       en: "Front-end engineer at Loopscape",

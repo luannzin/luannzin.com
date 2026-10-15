@@ -235,6 +235,51 @@
   --code-highlight: --alpha(var(--color-white) / 4%);
 }
 
+/* Themes (a class on <html>, set by next-themes: the system's light or dark
+   on a first visit, then the dock's pick). Dark is `.dark` above. Each other
+   theme names four seeds, ground, ink, muted ink and focus, and derives the
+   rest from its own ink, so the three tiers, tiles, wells and hairlines read
+   the same in every one. Muted ink keeps 4.5:1 on the ground and on Tile
+   Grey; focus keeps 3:1. */
+:root {
+  /* muted ink a step toward the ink, for the Well and its Tile Grey
+     controls, where plain muted falls under 4.5:1 (the Lab's `ink`) */
+  --muted-strong: color-mix(in srgb, var(--muted-foreground) 88%, var(--foreground));
+}
+.light,
+.dawn {
+  --card: color-mix(in oklab, var(--background) 97%, var(--foreground));
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --code: var(--card);
+  --primary: var(--foreground);
+  --primary-foreground: var(--background);
+  --secondary: color-mix(in oklab, var(--foreground) 4%, transparent);
+  --secondary-foreground: var(--foreground);
+  --muted: color-mix(in oklab, var(--foreground) 4%, transparent);
+  --accent: color-mix(in oklab, var(--foreground) 4%, transparent);
+  --accent-foreground: var(--foreground);
+  --code-highlight: color-mix(in oklab, var(--foreground) 4%, transparent);
+  --border: color-mix(in oklab, var(--foreground) 10%, transparent);
+  --input: color-mix(in oklab, var(--foreground) 12%, transparent);
+  color-scheme: light;
+}
+/* Light: the same graphite, inverted onto a barely warm paper. */
+.light {
+  --background: oklch(0.985 0.002 90);
+  --foreground: oklch(0.24 0 0);
+  --muted-foreground: oklch(0.53 0 0);
+  --ring: oklch(0.62 0 0);
+}
+/* Dawn: a pale rose morning, written in the indigo still left at the top. */
+.dawn {
+  --background: oklch(0.975 0.014 15);
+  --foreground: oklch(0.3 0.06 278);
+  --muted-foreground: oklch(0.51 0.06 305);
+  --ring: oklch(0.6 0.05 320);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -1063,14 +1108,180 @@
   }
 }
 
-/* The language circle stays out of a language switch's cross-fade: its new
-   flag is already playing in it, so it shows live from the first frame. */
-::view-transition-group(locale-menu),
-::view-transition-new(locale-menu) {
+/* The dock stays out of a language switch's cross-fade: its new flag is
+   already playing in it, so it shows live from the first frame. A theme
+   switch takes the name off (`data-reveal`), so the wipe passes over the dock
+   too, starting from the orb that was pressed. */
+::view-transition-group(dock),
+::view-transition-new(dock) {
   animation: none;
 }
-::view-transition-old(locale-menu) {
+::view-transition-old(dock) {
   display: none;
+}
+
+/* Theme switch (dock.tsx): the new theme grows out of the orb that was
+   picked as a blurred circle, over the old page held still. The beUI circle
+   blur, from the barber app: 700ms lets the wipe read as the whole surface
+   changing material rather than as a flicker. Reduced motion swaps at once
+   (the dock skips the transition). */
+html[data-reveal]::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html[data-reveal]::view-transition-new(root) {
+  mix-blend-mode: normal;
+  animation: circle-reveal 700ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* The blur would fade the new page's own edges to clear, showing a seam of
+   the old one along the screen's edge, so the page starts 4% larger and
+   settles as it sharpens. */
+@keyframes circle-reveal {
+  from {
+    clip-path: circle(0% at var(--reveal-origin, 50% 100%));
+    filter: blur(8px);
+    scale: 1.04;
+  }
+  to {
+    clip-path: circle(150% at var(--reveal-origin, 50% 100%));
+    filter: blur(0px);
+    scale: 1;
+  }
+}
+
+/* Dock (dock.tsx): the list unfolds from the orb on a spring with a little
+   overshoot (zeta 0.7, 550ms, sampled into linear()), each row arriving from
+   a 4px blur in turn by its distance from the orb (`--d`); it folds back in
+   250ms on a plain ease-out, all rows at once. The orb gliding between rows
+   and the moon flying to its language ride the same spring. Presses dip to
+   0.96. Reduced motion keeps the fades and drops the travel. */
+@layer components {
+  .dock {
+    --spring: linear(0, 0.056 4%, 0.188 8%, 0.352 13%, 0.517 17%, 0.666 21%,
+      0.79 25%, 0.886 29%, 0.955 33%, 1.001 38%, 1.029 42%, 1.042 46%,
+      1.046 50%, 1.043 54%, 1.037 58%, 1.03 63%, 1.022 67%, 1.015 71%,
+      1.01 75%, 1.005 79%, 1.002 83%, 1 88%, 0.999 92%, 0.998 96%, 1);
+    --settle: cubic-bezier(0.23, 1, 0.32, 1);
+    view-transition-name: dock;
+  }
+  html[data-reveal] .dock {
+    view-transition-name: none;
+  }
+  .dock-body,
+  .dock-pill,
+  .dock-sphere,
+  .dock-moon {
+    transition-property: translate, scale, top, height;
+    transition-duration: 250ms;
+    transition-timing-function: var(--settle);
+  }
+  .dock[data-open] :is(.dock-body, .dock-pill, .dock-sphere, .dock-moon) {
+    transition-duration: 550ms;
+    transition-timing-function: var(--spring);
+  }
+  .dock-sphere:active {
+    scale: 0.96;
+    transition-duration: 150ms;
+  }
+  .dock[data-open] .dock-sphere {
+    pointer-events: none;
+  }
+  .dock-item,
+  .dock-rule,
+  .dock-label {
+    opacity: 0;
+  }
+  .dock-item {
+    scale: 0.6;
+    filter: blur(4px);
+    transition:
+      opacity 120ms ease-out,
+      scale 150ms var(--settle),
+      filter 120ms ease-out;
+  }
+  .dock-rule {
+    transition: opacity 120ms ease-out;
+  }
+  .dock[data-open] .dock-item {
+    opacity: 1;
+    scale: 1;
+    filter: blur(0);
+    transition:
+      opacity 200ms var(--d) ease-out,
+      scale 550ms var(--d) var(--spring),
+      filter 250ms var(--d) ease-out;
+  }
+  /* opacity is inline, so a closed dock never shows them */
+  .dock-dot {
+    transition:
+      opacity 120ms ease-out,
+      translate 250ms var(--settle);
+  }
+  .dock[data-open] .dock-dot {
+    transition:
+      opacity 200ms 200ms ease-out,
+      translate 550ms var(--spring);
+  }
+  .dock[data-open] .dock-rule {
+    opacity: 1;
+    transition: opacity 200ms 120ms ease-out;
+  }
+  .dock-face {
+    scale: var(--swell, 1);
+    transition:
+      scale 300ms var(--spring),
+      opacity 200ms ease-out;
+  }
+  .dock-item:active .dock-face {
+    scale: 0.96;
+    transition-duration: 120ms;
+  }
+  /* the orb and the moon stand in for the chosen rows */
+  .dock-face[data-here] {
+    opacity: 0;
+  }
+  /* the name of the row in reach follows it up and down */
+  .dock-label {
+    transition:
+      opacity 150ms ease-out,
+      translate 200ms var(--settle);
+  }
+  .dock[data-open] .dock-label {
+    opacity: 1;
+  }
+  .dock-label-text {
+    animation: dock-label 200ms var(--settle) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dock-body,
+    .dock-pill,
+    .dock-sphere,
+    .dock-moon,
+    .dock-label,
+    .dock-dot,
+    .dock[data-open] :is(.dock-body, .dock-pill, .dock-sphere, .dock-moon, .dock-dot) {
+      transition-duration: 0ms;
+    }
+    .dock-item,
+    .dock[data-open] .dock-item {
+      scale: 1;
+      filter: none;
+      transition: opacity 150ms ease-out;
+    }
+    .dock-face {
+      scale: 1;
+    }
+    .dock-label-text {
+      animation: none;
+    }
+  }
+}
+@keyframes dock-label {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
 }
 
 /* A new flag develops inside the circle, which holds still: the flag settles

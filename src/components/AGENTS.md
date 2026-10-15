@@ -14,7 +14,8 @@
 - `die.tsx`: line-art die, geometry and throws from `@/lib/die`
 - `live-tile.tsx`: lazy-loads `SceneArt` over the home tile's still PNG on hover or focus
 - `share.tsx`: share menu (copy link, X, LinkedIn, system share) on `@/components/ui/menu`; exports `useCopy` and `announce`, reused by the article's copy buttons
-- `locale-toggle.tsx`: fixed language switch; calls the `changeLocale` server action inside a transition typed `locale`
+- `dock.tsx`: `Dock`, the fixed theme and language control: the theme's orb with the language as a flag moon, and a menu of both that unfolds around the orb; a theme pick runs the circle reveal (a View Transition from the picked orb) and sets the theme through next-themes' `useTheme`; a language pick calls the `changeLocale` server action inside a transition typed `locale`
+- `orb.tsx`: `Orb`, a theme drawn as a turning halftone sphere on a 2D canvas, one shared clock for every live orb (15fps at rest, 30 awake)
 - `toc.tsx`: contents list with scroll-spy
 - `page-nav.tsx`: `Breadcrumb` and `Contents` (margin rail at xl, disclosure below), shared by the post page and the Lab
 - `author-footer.tsx`: closing rule and author link, with Share passed in; post page, Lab and CV
@@ -47,7 +48,8 @@
 
 - `bun run lint`
 - Bug hunt: start a run, move, throw at the cursor standing, running and in the air, fill the laptop and fire with the right click, get past spikes, a laser and a saw (levels 1 to 3 bring them in), clear a level; enter fullscreen from the title, with F and from the pad, play in it on a phone in landscape and portrait, Tab inside it (focus never leaves the game), leave with Esc and with the exit button; check pausing on blur, and the joystick and buttons on a touch viewport
-- Preview a post: copy button, scene gallery, roller, die, contents, share menu, locale toggle; hover a home tile
+- Preview a post: copy button, scene gallery, roller, die, contents, share menu; hover a home tile
+- Dock: open by hover, by keyboard (ArrowUp on the orb, arrows, Escape) and by touch on a phone viewport; switch every theme and both languages; reduced motion swaps at once
 - Seeded scenes: type a seed (it melts on the sheet), pick each place and "Another scene", every dot size
 
 ## Child DOX Index

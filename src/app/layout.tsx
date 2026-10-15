@@ -3,9 +3,11 @@ import { Geist_Mono, Inter } from "next/font/google";
 import { ViewTransition } from "react";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
-import { LocaleToggle } from "@/components/locale-toggle";
+import { ThemeProvider } from "next-themes";
+import { Dock } from "@/components/dock";
 import { setLocale, t } from "@/i18n/generated";
 import { openGraph, site } from "@/lib/site";
+import { themes } from "@/lib/theme";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 // Mono only sets code and the footer's index.md link, never above the fold,
@@ -45,20 +47,33 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const locale = await setLocale();
 
+  // next-themes puts the theme's class on <html> before the first paint, so
+  // React's own class string is told to expect it.
   return (
     <html
       lang={locale}
-      className={`dark h-full antialiased font-sans ${inter.variable} ${mono.variable}`}
+      suppressHydrationWarning
+      className={`h-full antialiased font-sans ${inter.variable} ${mono.variable}`}
     >
       <body className="min-h-full flex flex-col">
-        {/* A language switch cross-fades the page; navigations don't. */}
-        <ViewTransition
-          update={{ locale: "auto", default: "none" }}
-          default="none"
-        >
-          {children}
-        </ViewTransition>
-        <LocaleToggle locale={locale} label={t.app.language} />
+        <ThemeProvider attribute="class" themes={[...themes]}>
+          {/* A language switch cross-fades the page; navigations don't. */}
+          <ViewTransition
+            update={{ locale: "auto", default: "none" }}
+            default="none"
+          >
+            {children}
+          </ViewTransition>
+          <Dock
+            locale={locale}
+            labels={{
+              dock: t.app.dock,
+              theme: t.app.theme,
+              language: t.app.language,
+              themes: t.app.themes,
+            }}
+          />
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

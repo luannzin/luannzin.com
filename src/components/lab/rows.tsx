@@ -55,7 +55,7 @@ export function LabRows({
               <span
                 className={
                   art
-                    ? "relative block size-11 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-white/10"
+                    ? "relative block size-11 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-black/10 dark:outline-white/10"
                     : "grid size-11 place-items-center overflow-hidden rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[color] duration-150 group-hover:text-foreground"
                 }
               >

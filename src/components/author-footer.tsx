@@ -29,7 +29,7 @@ export function AuthorFooter({
             alt=""
             width={40}
             height={40}
-            className="size-10 rounded-full outline -outline-offset-1 outline-white/10"
+            className="size-10 rounded-full outline -outline-offset-1 outline-black/10 dark:outline-white/10"
           />
           <span>
             <span className={`${underline} font-medium`}>Luan Fabri</span>

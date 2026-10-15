@@ -50,7 +50,7 @@ export default async function Home() {
           alt=""
           width={44}
           height={44}
-          className="rounded-[10px] outline -outline-offset-1 outline-white/10"
+          className="rounded-[10px] outline -outline-offset-1 outline-black/10 dark:outline-white/10"
         />
       ),
     },
@@ -66,7 +66,7 @@ export default async function Home() {
       href: "/projects/seeded-scenes",
       // its own scene, still until hovered, like a post's tile
       mark: (
-        <span className="relative size-11 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-white/10">
+        <span className="relative size-11 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-black/10 dark:outline-white/10">
           <Image
             src="/projects/seeded-scenes/tile.png"
             alt=""
@@ -90,7 +90,7 @@ export default async function Home() {
           width={40}
           height={40}
           preload
-          className={`${enter} size-10 rounded-full outline -outline-offset-1 outline-white/10`}
+          className={`${enter} size-10 rounded-full outline -outline-offset-1 outline-black/10 dark:outline-white/10`}
         />
         <div className="leading-snug">
           <TextReveal as="h1" text="Luan Fabri" className="font-medium" />

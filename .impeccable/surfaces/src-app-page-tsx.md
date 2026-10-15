@@ -9,7 +9,7 @@ related_targets: []
 
 Scope: header (avatar, name, role), hero bio, projects list. Visitor mode: Experience, read-like: the text and the work lead, the interface recedes.
 
-Audience: engineers, founders, recruiters arriving from GitHub/X/LinkedIn. Job: learn who Luan is and open a project or profile. Proof: echo and better-intl, real links. Constraints: English, dark only, Central Icons, coss tokens.
+Audience: engineers, founders, recruiters arriving from GitHub/X/LinkedIn. Job: learn who Luan is and open a project or profile. Proof: echo and better-intl, real links. Constraints: English and Portuguese, dark, light and dawn themes (system light or dark by default) picked in the dock, Central Icons, coss tokens.
 
 ## Direction contract
 

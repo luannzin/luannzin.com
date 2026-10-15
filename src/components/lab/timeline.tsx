@@ -140,9 +140,9 @@ export function useSeekCss(
 }
 
 // On the Well and the Tile Grey of its controls the page's muted grey falls
-// under 4.5:1, so muted steps up; Bug hunt's fullscreen keeps the same ink.
-export const ink =
-  "[--muted-foreground:color-mix(in_srgb,var(--color-neutral-500)_80%,var(--color-white))]";
+// under 4.5:1, so muted steps up toward the ink (`--muted-strong`, per theme
+// in globals.css); Bug hunt's fullscreen keeps the same ink.
+export const ink = "[--muted-foreground:var(--muted-strong)]";
 
 // The Well a specimen sits in: full-bleed with hairlines on a phone, framed
 // and hanging into the gutters from sm.

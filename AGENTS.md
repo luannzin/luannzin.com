@@ -110,7 +110,7 @@ Default section order:
 
 ## Purpose
 
-- Personal site of Luan Fabri: a one-column portfolio (bio, projects, one of them Seeded scenes, a playground for the engine behind every post's picture) plus writing, a Lab (an index of pieces: the site's motion slowed down, and Bug hunt, a platformer) and a CV that prints as its PDF, in English and Brazilian Portuguese, deployed on Vercel at `https://www.luannzin.com`
+- Personal site of Luan Fabri: a one-column portfolio (bio, projects, one of them Seeded scenes, a playground for the engine behind every post's picture) plus writing, a Lab (an index of pieces: the site's motion slowed down, and Bug hunt, a platformer) and a CV that prints as its PDF, in English and Brazilian Portuguese, in dark, light and dawn themes, deployed on Vercel at `https://www.luannzin.com`
 - `PRODUCT.md` is the product brief (audience, positioning, facts on hand); `DESIGN.md` is the binding design system ("The Quiet Column") for every visual change; `IDENTITY.md` is the binding voice for every user-facing string, in both languages
 
 ## Ownership
@@ -140,6 +140,7 @@ Root owns repo-wide config and the folders without their own AGENTS.md:
 - Every claim on the site must be true today; do not publish metrics, phone number or email without asking (`PRODUCT.md`); the CV carries the email and no metrics or phone (user decision)
 - The CV's facts live once, in `src/app/cv/t.ts`; after changing them, regenerate the PDFs with `cv:pdf` and commit them together
 - Bug hunt's art changes only through `scripts/bug-hunt-art.py`; rerun it and commit the script with `atlas.png`, `tile.png` and `atlas.json` together, since the game reads frames by name from the JSON
+- Themes: `src/lib/theme.ts` lists them; next-themes (`ThemeProvider` in the root layout) sets the one in use as a class on `<html>`, the system's light or dark until the dock picks one, kept in localStorage; their tokens live in `src/app/globals.css` (`.dark`, `.light`, `.dawn`); interface colour only through tokens, art edges `outline-black/10 dark:outline-white/10`; a new theme needs its four seeds checked for contrast, its orb look in `src/components/orb.tsx` and its name in `src/app/t.ts`
 - The home bio and projects exist in four places: `src/app/page.tsx` with `src/app/t.ts` (Seeded scenes' row copy in `src/app/projects/t.ts`), `src/app/index.md/route.ts`, `src/lib/og.tsx` and `src/lib/json-ld.tsx`; change them together
 - Files are stored LF (`core.autocrlf=true`); scripted edits must not write CRLF (Python: `newline=""`; check with `git ls-files --eol <file>`)
 

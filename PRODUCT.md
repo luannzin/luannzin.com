@@ -22,7 +22,7 @@ A front-end engineer who ships production ERPs and multi-tenant platforms at Loo
 
 - Stack: Next.js 16 (App Router, cache components, React Compiler), Tailwind CSS v4, coss UI (Base UI), Bun, Biome.
 - Language: English and Brazilian Portuguese via better-intl, picked from the `locale` cookie, else Accept-Language. Translated posts live in `src/content/writing/pt/`.
-- Theme: dark only.
+- Theme: dark, light and dawn, picked in the dock; a first visit follows the system's light or dark (next-themes, kept in localStorage). Share cards stay dark.
 - Current sections: header (name, role, avatar), hero bio, projects (echo, better-intl, and Seeded scenes, the posts' scene engine as a playground at `/projects/seeded-scenes`), writing, Lab (two rows: the motion at `/lab/motion`, and Bug hunt, a platformer at `/lab/bug-hunt`; `/lab` lists them like posts); the CV lives at `/cv` (linked from the home footer), not on the home page.
 - Source of facts: `LUAN FABRI.md` (RH-oriented, written ~April 2026, partly outdated) plus GitHub.
 
@@ -49,4 +49,4 @@ A front-end engineer who ships production ERPs and multi-tenant platforms at Loo
 
 ## Accessibility & Inclusion
 
-WCAG AA contrast on the dark ground, full keyboard access with visible focus, reduced motion respected.
+WCAG AA contrast in every theme, full keyboard access with visible focus, reduced motion respected.

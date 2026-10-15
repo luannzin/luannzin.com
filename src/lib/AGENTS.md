@@ -17,6 +17,7 @@
 - `json-ld.tsx`: schema.org graph (`home`, `article(post, locale)`) and `JsonLd`
 - `site.ts`: `site` origin (the www host), `profiles`, `email` (CV only), `cvPdf` (the CV PDF paths, kept in step with `scripts/cv-pdf.mjs`), shared `openGraph`, `markdownTwin` (the markdown twins' response)
 - `locale.ts`: `changeLocale` server action
+- `theme.ts`: the themes in the dock's order and the `Theme` type; shared by the layout's `ThemeProvider`, the dock and the orb
 - `classes.ts`: shared class tokens `enter`, `bezel`, `press`, `underline` (named in `DESIGN.md`)
 - `bug-hunt/level.ts`: Bug hunt's levels from a seed and a number (floor, pits, one-way decks, traps, bugs, exit); pure, checked by `scripts/bug-hunt-check.ts`
 - `bug-hunt/game.ts`: Bug hunt's simulation (steps of at most 1/120s, each frame played out in full; the hero's moves: running, jumping, throws aimed at the cursor, the special; the bugs; the traps: spikes, lasers on a cycle, rolling saws) and its drawing on a 2D canvas, the camera pinned to the hero to the pixel; client only for drawing

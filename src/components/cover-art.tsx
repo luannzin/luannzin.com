@@ -86,7 +86,7 @@ export function CoverArt({
           ref={art}
           role="img"
           aria-label={`${labels.label} ${name}`}
-          className="relative overflow-hidden sm:rounded-[14px] sm:outline sm:-outline-offset-1 sm:outline-white/10"
+          className="relative overflow-hidden sm:rounded-[14px] sm:outline sm:-outline-offset-1 sm:outline-black/10 sm:dark:outline-white/10"
         >
           <SceneArt seed={seed} stir />
         </div>

@@ -241,7 +241,7 @@ export function ScenesSpecimen({
         ref={art}
         role="img"
         aria-label={`${sceneLabels.label} ${scene.name}`}
-        className="relative overflow-hidden sm:rounded-t-[14px] sm:outline sm:-outline-offset-1 sm:outline-white/10"
+        className="relative overflow-hidden sm:rounded-t-[14px] sm:outline sm:-outline-offset-1 sm:outline-black/10 sm:dark:outline-white/10"
         style={{ background: scene.time.ground }}
       >
         <SceneArt seed={seed} stir />
@@ -357,7 +357,7 @@ export function HintSpecimen({ name, controls, tracks }: Common) {
       >
         <div className="relative [zoom:1.3] sm:[zoom:2]">
           <div
-            className="h-[100px] w-[200px] overflow-hidden rounded-[14px] outline -outline-offset-1 outline-white/10"
+            className="h-[100px] w-[200px] overflow-hidden rounded-[14px] outline -outline-offset-1 outline-black/10 dark:outline-white/10"
             style={{ background: createScene(HINT_SEED).time.ground }}
           >
             <SceneArt seed={HINT_SEED} />
@@ -419,7 +419,7 @@ export function RevealSpecimen({
             alt=""
             width={40}
             height={40}
-            className={`${enter} size-10 rounded-full outline -outline-offset-1 outline-white/10`}
+            className={`${enter} size-10 rounded-full outline -outline-offset-1 outline-black/10 dark:outline-white/10`}
           />
           <div className="leading-snug">
             <TextReveal as="p" text={NAME} className="font-medium" />
