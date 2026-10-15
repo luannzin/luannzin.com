@@ -1171,7 +1171,8 @@ html[data-reveal]::view-transition-new(root) {
   .dock-pill,
   .dock-sphere,
   .dock-moon {
-    transition-property: translate, scale, top, height;
+    /* box-shadow: the pill's ring brightens under a mouse */
+    transition-property: translate, scale, top, height, box-shadow;
     transition-duration: 250ms;
     transition-timing-function: var(--settle);
   }

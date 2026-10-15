@@ -49,7 +49,7 @@
 - `bun run lint`
 - Bug hunt: start a run, move, throw at the cursor standing, running and in the air, fill the laptop and fire with the right click, get past spikes, a laser and a saw (levels 1 to 3 bring them in), clear a level; enter fullscreen from the title, with F and from the pad, play in it on a phone in landscape and portrait, Tab inside it (focus never leaves the game), leave with Esc and with the exit button; check pausing on blur, and the joystick and buttons on a touch viewport
 - Preview a post: copy button, scene gallery, roller, die, contents, share menu; hover a home tile
-- Dock: open by hover, by keyboard (ArrowUp on the orb, arrows, Escape) and by touch on a phone viewport; switch every theme and both languages; reduced motion swaps at once
+- Dock: open by click (a hover only wakes the orb: faster spin, light toward the cursor, brighter ring; it must not open it), by keyboard (ArrowUp on the orb, arrows, Escape) and by touch on a phone viewport; switch every theme and both languages; reduced motion swaps at once
 - Seeded scenes: type a seed (it melts on the sheet), pick each place and "Another scene", every dot size
 
 ## Child DOX Index

@@ -93,7 +93,7 @@ function reveal(update: () => void, from: HTMLElement) {
     !document.startViewTransition ||
     matchMedia("(prefers-reduced-motion: reduce)").matches
   )
-    return Promise.resolve(update());
+    return update();
   const html = document.documentElement;
   const box = from.getBoundingClientRect();
   html.style.setProperty(
@@ -105,7 +105,7 @@ function reveal(update: () => void, from: HTMLElement) {
   const transition = document.startViewTransition(update);
   // skipped when another pick or a hidden tab cuts it short: not an error
   transition.ready.catch(() => {});
-  return transition.finished.finally(() => {
+  transition.finished.finally(() => {
     if (--reveals === 0) delete html.dataset.reveal;
   });
 }
@@ -119,7 +119,8 @@ type DockLabels = {
 
 // The theme as a turning halftone orb, with the language as a flag moon at
 // its side, in the bottom corner on a phone and on the right edge from lg.
-// Hover, focus or a tap unfolds the list around the orb, which stays where it
+// A click, a tap or the keyboard unfolds the list around the orb (never a
+// hover, so passing the edge opens nothing), which stays where it
 // is: it takes the place of its own theme in the list, and the moon flies to
 // its language. Picking a theme wipes the page into it from that orb, and the
 // orb glides into the new theme's place; picking a language closes the list
@@ -148,17 +149,17 @@ export function Dock({
   const [hang, setHang] = useState(0);
   // the row the pointer or focus is on
   const [near, setNear] = useState<number | null>(null);
+  // a mouse over the dock wakes the orb without opening anything
+  const [hovered, setHovered] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const items = useRef<(HTMLButtonElement | null)[]>([]);
-  const leave = useRef(0);
   const id = useId();
 
   const current = codes.length + themes.indexOf(theme);
   const language = codes.indexOf(shown);
 
   const show = (focus?: number) => {
-    clearTimeout(leave.current);
     if (!open && root.current) {
       const box = root.current.getBoundingClientRect();
       // in the phone's corner the list opens upward only, clear of the
@@ -177,7 +178,6 @@ export function Dock({
   };
 
   const hide = (refocus = false) => {
-    clearTimeout(leave.current);
     setOpen(false);
     setNear(null);
     if (refocus) trigger.current?.focus();
@@ -213,11 +213,7 @@ export function Dock({
       flushSync(() => setTheme(next));
       // commit the new colours while transitions are still off
       void html.offsetHeight;
-    }, from).then(() => {
-      // a mouse may have left under the wipe, which hid the leaving
-      const away = !root.current?.matches(":hover");
-      if (!reveals && away && matchMedia("(hover: hover)").matches) hide();
-    });
+    }, from);
   };
 
   // The cookie is set by a Server Action, which sends the page back in the
@@ -318,14 +314,9 @@ export function Dock({
     <div
       ref={root}
       data-open={open || undefined}
-      onPointerEnter={(e) => e.pointerType === "mouse" && show()}
-      onPointerLeave={(e) => {
-        // a theme's wipe covers the page, so the pointer seems to leave
-        if (e.pointerType !== "mouse" || reveals) return;
-        clearTimeout(leave.current);
-        leave.current = window.setTimeout(hide, 280);
-      }}
-      className={`dock fixed end-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-50 size-10 lg:end-6 lg:top-1/2 lg:bottom-auto lg:-mt-5 ${enter} delay-700`}
+      onPointerEnter={(e) => setHovered(e.pointerType === "mouse")}
+      onPointerLeave={() => setHovered(false)}
+      className={`dock group fixed end-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-50 size-10 lg:end-6 lg:top-1/2 lg:bottom-auto lg:-mt-5 ${enter} delay-700`}
     >
       <div
         className="dock-body absolute inset-x-0 top-0"
@@ -333,7 +324,7 @@ export function Dock({
       >
         <div
           aria-hidden
-          className="dock-pill absolute inset-x-0 rounded-[20px] bg-popover shadow-lg/20 inset-ring inset-ring-border"
+          className="dock-pill absolute inset-x-0 rounded-[20px] bg-popover shadow-lg/20 inset-ring inset-ring-border group-hover:inset-ring-foreground/20"
           style={
             open
               ? { top: 0, height: HEIGHT }
@@ -367,7 +358,7 @@ export function Dock({
         >
           <Orb
             theme={theme}
-            awake={open}
+            awake={open || hovered}
             className="block size-8 rounded-full outline -outline-offset-1 outline-black/10 dark:outline-white/10"
           />
         </button>
