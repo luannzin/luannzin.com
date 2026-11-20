@@ -154,8 +154,10 @@ export default async function Home() {
         <h2 id="lines" className="scroll-mt-12 font-medium">
           {copy.lines}
         </h2>
-        <p className="text-muted-foreground leading-snug">{copy.linesLead}</p>
-        <ul className="mt-4 grid gap-6 sm:grid-cols-2 sm:gap-4">
+        <p className="text-pretty text-muted-foreground leading-snug">
+          {copy.linesLead}
+        </p>
+        <ul className="mt-4 grid gap-6 sm:grid-cols-2">
           {lines.map(({ name, host, mark, blurb }, i) => (
             <li key={host}>
               <a
@@ -189,7 +191,9 @@ export default async function Home() {
                     <span className={underline}>{host}</span>
                     <ArrowUpRightIcon className="size-3.5 -translate-x-0.5 translate-y-0.5 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:translate-y-0 group-focus-visible:opacity-100" />
                   </span>
-                  <span className="block text-muted-foreground">{blurb}</span>
+                  <span className="block text-pretty text-muted-foreground">
+                    {blurb}
+                  </span>
                 </span>
               </a>
             </li>

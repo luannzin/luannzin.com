@@ -2,15 +2,14 @@
 
 import { useEffect, useRef } from "react";
 
-// Four blocks of the dusk sky, top to horizon, each denser than the last:
-// Bayer-dithered dots that the pointer pushes aside and that spring back.
-const BLOCKS = [
-  { color: "#3a2a6b", fill: 0.25 },
-  { color: "#7a3361", fill: 0.5 },
-  { color: "#e0703f", fill: 0.75 },
-  { color: "#ffd180", fill: 1 },
-];
-const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+// The dusk sky, top to horizon (violet, plum, ember, gold), and the 4x4
+// Bayer matrix that dithers it; the lines' night tiles share both.
+export const DUSK = ["#3a2a6b", "#7a3361", "#e0703f", "#ffd180"];
+export const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+
+// Four blocks of the dusk sky, each denser than the last: Bayer-dithered
+// dots that the pointer pushes aside and that spring back.
+const BLOCKS = DUSK.map((color, i) => ({ color, fill: (i + 1) / 4 }));
 const STEP = 3; // px between dots
 const DOT = 2;
 const HEIGHT = 32;

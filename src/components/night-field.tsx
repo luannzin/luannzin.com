@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { BAYER, DUSK } from "./footer-art";
 
 // A line's night, the lines' own banner made small: 2px dusk dots on a 3px
 // grid (whole device pixels), Bayer-dithered from the night toward a glow
@@ -13,15 +14,14 @@ import { useEffect, useRef } from "react";
 // strip. Under reduced motion the field is simply there, nothing is pushed,
 // and the glow changes in place.
 
-const DUSK = ["#3a2a6b", "#7a3361", "#e0703f", "#ffd180"];
-const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const REST = 0.8; // how far up the ramp the glow reaches at rest
 const AWAKE = 1.9; // and while the link is hovered or focused
 const DEVELOP = 1400; // ms
 const REACH = 28; // css px the pointer pushes within
 const PUSH = 10;
 
-export function NightField({ delay = 0 }: { delay?: number }) {
+/** `delay`: ms after page load before the dots may develop. */
+export function NightField({ delay }: { delay: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
