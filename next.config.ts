@@ -49,6 +49,17 @@ const nextConfig: NextConfig = {
         destination: "/writing/no-server-to-run.md",
         permanent: true,
       },
+      // Sightline's, as "Everything after the #".
+      {
+        source: "/writing/everything-after-the-hash",
+        destination: "/writing/your-screen-as-a-link",
+        permanent: true,
+      },
+      {
+        source: "/writing/everything-after-the-hash.md",
+        destination: "/writing/your-screen-as-a-link.md",
+        permanent: true,
+      },
     ];
   },
   // Markdown twins for agents: /index.md is the home page, also at the

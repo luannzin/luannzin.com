@@ -139,4 +139,4 @@ Na mesma rede o medidor fica o mais cheio e quente possível. Por um relay, com 
 - **Versões diferentes.** Mensagens desconhecidas são ignoradas, então dois computadores em versões diferentes ainda conversam.
 - **Linux e macOS.** Eu escrevi essas partes sem uma máquina Linux ou Mac pra testar. Espera umas arestas por lá.
 
-O Deskline foi do primeiro commit até a 0.8.0 entre 17 e 19 de novembro. O Sightline, que começou no dia 18, faz a parte da tela sem instalar nada: [um link que você abre no navegador](/writing/everything-after-the-hash).
+O Deskline foi do primeiro commit até a 0.8.0 entre 17 e 19 de novembro. O Sightline, que começou no dia 18, faz a parte da tela sem instalar nada: [um link que você abre no navegador](/writing/your-screen-as-a-link).

@@ -139,4 +139,4 @@ On the same network the meter is as full and warm as it gets. Through a relay, w
 - **Versions that don't match.** Unknown messages are skipped, so two computers on different versions still talk.
 - **Linux and macOS.** I wrote those backends without a Linux or Mac machine to try them on. Expect rough edges there.
 
-Deskline went from its first commit to 0.8.0 between November 17 and 19. Sightline, started on the 18th, does the screen part with no install at all: [a link you open in the browser](/writing/everything-after-the-hash).
+Deskline went from its first commit to 0.8.0 between November 17 and 19. Sightline, started on the 18th, does the screen part with no install at all: [a link you open in the browser](/writing/your-screen-as-a-link).

@@ -1,8 +1,8 @@
 ---
-title: Tudo depois do #
-description: Como o Sightline transforma sua tela num link
+title: Sua tela como um link
+description: O Sightline, o que eu fiz quando o Discord parou de me deixar compartilhar a tela
 date: 2026-11-20
-metaTitle: "Tudo depois do #: compartilhar a tela por WebRTC sem servidor"
+metaTitle: "Sua tela como um link: compartilhar a tela por WebRTC sem servidor meu"
 metaDescription: Como o Sightline compartilha a tela pelo navegador como um link: um segredo no fragmento da URL, sinalização pelos relays públicos do Nostr com o Trystero, WebRTC direto entre navegadores, e bichinhos em pixel art desenhados a partir de uma seed de 32 bits.
 seed: 123
 ---

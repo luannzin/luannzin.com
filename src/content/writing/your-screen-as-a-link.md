@@ -1,8 +1,8 @@
 ---
-title: Everything after the #
-description: How Sightline turns your screen into a link
+title: Your screen as a link
+description: Sightline, what I made when Discord stopped letting me share my screen
 date: 2026-11-20
-metaTitle: "Everything after the #: screen sharing over WebRTC with no server"
+metaTitle: "Your screen as a link: screen sharing over WebRTC with no server of mine"
 metaDescription: How Sightline shares a screen from the browser as a link: a secret in the URL fragment, signalling through public Nostr relays with Trystero, WebRTC straight between browsers, and pixel critters drawn from a 32-bit seed.
 seed: 123
 ---
