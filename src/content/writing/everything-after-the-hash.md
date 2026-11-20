@@ -1,6 +1,6 @@
 ---
 title: Everything after the #
-description: How Sightline shares a screen as a link, with no server of mine
+description: How Sightline turns your screen into a link
 date: 2026-11-20
 metaTitle: "Everything after the #: screen sharing over WebRTC with no server"
 metaDescription: How Sightline shares a screen from the browser as a link: a secret in the URL fragment, signalling through public Nostr relays with Trystero, WebRTC straight between browsers, and pixel critters drawn from a 32-bit seed.

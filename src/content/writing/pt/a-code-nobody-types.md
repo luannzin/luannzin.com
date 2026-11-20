@@ -1,6 +1,6 @@
 ---
 title: Um código que ninguém digita
-description: Como o Deskline conecta dois computadores sem servidor pra rodar
+description: Como o Deskline conecta sem servidor pra rodar
 date: 2026-11-20
 metaTitle: Um código que ninguém digita: acesso remoto sobre iroh sem servidor pra rodar
 metaDescription: Como o Deskline, um app de acesso remoto em Rust, usa a chave pública Ed25519 de cada computador como endereço, conecta por QUIC com o iroh, com hole punching e relay de reserva, e mantém uma ida e volta inteira de frames em trânsito.

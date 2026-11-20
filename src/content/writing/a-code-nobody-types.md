@@ -1,6 +1,6 @@
 ---
 title: A code nobody types
-description: How Deskline connects two computers with no server to run
+description: How Deskline connects with no server to run
 date: 2026-11-20
 metaTitle: A code nobody types: remote desktop over iroh with no server to run
 metaDescription: How Deskline, a remote desktop app in Rust, uses each computer's Ed25519 public key as its address, dials it over iroh QUIC with hole punching and a relay fallback, and keeps a round trip's worth of frames in flight.
