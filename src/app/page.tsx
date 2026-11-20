@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { seeds } from "@/app/projects/seeded-scenes/seeds";
+import avatar from "@/assets/avatar.jpg";
 import echoLogo from "@/assets/echo.png";
 import desklineMark from "@/assets/lines/deskline.png";
 import sightlineMark from "@/assets/lines/sightline.png";
@@ -104,7 +105,7 @@ export default async function Home() {
       <JsonLd data={home} />
       <header className="flex items-center gap-3">
         <Image
-          src="/avatar.jpg"
+          src={avatar}
           alt=""
           width={40}
           height={40}

@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
 const [regular, medium, avatar] = await Promise.all([
   readFile(path.join(process.cwd(), "src/assets/fonts/Inter-Regular.ttf")),
   readFile(path.join(process.cwd(), "src/assets/fonts/Inter-Medium.ttf")),
-  readFile(path.join(process.cwd(), "public/avatar.jpg")),
+  readFile(path.join(process.cwd(), "src/assets/avatar.jpg")),
 ]);
 
 const ground = "#161616";

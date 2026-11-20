@@ -14,7 +14,7 @@
 - `melt.ts`: WebGL melt between two scenes for the cover die (a plain crossfade under reduced motion); `meltLayer` holds one at a given point for the Lab; client only
 - `markdown.ts`: `renderMarkdown(source, locale)` returns `{ html, toc }`; `plainMarkdown(source)` feeds the markdown twins
 - `writing.ts`: reads `src/content/writing`, parses frontmatter, falls back to English for a missing translation; `getPosts`, `getPost`, `formatDate`; reading time at 220 words a minute
-- `og.tsx`: share images through `next/og` (`homeImage`, `postImage`); reads the Inter TTFs and `public/avatar.jpg`
+- `og.tsx`: share images through `next/og` (`homeImage`, `postImage`); reads the Inter TTFs and `src/assets/avatar.jpg`
 - `json-ld.tsx`: schema.org graph (`home`, `article(post, locale)`) and `JsonLd`
 - `site.ts`: `site` origin (the www host), `profiles`, `email` (CV only), `cvPdf` (the CV PDF paths, kept in step with `scripts/cv-pdf.mjs`), shared `openGraph`, `markdownTwin` (the markdown twins' response)
 - `locale.ts`: `changeLocale` server action

@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import avatar from "@/assets/avatar.jpg";
 import { DiceHint } from "@/components/dice-hint";
 import { Die } from "@/components/die";
 import {
@@ -415,7 +416,7 @@ export function RevealSpecimen({
       >
         <div key={timeline.runs} className="flex items-center gap-3">
           <Image
-            src="/avatar.jpg"
+            src={avatar}
             alt=""
             width={40}
             height={40}

@@ -1,3 +1,4 @@
+import avatar from "@/assets/avatar.jpg";
 import { type Locale, translations } from "@/i18n/generated";
 import { profiles, site } from "@/lib/site";
 import type { Post } from "@/lib/writing";
@@ -32,7 +33,8 @@ export const home = {
         name: "Luan Fabri",
         alternateName: "luannzin",
         url: site,
-        image: `${site}/avatar.jpg`,
+        // hashed by content, so a new avatar is a new URL
+        image: `${site}${avatar.src}`,
         jobTitle: "Front-end engineer",
         worksFor: {
           "@type": "Organization",
