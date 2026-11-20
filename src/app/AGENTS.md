@@ -18,6 +18,7 @@
 - `writing/[slug]/md/route.ts`: post as plain markdown, served at `/writing/<slug>.md`
 - `writing/[slug]/opengraph-image.tsx`: post share card; `opengraph-image.tsx`: home share card
 - `writing/[slug]/tile.png/route.tsx`: still first frame of the post's scene (`sceneTile` from `@/lib/scene-tile`), the home tile under `LiveTile`
+- `today.png/route.tsx`: today's scene (`sceneWide` from `@/lib/scene-tile`, 1200x600), seeded by the date in São Paulo and cached until its midnight; the picture on top of the GitHub profile README (`luannzin/luannzin`), not linked from the site
 - `index.md/route.ts`: home as plain markdown, also served at `/llms.txt`
 - `robots.ts`, `sitemap.ts`, `icon.png`, `apple-icon.png`
 - `t.ts` (`t.app.meta`, `t.app.home`, `t.app.notFound`, `t.app.language`, the dock's `t.app.theme`, `t.app.dock`, `t.app.themes`), `writing/t.ts` (`t.app.writing`), `lab/t.ts` (`t.app.lab`: the index's copy at its root, each piece's page copy under its own key (`t.app.lab.motion`), the motion's pieces and timing sheet labels (`controls`, `tracks`, `seed`, `scenes`, `die`, `hint`, `reveal`) at the root, shared with posts; written to `IDENTITY.md`), `cv/t.ts` (`t.app.cv`, the CV's facts from April 2026 with the numbers left out), `projects/t.ts` (`t.app.projects.scenes`: Seeded scenes' page, home row and twin copy, its places taken from the post's table; written to `IDENTITY.md`)

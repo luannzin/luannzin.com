@@ -7,7 +7,7 @@
 ## Ownership
 
 - `scene.ts`: seeded scene engine; one seed picks place, time of day, landmark and every shape, and each frame is a colour plus dot size per cell, ordered-dithered; exports `seedFrom`, `createScene`, `renderer`, `viewOf`, `START`, `RADIUS` and the `Place` type; pure, runs on server and client
-- `scene-tile.tsx`: `sceneTile(seed)`, a scene's 44px home tile as a PNG through `next/og` (first frame, the landmark crop, 18 dots across at 3x); posts' and Seeded scenes' `tile.png` routes
+- `scene-tile.tsx`: a scene's first frame as a PNG through `next/og`: `sceneTile(seed)`, the 44px home tile (the landmark crop, 18 dots across at 3x) for posts' and Seeded scenes' `tile.png` routes, and `sceneWide(seed, headers)`, the whole scene at 1200x600 (240 dots across) for `/today.png`
 - `die.ts`: the die's geometry (`drawDie`), throws (`throwTo`, `angleAt`) and hop keyframes; pure, shared by `Die` and the Lab
 - `dots.ts`: draws a frame on a canvas (WebGL, 2D fallback); client only
 - `melt.ts`: WebGL melt between two scenes for the cover die (a plain crossfade under reduced motion); `meltLayer` holds one at a given point for the Lab; client only
