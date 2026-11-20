@@ -41,8 +41,8 @@ export default {
     findMeOn: { en: ", or find me on ", pt: " ou me encontrar no " },
     lines: { en: "Lines", pt: "Lines" },
     linesLead: {
-      en: "Apps that only need a code or a link",
-      pt: "Apps que só precisam de um código ou de um link",
+      en: "My apps that only need a code or a link",
+      pt: "Meus apps que só precisam de um código ou de um link",
     },
     deskline: {
       en: "Remote desktop with no server to run",
