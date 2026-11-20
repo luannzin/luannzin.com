@@ -1,13 +1,13 @@
 ---
-title: Um código que ninguém digita
-description: Como o Deskline conecta sem servidor pra rodar
+title: Sem servidor pra rodar
+description: O Deskline, o acesso remoto que eu fiz pra substituir o AnyDesk
 date: 2026-11-20
-metaTitle: Um código que ninguém digita: acesso remoto sobre iroh sem servidor pra rodar
+metaTitle: "Sem servidor pra rodar: acesso remoto em Rust sobre o iroh"
 metaDescription: Como o Deskline, um app de acesso remoto em Rust, usa a chave pública Ed25519 de cada computador como endereço, conecta por QUIC com o iroh, com hole punching e relay de reserva, e mantém uma ida e volta inteira de frames em trânsito.
 seed: 118
 ---
 
-Todo computador com o Deskline tem um endereço de 52 caracteres, e ninguém nunca digita um. Eu comecei o Deskline como a menor coisa que desse pra substituir o AnyDesk quando eu ajudo a família e os amigos. O AnyDesk dá pra cada computador um número de 9 dígitos que sai dos servidores dele. O Deskline não tem servidor nenhum distribuindo número curto, e a ideia é essa. Então o endereço é a chave pública do computador, e você copia e cola.
+Eu comecei o Deskline como a menor coisa que desse pra substituir o AnyDesk quando eu ajudo a família e os amigos: um acesso remoto sem conta e sem servidor pra rodar. O AnyDesk dá pra cada computador um número de 9 dígitos que sai dos servidores dele. O Deskline não tem servidor distribuindo número, então o código de um computador é a chave pública dele, e você copia e cola.
 
 Não foi a primeira coisa que eu fiz desse jeito. Cinco dias antes do primeiro commit do Deskline, eu comecei o PartyLine, e quase tudo que o Deskline usa veio de lá.
 
@@ -58,7 +58,7 @@ code
 
 Colar o código é a apresentação inteira. A conexão é QUIC com TLS amarrado a essa chave, então você chega no computador cujo código você colou, e nada no meio do caminho consegue ler ou mudar a sessão, nem os relays. Os relays são os públicos da n0: eles ajudam os dois computadores a se acharem, e carregam o tráfego criptografado quando não tem caminho direto.
 
-Ninguém digita. Você copia, manda, a outra pessoa cola, e o Deskline guarda em Recentes com o nome que você escolher.
+Você copia, manda, a outra pessoa cola, e o Deskline guarda em Recentes com o nome que você escolher.
 
 ## Nada começa sem um clique
 

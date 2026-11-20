@@ -38,6 +38,17 @@ const nextConfig: NextConfig = {
       // Bug hunt, the Lab's platformer, is gone; its old links land on the Lab.
       { source: "/lab/bug-hunt", destination: "/lab", permanent: true },
       { source: "/lab/bug-hunt.md", destination: "/lab.md", permanent: true },
+      // Deskline's post was first published as "A code nobody types".
+      {
+        source: "/writing/a-code-nobody-types",
+        destination: "/writing/no-server-to-run",
+        permanent: true,
+      },
+      {
+        source: "/writing/a-code-nobody-types.md",
+        destination: "/writing/no-server-to-run.md",
+        permanent: true,
+      },
     ];
   },
   // Markdown twins for agents: /index.md is the home page, also at the

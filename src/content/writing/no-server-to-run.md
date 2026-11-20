@@ -1,13 +1,13 @@
 ---
-title: A code nobody types
-description: How Deskline connects with no server to run
+title: No server to run
+description: Deskline, the remote desktop I made to replace AnyDesk
 date: 2026-11-20
-metaTitle: A code nobody types: remote desktop over iroh with no server to run
+metaTitle: "No server to run: a remote desktop in Rust over iroh"
 metaDescription: How Deskline, a remote desktop app in Rust, uses each computer's Ed25519 public key as its address, dials it over iroh QUIC with hole punching and a relay fallback, and keeps a round trip's worth of frames in flight.
 seed: 118
 ---
 
-Every computer running Deskline has an address 52 characters long, and nobody ever types one. I started Deskline as the smallest thing that could replace AnyDesk when I help family and friends. AnyDesk gives each computer a 9-digit number from its own servers. Deskline has no server handing out short numbers, and that's the point. So the address is the computer's public key, and you copy and paste it.
+I started Deskline as the smallest thing that could replace AnyDesk when I help family and friends: a remote desktop with no account and no server to run. AnyDesk gives each computer a 9-digit number from its own servers. Deskline has no server handing out numbers, so a computer's code is its public key, and you copy and paste it.
 
 It wasn't the first thing I built that way. Five days before Deskline's first commit, I started PartyLine, and most of what Deskline stands on came from there.
 
@@ -58,7 +58,7 @@ code
 
 Pasting it is the whole introduction. The connection is QUIC with TLS keyed to that key, so you reach the computer whose code you pasted, and nothing in between can read or change the session, the relays included. Those are n0's public relays: they help two computers find each other, and carry the encrypted traffic when there's no direct path.
 
-Nobody types it. You copy it, send it, the other person pastes it, and Deskline keeps it under Recent with a name you choose.
+You copy it, send it, the other person pastes it, and Deskline keeps it under Recent with a name you choose.
 
 ## Nothing starts without a click
 

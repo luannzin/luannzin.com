@@ -9,7 +9,7 @@ seed: 123
 
 O Discord parou de me deixar compartilhar a tela pelo app, e o jeito que todo mundo usa pra contornar é abrir um Google Meet. Uma reunião inteira, com sala de espera e pedido de câmera, pra "olha isso aqui". Então eu fiz só a parte que eu queria. Você compartilha a tela e ganha um link, e quem abrir assiste ao vivo, no navegador, com som. Não tem servidor meu no meio, porque não tem servidor meu nenhum: o site é uma página estática.
 
-O [PartyLine e o Deskline](/writing/a-code-nobody-types#onde-comecou) já conectam dois computadores sem servidor meu, mas eles são apps que você instala, e fazem isso com o iroh. Um link tem que funcionar em qualquer navegador que abrir ele, então o Sightline faz a mesma coisa com o que os navegadores já têm: WebRTC.
+O [PartyLine e o Deskline](/writing/no-server-to-run#onde-comecou) já conectam dois computadores sem servidor meu, mas eles são apps que você instala, e fazem isso com o iroh. Um link tem que funcionar em qualquer navegador que abrir ele, então o Sightline faz a mesma coisa com o que os navegadores já têm: WebRTC.
 
 ## Um link que carrega o próprio segredo
 
@@ -111,7 +111,7 @@ Os nomes são um adjetivo e um animal em inglês, 24 de cada, então são 576, d
 - **Quem assiste espera você.** Se sua conexão cair sem você parar, quem tá assistindo fica com a última imagem e espera até um minuto você voltar.
 - **Tirar alguém.** O mesmo link não deixa a pessoa voltar daquele navegador. Uma janela anônima contorna isso, então pra alguém que não pode assistir mesmo, para e compartilha de novo: o link novo é uma sala nova.
 - **Cada pessoa assistindo custa.** Seu navegador codifica o vídeo uma vez por pessoa, então umas poucas pessoas é o que fica confortável.
-- **O medidor do link.** Cada conexão é desenhada como o [medidor do link do Deskline](/writing/a-code-nobody-types#o-crepusculo), a partir do mesmo caminho e da mesma ida e volta.
+- **O medidor do link.** Cada conexão é desenhada como o [medidor do link do Deskline](/writing/no-server-to-run#o-crepusculo), a partir do mesmo caminho e da mesma ida e volta.
 - **Ainda não medido.** O atraso da sua tela até a deles, e com que frequência uma conexão precisa de relay.
 
 A página é um build estático do Vite, e o céu com dither atrás dela vem do rodapé deste site.

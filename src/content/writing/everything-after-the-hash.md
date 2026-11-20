@@ -9,7 +9,7 @@ seed: 123
 
 Discord stopped letting me share my screen from the app, and the way around it everybody uses is opening a Google Meet. A whole meeting, with a lobby and a camera prompt, for "hey, look at this". So I made only the part I wanted. You share your screen and get a link, and whoever opens it watches, live, in the browser, with sound. There's no server of mine in the middle, because there's no server of mine at all: the site is a static page.
 
-[PartyLine and Deskline](/writing/a-code-nobody-types#where-it-started) already connect two computers with no server of mine, but they're apps you install, and they do it with iroh. A link has to work in whatever browser opens it, so Sightline does the same thing with what browsers already have: WebRTC.
+[PartyLine and Deskline](/writing/no-server-to-run#where-it-started) already connect two computers with no server of mine, but they're apps you install, and they do it with iroh. A link has to work in whatever browser opens it, so Sightline does the same thing with what browsers already have: WebRTC.
 
 ## A link that carries its own secret
 
@@ -111,7 +111,7 @@ The names are an adjective and an animal, 24 of each, so 576 of them, from Amber
 - **Viewers wait for you.** If your connection drops without you stopping, viewers keep the last picture and wait up to a minute for you to come back.
 - **Removing someone.** The same link won't let them back in from that browser. A private window gets around it, so for someone who really shouldn't watch, stop and share again: the new link is a new room.
 - **Every viewer costs you.** Your browser encodes the video once per viewer, so a handful of people is the comfortable range.
-- **The link meter.** Each connection is drawn as [Deskline's link meter](/writing/a-code-nobody-types#the-dusk), from the same route and round trip.
+- **The link meter.** Each connection is drawn as [Deskline's link meter](/writing/no-server-to-run#the-dusk), from the same route and round trip.
 - **Not measured yet.** The delay from your screen to theirs, and how often a connection needs a relay.
 
 The page is a static Vite build, and the dithered sky behind it comes from the footer of this site.
