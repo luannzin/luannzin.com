@@ -11,7 +11,6 @@ export function GET() {
 ${lab.intro}
 
 - [${lab.motion.title}](${site}/lab/motion.md) — ${lab.motion.rowDescription}
-- [${lab.game.title}](${site}/lab/bug-hunt.md) — ${lab.game.rowDescription}
 `;
   return markdownTwin(text, "/lab");
 }

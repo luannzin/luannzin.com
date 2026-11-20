@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Die } from "@/components/die";
 import { ArrowRightIcon } from "@/components/icons";
@@ -14,37 +13,18 @@ export function LabRows({
   labels: typeof t.app.lab;
   className?: string;
 }) {
-  // A piece with art of its own shows it edge to edge, framed like a post's
-  // tile (the real-mark rule); one without gets an icon on the Tile Grey.
+  // Each piece gets an icon on the Tile Grey.
   const pieces = [
     {
       href: "/lab/motion",
       title: labels.motion.title,
       description: labels.motion.rowDescription,
-      art: false,
       tile: <Die seed={4} className="size-6 overflow-visible" />,
-    },
-    {
-      href: "/lab/bug-hunt",
-      title: labels.game.title,
-      description: labels.game.rowDescription,
-      art: true,
-      // a scene from a level, drawn by the game's art script at 1x
-      tile: (
-        <Image
-          src="/lab/bug-hunt/tile.png"
-          alt=""
-          width={44}
-          height={44}
-          unoptimized
-          className="block size-full [image-rendering:pixelated]"
-        />
-      ),
     },
   ];
   return (
     <ul className={cn("grid gap-6", className)}>
-      {pieces.map(({ href, title, description, art, tile }) => (
+      {pieces.map(({ href, title, description, tile }) => (
         <li key={href}>
           <Link
             href={href}
@@ -52,13 +32,7 @@ export function LabRows({
             className="group flex items-center gap-4 rounded-[14px] outline-offset-4"
           >
             <span className={bezel}>
-              <span
-                className={
-                  art
-                    ? "relative block size-11 overflow-hidden rounded-[10px] outline -outline-offset-1 outline-black/10 dark:outline-white/10"
-                    : "grid size-11 place-items-center overflow-hidden rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[color] duration-150 group-hover:text-foreground"
-                }
-              >
+              <span className="grid size-11 place-items-center overflow-hidden rounded-[10px] bg-muted text-muted-foreground shadow-[inset_0_0_0_1px_var(--border)] transition-[color] duration-150 group-hover:text-foreground">
                 {tile}
               </span>
             </span>

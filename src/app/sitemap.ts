@@ -13,7 +13,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${site}/projects/seeded-scenes` },
     { url: `${site}/lab` },
     { url: `${site}/lab/motion` },
-    { url: `${site}/lab/bug-hunt` },
     { url: `${site}/cv` },
     ...posts,
   ];

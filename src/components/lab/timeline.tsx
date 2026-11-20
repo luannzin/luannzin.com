@@ -139,14 +139,11 @@ export function useSeekCss(
   }, [host, t, runs]);
 }
 
-// On the Well and the Tile Grey of its controls the page's muted grey falls
-// under 4.5:1, so muted steps up toward the ink (`--muted-strong`, per theme
-// in globals.css); Bug hunt's fullscreen keeps the same ink.
-export const ink = "[--muted-foreground:var(--muted-strong)]";
-
 // The Well a specimen sits in: full-bleed with hairlines on a phone, framed
-// and hanging into the gutters from sm.
-export const well = `specimen -mx-6 ${ink} overflow-hidden bg-foreground/2.5 max-sm:shadow-[inset_0_1px_var(--border),inset_0_-1px_var(--border)] sm:rounded-[14px] sm:inset-ring sm:inset-ring-border lg:-mx-16`;
+// and hanging into the gutters from sm. On the Well and the Tile Grey of its
+// controls the page's muted grey falls under 4.5:1, so muted steps up toward
+// the ink (`--muted-strong`, per theme in globals.css).
+export const well = `specimen -mx-6 [--muted-foreground:var(--muted-strong)] overflow-hidden bg-foreground/2.5 max-sm:shadow-[inset_0_1px_var(--border),inset_0_-1px_var(--border)] sm:rounded-[14px] sm:inset-ring sm:inset-ring-border lg:-mx-16`;
 
 // One piece of the Lab: the piece itself, then its transport and timing
 // sheet. It performs once as it comes into view, unless the visitor asked for

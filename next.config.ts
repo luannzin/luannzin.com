@@ -32,6 +32,9 @@ const nextConfig: NextConfig = {
     return [
       { source: "/writing", destination: "/#writing", permanent: false },
       { source: "/projects", destination: "/#projects", permanent: false },
+      // Bug hunt, the Lab's platformer, is gone; its old links land on the Lab.
+      { source: "/lab/bug-hunt", destination: "/lab", permanent: true },
+      { source: "/lab/bug-hunt.md", destination: "/lab.md", permanent: true },
     ];
   },
   // Markdown twins for agents: /index.md is the home page, also at the

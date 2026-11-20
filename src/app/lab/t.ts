@@ -2,8 +2,8 @@ export default {
   // The Lab's index at /lab: its pieces, listed like posts
   meta: {
     description: {
-      en: "The things on this site you have to run to get: its motion slowed down to single frames, and Bug hunt, a platformer where I fix bugs by throwing things at them.",
-      pt: "As coisas deste site que só fazem sentido rodando: o movimento dele em câmera lenta, frame a frame, e o Caça aos bugs, um jogo de plataforma em que eu resolvo bug jogando coisa neles.",
+      en: "The things on this site you have to run to get, like its motion slowed down to single frames.",
+      pt: "As coisas deste site que só fazem sentido rodando, tipo o movimento dele em câmera lenta, frame a frame.",
     },
   },
   title: { en: "Lab", pt: "Lab" },
@@ -12,8 +12,8 @@ export default {
     pt: "As partes deste site que precisam rodar",
   },
   intro: {
-    en: "Not everything I make here fits in a post. Some of it only makes sense running: the site’s own motion, slowed down until you can see every frame, and a game where I’m the one fixing the bugs.",
-    pt: "Nem tudo que eu faço aqui cabe num post. Tem coisa que só faz sentido rodando: o próprio movimento do site, desacelerado até dar pra ver cada frame, e um jogo em que quem resolve os bugs sou eu.",
+    en: "Not everything I make here fits in a post. Some of it only makes sense running, like the site’s own motion, slowed down until you can see every frame.",
+    pt: "Nem tudo que eu faço aqui cabe num post. Tem coisa que só faz sentido rodando, tipo o próprio movimento do site, desacelerado até dar pra ver cada frame.",
   },
   // The motion, frame by frame, at /lab/motion
   motion: {
@@ -98,84 +98,6 @@ export default {
     p2: {
       en: "Each stroke is one dash as long as its own path, slid into place with stroke-dashoffset. Under the strokes runs a thicker copy in the page’s own black, so the part that crosses the picture still reads.",
       pt: "Cada traço é um único tracejado do tamanho do próprio path, que desliza pro lugar com stroke-dashoffset. Embaixo dos traços corre uma cópia mais grossa no preto da página, pra parte que cruza a imagem continuar legível.",
-    },
-  },
-  // Bug hunt, the platformer at /lab/bug-hunt
-  game: {
-    meta: {
-      description: {
-        en: "A pixel art platformer where I'm the main character and the bugs are actual bugs. Throw a mouse, a keyboard or my headphones at them, get past the spikes, lasers and saws, and when you've fixed enough, open the laptop. Every level is new, grown from a seed.",
-        pt: "Um jogo de plataforma em pixel art em que eu sou o personagem principal e os bugs são bugs de verdade. Joga um mouse, um teclado ou o meu fone neles, passa pelos espinhos, lasers e serras e, quando já tiver resolvido bastante, abre o notebook. Cada fase é nova, gerada a partir de uma seed.",
-      },
-    },
-    title: { en: "Bug hunt", pt: "Caça aos bugs" },
-    subtitle: {
-      en: "A platformer where the bugs are actual bugs",
-      pt: "Um jogo de plataforma em que os bugs são bugs de verdade",
-    },
-    intro: {
-      en: "I’m the one in the black hoodie. Every level is a server room full of bugs, and I fix them by throwing a mouse, a keyboard or my headphones at them. The room isn’t on my side either: spikes on the floor, lasers that fire every few seconds and saw blades rolling back and forth, and each one costs a heart. Fix enough bugs and the laptop comes out: a few lines of code, then a rosé beam takes out everything in front of me. Once the room is clean, the exit opens to the next one.",
-      pt: "Eu sou o de moletom preto. Cada fase é uma sala de servidores cheia de bug, e eu resolvo eles jogando um mouse, um teclado ou o meu fone neles. A sala também não ajuda: espinho no chão, laser que dispara de tempos em tempos e serra indo e voltando, e cada um custa um coração. Depois de resolver uns quantos, sai o notebook: umas linhas de código e um raio rosé leva tudo que tiver na minha frente. Com a sala limpa, a saída abre pra próxima.",
-    },
-    rowDescription: {
-      en: "A platformer where I fix bugs by throwing things at them",
-      pt: "Um jogo em que eu resolvo bug jogando coisa neles",
-    },
-    canvas: {
-      en: "Bug hunt: a pixel art platformer",
-      pt: "Caça aos bugs: um jogo de plataforma em pixel art",
-    },
-    play: { en: "Play", pt: "Jogar" },
-    resume: { en: "Resume", pt: "Continuar" },
-    pause: { en: "Pause", pt: "Pausar" },
-    fullscreen: { en: "Enter fullscreen", pt: "Entrar em tela cheia" },
-    exitFullscreen: { en: "Exit fullscreen", pt: "Sair da tela cheia" },
-    playFullscreen: { en: "Play fullscreen", pt: "Jogar em tela cheia" },
-    again: { en: "Play again", pt: "Jogar de novo" },
-    paused: { en: "Paused", pt: "Pausado" },
-    loading: { en: "Loading", pt: "Carregando" },
-    over: { en: "The bugs won", pt: "Os bugs venceram" },
-    level: { en: "Level", pt: "Fase" },
-    fixed: { en: "bugs fixed", pt: "bugs resolvidos" },
-    open: {
-      en: "Every bug fixed. The exit is open.",
-      pt: "Todos os bugs resolvidos. A saída tá aberta.",
-    },
-    // the controls under the game, for a mouse and keyboard
-    keys: {
-      label: { en: "Controls", pt: "Controles" },
-      move: { en: "move", pt: "anda" },
-      jump: { en: "jump", pt: "pula" },
-      crouch: { en: "crouch", pt: "agacha" },
-      drop: { en: "drop through", pt: "desce da plataforma" },
-      throw: { en: "throw at the cursor", pt: "arremessa na mira" },
-      special: { en: "special", pt: "especial" },
-      fullscreen: { en: "fullscreen", pt: "tela cheia" },
-      pause: { en: "pause", pt: "pausa" },
-      click: { en: "Click", pt: "Clique" },
-      rightClick: { en: "Right click", pt: "Botão direito" },
-      fallback: {
-        en: "Arrows, Space, J and K work too.",
-        pt: "Setas, espaço, J e K também funcionam.",
-      },
-    },
-    // a touch screen's joystick and buttons
-    pad: {
-      stick: { en: "Move", pt: "Mover" },
-      jump: { en: "Jump", pt: "Pular" },
-      throw: { en: "Throw", pt: "Arremessar" },
-      special: { en: "Special", pt: "Especial" },
-    },
-    made: {
-      title: { en: "How it’s made", pt: "Como foi feito" },
-      p1: {
-        en: "There’s no sprite editor behind any of this. A Python script with Pillow draws every pixel from a few rules: the room is line art on black, every shape closed by a 1px line in its own colour, and anything that needs texture or has to fade, like the bugs’ shells, the traps or the bricks sinking into the dark, is ordered dither instead of a gradient. Me included, with one difference: I’m solid shapes instead of outlines, lit from the upper left. The curly hair, the black hoodie, the cargo pants and the white sneakers are a pose and a handful of shapes, drawn by the same script as everything else.",
-        pt: "Não tem editor de sprite por trás disso. Um script em Python com Pillow desenha cada pixel a partir de poucas regras: a sala é line art no preto, cada forma fechada por uma linha de 1px na própria cor, e o que precisa de textura ou de sumir aos poucos, tipo a casca dos bugs, as armadilhas ou os tijolos afundando no escuro, é dither ordenado em vez de degradê. Inclusive eu, com uma diferença: eu sou forma sólida em vez de contorno, com luz vindo de cima e da esquerda. O cabelo cacheado, o moletom preto, a calça cargo e o tênis branco são uma pose e um punhado de formas, desenhados pelo mesmo script que todo o resto.",
-      },
-      p2: {
-        en: "The levels come from a seed, a new one each run: the floor, the gaps, the platforms, the traps and where every bug starts. Since nobody designed them, nobody played them either, so a script grows a few thousand and checks that every gap can be jumped, every trap has floor to land on at both ends and every bug can be reached.",
-        pt: "As fases saem de uma seed, uma nova a cada partida: o chão, os buracos, as plataformas, as armadilhas e onde cada bug começa. Como ninguém desenhou elas, ninguém jogou elas também, então um script gera alguns milhares e confere se dá pra pular cada buraco, se toda armadilha tem chão pra pousar dos dois lados e se dá pra chegar em cada bug.",
-      },
     },
   },
   reveal: {

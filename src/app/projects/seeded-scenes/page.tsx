@@ -68,7 +68,7 @@ export default async function SeededScenes() {
           {copy.subtitle}
         </p>
       </header>
-      {/* the engine first, as Bug hunt's game: it's what the page is for */}
+      {/* the engine first: it's what the page is for */}
       <div className={`${enter} mt-10 delay-300`}>
         <ScenesSpecimen
           name="seeded-scenes"
