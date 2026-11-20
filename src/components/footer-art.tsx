@@ -146,8 +146,8 @@ export function Signature() {
     const seen = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
-        // in view at load: wait out the footer's entrance (900ms + 500ms)
-        const wait = Math.max(0, 1400 - performance.now());
+        // in view at load: wait out the footer's entrance (1000ms + 500ms)
+        const wait = Math.max(0, 1500 - performance.now());
         svg.style.setProperty("--wait", `${wait}ms`);
         svg.dataset.drawn = "";
         seen.disconnect();

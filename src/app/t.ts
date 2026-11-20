@@ -39,6 +39,19 @@ export default {
     },
     followOn: { en: ", follow along on ", pt: ", acompanhar pelo " },
     findMeOn: { en: ", or find me on ", pt: " ou me encontrar no " },
+    lines: { en: "Lines", pt: "Lines" },
+    linesLead: {
+      en: "Apps that only need a code or a link",
+      pt: "Apps que só precisam de um código ou de um link",
+    },
+    deskline: {
+      en: "Remote desktop with no server to run",
+      pt: "Acesso remoto sem servidor pra rodar",
+    },
+    sightline: {
+      en: "Your screen as a link, live in the browser with sound",
+      pt: "Sua tela num link, ao vivo no navegador e com som",
+    },
     projects: { en: "Projects", pt: "Projetos" },
     echo: {
       en: "The note taker that learns with you",

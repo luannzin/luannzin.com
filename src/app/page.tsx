@@ -4,6 +4,8 @@ import Link from "next/link";
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { seeds } from "@/app/projects/seeded-scenes/seeds";
 import echoLogo from "@/assets/echo.png";
+import desklineMark from "@/assets/lines/deskline.png";
+import sightlineMark from "@/assets/lines/sightline.png";
 import { AskAI } from "@/components/ask-ai";
 import { DitherStrip, Signature } from "@/components/footer-art";
 import {
@@ -17,6 +19,8 @@ import {
 import { LabRows } from "@/components/lab/rows";
 import { LiveTile } from "@/components/live-tile";
 import { TextReveal } from "@/components/motion/text-reveal";
+import { NightField } from "@/components/night-field";
+import { PixelName } from "@/components/pixel-name";
 import { PostRow } from "@/components/post-row";
 import { setLocale, translations } from "@/i18n/generated";
 import { bezel, enter, underline } from "@/lib/classes";
@@ -39,6 +43,21 @@ export default async function Home() {
   const t = translations[locale];
   const copy = t.app.home;
   const { scenes } = t.app.projects;
+  // the apps that only need a code or a link, each at its own subdomain
+  const lines = [
+    {
+      name: "Deskline",
+      host: "deskline.luannzin.com",
+      mark: desklineMark,
+      blurb: copy.deskline,
+    },
+    {
+      name: "Sightline",
+      host: "sightline.luannzin.com",
+      mark: sightlineMark,
+      blurb: copy.sightline,
+    },
+  ];
   const projects = [
     {
       name: "echo",
@@ -131,9 +150,56 @@ export default async function Home() {
         </p>
       </section>
 
+      <section aria-labelledby="lines" className={`${enter} mt-20 delay-500`}>
+        <h2 id="lines" className="scroll-mt-12 font-medium">
+          {copy.lines}
+        </h2>
+        <p className="text-muted-foreground leading-snug">{copy.linesLead}</p>
+        <ul className="mt-4 grid gap-6 sm:grid-cols-2 sm:gap-4">
+          {lines.map(({ name, host, mark, blurb }, i) => (
+            <li key={host}>
+              <a
+                href={`https://${host}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block rounded-[14px] outline-offset-4"
+              >
+                {/* the line's night, art in every theme */}
+                <span className="relative grid aspect-[2/1] place-items-center overflow-hidden rounded-[10px] bg-[#110d24] outline -outline-offset-1 outline-black/10 dark:outline-white/10">
+                  {/* the dots develop once the section has faded in (500ms + 500ms) */}
+                  <NightField delay={1000 + i * 150} />
+                  <span className="relative flex flex-col items-center gap-3">
+                    <Image
+                      data-glow
+                      src={mark}
+                      alt=""
+                      width={64}
+                      height={64}
+                      unoptimized
+                      className="size-16 [image-rendering:pixelated] motion-safe:group-hover:-translate-y-0.5 motion-safe:group-focus-visible:-translate-y-0.5"
+                    />
+                    <span data-calm className="text-[#f5f5f5] text-sm">
+                      <PixelName name={name} />
+                    </span>
+                  </span>
+                </span>
+                <span className="mt-3 block leading-snug">
+                  <span className="sr-only">{name}, </span>
+                  <span className="flex items-center gap-1 text-foreground">
+                    <span className={underline}>{host}</span>
+                    <ArrowUpRightIcon className="size-3.5 -translate-x-0.5 translate-y-0.5 text-muted-foreground opacity-0 transition-[opacity,translate] duration-150 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:translate-y-0 group-focus-visible:opacity-100" />
+                  </span>
+                  <span className="block text-muted-foreground">{blurb}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section
         aria-labelledby="projects"
-        className={`${enter} mt-20 delay-500`}
+        className={`${enter} mt-20 delay-600`}
       >
         <h2 id="projects" className="scroll-mt-12 font-medium">
           {copy.projects}
@@ -175,7 +241,7 @@ export default async function Home() {
         </ul>
       </section>
 
-      <section aria-labelledby="writing" className={`${enter} mt-20 delay-600`}>
+      <section aria-labelledby="writing" className={`${enter} mt-20 delay-700`}>
         <h2 id="writing" className="scroll-mt-12 font-medium">
           {t.app.writing.title}
         </h2>
@@ -188,7 +254,7 @@ export default async function Home() {
         </ul>
       </section>
 
-      <section aria-labelledby="lab" className={`${enter} mt-20 delay-700`}>
+      <section aria-labelledby="lab" className={`${enter} mt-20 delay-800`}>
         <h2 id="lab" className="font-medium">
           {t.app.lab.title}
         </h2>
@@ -198,10 +264,10 @@ export default async function Home() {
       <AskAI
         label={copy.askLabel}
         prompt={copy.askPrompt({ site })}
-        className={`${enter} mt-20 delay-800`}
+        className={`${enter} mt-20 delay-900`}
       />
 
-      <footer className={`${enter} mt-20 delay-900`}>
+      <footer className={`${enter} mt-20 delay-1000`}>
         <DitherStrip />
         <div className="mt-16 flex items-end justify-between">
           <div className="flex gap-4">

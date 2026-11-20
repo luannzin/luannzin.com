@@ -7,6 +7,7 @@ import { formatDate, getPosts } from "@/lib/writing";
 export function GET() {
   const lab = translations.en.app.lab;
   const { scenes } = translations.en.app.projects;
+  const home = translations.en.app.home;
   const text = `# Luan Fabri
 
 > Luan Fabri (luannzin), front-end engineer at Loopscape, and the author of the open source tools echo and better-intl.
@@ -14,6 +15,13 @@ export function GET() {
 I'm a front-end engineer at [Loopscape](https://loopscape.com.br), where since 2023 I've been building ERPs and multi-tenant platforms with React and Next.js. It's software people spend their whole workday in, so a button that doesn't look clickable isn't a small detail there. It's friction, all day.
 
 On the side, I build open source tools for problems I keep running into. You can see my code on [GitHub](${profiles.github}), follow along on [X](${profiles.x}), or find me on [LinkedIn](${profiles.linkedin}).
+
+## Lines
+
+${home.linesLead}:
+
+- [Deskline](https://deskline.luannzin.com) — ${home.deskline}
+- [Sightline](https://sightline.luannzin.com) — ${home.sightline}
 
 ## Projects
 

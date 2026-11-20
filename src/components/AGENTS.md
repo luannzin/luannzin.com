@@ -19,6 +19,8 @@
 - `toc.tsx`: contents list with scroll-spy
 - `page-nav.tsx`: `Breadcrumb` and `Contents` (margin rail at xl, disclosure below), shared by the post page and the Lab
 - `author-footer.tsx`: closing rule and author link, with Share passed in; post page, Lab and CV
+- `night-field.tsx`: `NightField`, a line tile's canvas on the home page: dusk dots dithered toward a glow around the tile's `[data-glow]` (the mark) and calm under its `[data-calm]` (the name), developed once in view, the glow blooming while the surrounding link is hovered or focused, dots pushed by the pointer
+- `pixel-name.tsx`: `PixelName`, a line's name in the lines' 5x7 pixel face (glyphs copied from the apps' `tools/logo.py`; add a letter there first when a new line needs it)
 - `footer-art.tsx`: home footer art: `DitherStrip` (canvas of four Bayer-dithered dusk blocks whose dots the pointer pushes aside) and `Signature` (hand-drawn "Luan", drawn by `.signature` in `globals.css` once in view)
 - `dice-hint.tsx`: the hand-drawn arrow to a cover's die, drawn by `.dice-hint` in `globals.css`
 - `print-button.tsx`: the CV's Print button (`window.print()`)
