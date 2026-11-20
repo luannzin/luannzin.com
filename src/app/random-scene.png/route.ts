@@ -1,7 +1,8 @@
 import { connection } from "next/server";
-import { sceneWide } from "@/lib/scene-png";
+import { sceneWide } from "@/lib/scene-image";
 
-// A scene from a random seed: the picture on top of Luan's GitHub profile.
+// A still scene from a random seed: what Luan's GitHub profile shows instead
+// of the moving one (/random-scene.webp) when the viewer asks for less motion.
 // GitHub's image proxy follows these headers. The CDN keeps one for a minute
 // and, past that, serves it instantly while it draws the next, so the proxy
 // never waits on a render and the picture changes about once a minute.

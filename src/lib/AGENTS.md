@@ -8,7 +8,7 @@
 
 - `scene.ts`: seeded scene engine; one seed picks place, time of day, landmark and every shape, and each frame is a colour plus dot size per cell, ordered-dithered; exports `seedFrom`, `createScene`, `renderer`, `viewOf`, `START`, `RADIUS` and the `Place` type; pure, runs on server and client
 - `scene-tile.tsx`: `sceneTile(seed)`, a scene's 44px home tile as a PNG through `next/og` (first frame, the landmark crop, 18 dots across at 3x); posts' and Seeded scenes' `tile.png` routes
-- `scene-png.ts`: `sceneWide(seed)`, the whole scene's first frame at 1200x600 (240 dots across, 5px a cell) as PNG bytes, drawn straight into pixels and encoded with `node:zlib` (next/og takes about 5s for that many dots, about 0.2s here); `/random-scene.png`
+- `scene-image.ts`: scenes as image files for the GitHub profile, drawn straight into pixels (next/og takes about 5s for thousands of dots): `sceneWide(seed)`, the first frame at 1200x600 as PNG bytes through `node:zlib`, about 0.2s (`/random-scene.png`); `sceneLoop(seed)`, four seconds at 15fps as a looping lossless WebP at 600x300, its first second crossfaded from the second after the end so it wraps, about 3.5s, through `sharp` (imported inside it so the PNG route never loads it); `POOL`, how many loops `scripts/scene-loops.ts` draws
 - `die.ts`: the die's geometry (`drawDie`), throws (`throwTo`, `angleAt`) and hop keyframes; pure, shared by `Die` and the Lab
 - `dots.ts`: draws a frame on a canvas (WebGL, 2D fallback); client only
 - `melt.ts`: WebGL melt between two scenes for the cover die (a plain crossfade under reduced motion); `meltLayer` holds one at a given point for the Lab; client only
