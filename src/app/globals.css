@@ -617,10 +617,10 @@
     & > :is(.code, pre) + * {
       margin-top: 1.5rem;
     }
-    & > :is(.flow, .scenes, .frame, .scene-roll, .lab-piece) {
+    & > :is(.flow, .scenes, .frame, .scene-roll, .lab-piece, .line-piece) {
       margin-top: 2rem;
     }
-    & > :is(.flow, .scenes, .frame, .scene-roll, .lab-piece) + * {
+    & > :is(.flow, .scenes, .frame, .scene-roll, .lab-piece, .line-piece) + * {
       margin-top: 2rem;
     }
 

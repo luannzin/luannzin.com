@@ -139,6 +139,7 @@ export default async function Page({ params }: PageProps<"/writing/[slug]">) {
             tracks: t.app.lab.tracks,
             seed: t.app.lab.seed,
           }}
+          lines={t.components.lines}
           role={t.app.home.role}
         />
       </div>

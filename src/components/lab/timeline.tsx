@@ -240,23 +240,25 @@ function Transport({
   );
 }
 
-// Numbers as a segmented control: the sheet's 1x, 0.25x and 0.1x, or the dot
-// sizes on Seeded scenes.
-export function Segmented({
+// A segmented control: the sheet's 1x, 0.25x and 0.1x, the dot sizes on
+// Seeded scenes, or a line piece's choices (named by `labelOf`).
+export function Segmented<T extends string | number>({
   name,
   label,
   options,
-  unit,
+  unit = "",
+  labelOf = String,
   value,
   onChange,
   className,
 }: {
   name: string;
   label: string;
-  options: number[];
-  unit: string;
-  value: number;
-  onChange: (value: number) => void;
+  options: readonly T[];
+  unit?: string;
+  labelOf?: (option: T) => string;
+  value: T;
+  onChange: (value: T) => void;
   className?: string;
 }) {
   return (
@@ -279,7 +281,7 @@ export function Segmented({
             onChange={() => onChange(option)}
             className="sr-only"
           />
-          {option}
+          {labelOf(option)}
           {unit}
         </label>
       ))}

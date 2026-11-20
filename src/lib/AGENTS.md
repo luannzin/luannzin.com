@@ -26,7 +26,7 @@
 
 - Scenes are deterministic: a seed gives the same scene and frames on server and client; `sceneTile` draws frame `START` and the live tile starts there, so they must match; changing `scene.ts` output repaints every post
 - `markdown.ts` output is trusted HTML (posts are repo files) but every interpolated string still goes through `escapeHtml`
-- `markdown.ts` owns the fence contract with `src/content` (`flow`, `scenes`, `roll`, `lab`, code meta, lone images); a new fence needs its HTML block, its `plainMarkdown` text form and, if it mounts client code, an island kind in `@/components/article-islands`
+- `markdown.ts` owns the fence contract with `src/content` (`flow`, `scenes`, `roll`, `lab`, `line`, code meta, lone images); a new fence needs its HTML block, its `plainMarkdown` text form and, if it mounts client code, an island kind in `@/components/article-islands`; a new `line` piece needs its twin text in `LINE_PIECES` and its component in `@/components/line-pieces`
 - `renderMarkdown` runs inside `"use cache"`: it takes the locale and never reads request state
 - `writing.ts` frontmatter is flat `key: value` only; posts missing `title` or `date` throw at build
 - Share images look like the page at 2.5x: ground `#161616`, Inter 400/500, three ink tiers, no colour and no scene art (user decision); every element with children is flex for Satori; file paths stay literal so the build traces them

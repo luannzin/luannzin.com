@@ -6,7 +6,8 @@
 
 ## Ownership
 
-- `article-islands.tsx`: finds the `[data-island]` placeholders (`copy`, `scene`, `roll`, `lab`) that `@/lib/markdown` leaves in the article and portals client components into them; a `lab` placeholder lazy-loads `Piece` from `lab/specimens.tsx`, so posts without one never load the Lab
+- `article-islands.tsx`: finds the `[data-island]` placeholders (`copy`, `scene`, `roll`, `lab`, `line`) that `@/lib/markdown` leaves in the article and portals client components into them; a `lab` placeholder lazy-loads `Piece` from `lab/specimens.tsx` and a `line` placeholder `LinePiece` from `line-pieces.tsx`, so posts without one never load them
+- `line-pieces.tsx`: `LinePiece`, the lines' live pieces for posts, each a Well with a caption row: `code` (a new Ed25519 key in Deskline's z-base-32 code), `inflight` (Deskline's frames in flight and acks on a canvas, its in-flight rule ported from `src/host.rs` there), `link` (a Sightline share link and what the server and relays get, its secret and room name from `src/lib/link.ts` there), `critters` (Sightline's 16x16 critters from a seed, `src/lib/avatar.ts` and the names from `profile.ts` there, copied); a fix in the apps' code needs copying here too
 - `scene-art.tsx`: canvas player for a seeded scene (`@/lib/scene` frames drawn by `@/lib/dots`); `cell` pins the cell size in CSS pixels (Seeded scenes' dot size)
 - `scene-playground.tsx`: Seeded scenes' pieces, each a live scene in a specimen's Well: `PlaceScene` (a place picked as radio chips finds a seed that lands there, with what the place allows) and `DotScene` (one scene at a chosen dot size)
 - `post-row.tsx`: `PostRow`, a post as a row (scene tile with the morph to the post's figure, title, description); home's Writing list and Seeded scenes
@@ -24,13 +25,13 @@
 - `footer-art.tsx`: home footer art: `DitherStrip` (canvas of four Bayer-dithered dusk blocks whose dots the pointer pushes aside) and `Signature` (hand-drawn "Luan", drawn by `.signature` in `globals.css` once in view)
 - `dice-hint.tsx`: the hand-drawn arrow to a cover's die, drawn by `.dice-hint` in `globals.css`
 - `print-button.tsx`: the CV's Print button (`window.print()`)
-- `lab/timeline.tsx`: `useTimeline` (a piece's clock), `useSeekCss`, `bezier`, `Specimen` (transport plus timing sheet), `Segmented` (the speeds, and Seeded scenes' dot sizes), and `well`, the specimen frame Seeded scenes' pieces share
+- `lab/timeline.tsx`: `useTimeline` (a piece's clock), `useSeekCss`, `bezier`, `Specimen` (transport plus timing sheet), `Segmented` (the speeds, Seeded scenes' dot sizes, and the line pieces' choices, named by `labelOf`), and `well`, the specimen frame Seeded scenes' pieces and the line pieces share
 - `lab/rows.tsx`: `LabRows`, the Lab's pieces as rows, on the home page and the Lab's index
 - `lab/specimens.tsx`: the Lab's pieces, each driving the real component or library code at the sheet's time; `Piece` picks one by name for a post's `lab` fence
 - `ask-ai.tsx`: links that open ChatGPT, Claude, Perplexity and Grok with a prompt
 - `icons.tsx`: every icon and brand mark the site draws
 - `motion/text-reveal.tsx`, `motion/action-swap.tsx`: CSS-driven adaptations of beui.dev components; their keyframes live in `src/app/globals.css`
-- `t.ts`: labels under `t.components` (`share`, `copy`, `scene`, `diagram`)
+- `t.ts`: labels under `t.components` (`share`, `copy`, `scene`, `diagram`, `lines`); a client label can't be a better-intl `{placeholder}` string, which becomes a function, so a number goes between plain fragments
 - `ui/`: vendored coss kit (child doc)
 
 ## Local Contracts

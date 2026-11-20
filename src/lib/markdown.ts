@@ -182,6 +182,24 @@ function labBlock(text: string, heading: string) {
   return `<div class="lab-piece" data-island="lab" data-piece="${piece}" data-name="${escapeHtml(heading)}"></div>`;
 }
 
+// ```line: a live piece of one of the lines (Deskline, Sightline), by name,
+// mounted on the client. The heading above it names it, as for the Lab. The
+// text is what the markdown twin says instead.
+const LINE_PIECES: Record<string, string> = {
+  code: "a Deskline code, made from a new Ed25519 key in the browser",
+  inflight:
+    "frames and acks between two computers, with the round trip and the in-flight rule to change",
+  link: "a Sightline link made in the browser, and what the page's server and the relays get from it",
+  critters:
+    "a Sightline critter drawn from a random 32-bit seed, with a button that draws another",
+};
+function lineBlock(text: string, heading: string) {
+  const piece = text.trim();
+  if (!(piece in LINE_PIECES)) throw new Error(`Unknown line piece: ${piece}`);
+  if (!heading) throw new Error(`The line piece ${piece} needs a heading`);
+  return `<div class="line-piece" data-island="line" data-piece="${piece}" data-name="${escapeHtml(heading)}"></div>`;
+}
+
 // --- images --------------------------------------------------------------
 
 // Width and height of a PNG in public/, so the frame reserves its space.
@@ -230,6 +248,7 @@ export function renderMarkdown(source: string, locale: Locale) {
         if (fence === "scenes") return scenesBlock(text, words);
         if (fence === "roll") return rollBlock(text, words);
         if (fence === "lab") return labBlock(text, heading);
+        if (fence === "line") return lineBlock(text, heading);
         return codeBlock(text, info);
       },
       // An image alone in its paragraph becomes a framed figure; its title is
@@ -258,10 +277,13 @@ export function renderMarkdown(source: string, locale: Locale) {
 export function plainMarkdown(source: string) {
   return source
     .replace(
-      /^```(flow|scenes|roll|lab)[^\n]*\n([\s\S]*?)^```[ \t\r]*$/gm,
+      /^```(flow|scenes|roll|lab|line)[^\n]*\n([\s\S]*?)^```[ \t\r]*$/gm,
       (_, fence: string, text: string) => {
         if (fence === "lab") {
           return `*Live on the page: a piece of [the Lab](/lab/motion#${text.trim()}), on its timing sheet.*`;
+        }
+        if (fence === "line") {
+          return `*Live on the page: ${LINE_PIECES[text.trim()]}.*`;
         }
         if (fence === "flow") {
           return flowNodes(text)
