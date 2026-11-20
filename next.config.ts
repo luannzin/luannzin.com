@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   partialPrefetching: true,
   reactCompiler: true,
+  // 95 for the avatar only: at 40px (96 on a 2x screen) the default 75 blurs
+  // his illustrated portrait's lines.
+  images: { qualities: [75, 95] },
   async headers() {
     return [
       {

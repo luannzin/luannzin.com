@@ -30,6 +30,7 @@ export function AuthorFooter({
             alt=""
             width={40}
             height={40}
+            quality={95}
             className="size-10 rounded-full outline -outline-offset-1 outline-black/10 dark:outline-white/10"
           />
           <span>
