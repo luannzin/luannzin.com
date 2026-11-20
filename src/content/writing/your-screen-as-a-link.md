@@ -7,7 +7,7 @@ metaDescription: How Sightline shares a screen from the browser as a link: a sec
 seed: 123
 ---
 
-Discord stopped letting me share my screen from the app, and the way around it everybody uses is opening a Google Meet. A whole meeting, with a lobby and a camera prompt, for "hey, look at this". So I made only the part I wanted. You share your screen and get a link, and whoever opens it watches, live, in the browser, with sound. There's no server of mine in the middle, because there's no server of mine at all: the site is a static page.
+Discord stopped letting me share my screen from the app, and everybody's way around it is opening a Google Meet. A whole meeting, with a lobby and a camera prompt, for "hey, look at this". So I made only the part I wanted. You share your screen and get a link, and whoever opens it watches, live, in the browser, with sound. There's no server of mine in the middle, because there's no server of mine at all: the site is a static page.
 
 [PartyLine and Deskline](/writing/no-server-to-run#where-it-started) already connect two computers with no server of mine, but they're apps you install, and they do it with iroh. A link has to work in whatever browser opens it, so Sightline does the same thing with what browsers already have: WebRTC.
 
@@ -15,7 +15,7 @@ Discord stopped letting me share my screen from the app, and the way around it e
 
 A share link looks like `https://sightline.luannzin.com/#<secret>~<host id>`. Both parts are 22 characters, and both come after the `#`. Browsers never send what's after the `#` to the server, so the site hosting the page only ever gets asked for `/`.
 
-The secret is 22 characters from 62, picked from random bytes:
+The secret is 22 characters from an alphabet of 62, picked from random bytes:
 
 ```ts title="src/lib/link.ts" {5}
 export function newSecret(): string {

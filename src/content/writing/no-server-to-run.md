@@ -13,11 +13,11 @@ It wasn't the first thing I built that way. Five days before Deskline's first co
 
 ## Where it started
 
-PartyLine is a party game show that runs in your terminal. One person hosts, friends join over the LAN or the internet with an invite code, and everyone plays a run of minigames in a basement rendered in Blender and baked down to the terminal. Why a terminal? Why not a terminal? I'm a creative developer.
+PartyLine is a party game show that runs in your terminal. One person hosts, friends join over the LAN or the internet with an invite code, and everyone plays a run of minigames in a basement rendered in Blender and baked down to the terminal.
 
 Joining a room needed the same thing Deskline needed later: two computers that find each other across the internet, with no server of mine and no port forwarding. PartyLine does it with [iroh](https://github.com/n0-computer/iroh): QUIC connections dialed by public key, hole punching, a relay when there's no direct path, and mDNS on the local network. Its README calls that the built-in virtual LAN.
 
-Deskline sets up its endpoint with the same lines. It adds one:
+Deskline sets up its endpoint the same way, with one line more:
 
 ```rust title="src/net.rs" {2}
 let ep = Endpoint::builder(presets::N0)
@@ -31,7 +31,7 @@ ep.address_lookup()?.add(mdns);
 
 PartyLine makes a new key every time it starts, so an invite code lasts as long as the game is open. Deskline writes its key to a file the first time and reads it back from then on, so a computer's code never changes.
 
-The rest came along too. Bumping the version in `Cargo.toml` and pushing builds every platform in GitHub Actions and publishes the release, and installed copies update themselves from it. PartyLine draws every word as pixel type and its art through an ordered dither, and the lines kept both. The day after Deskline's first commit, Sightline started:
+The rest came along too. Bumping the version in `Cargo.toml` and pushing builds every platform in GitHub Actions and publishes the release, and installed copies update themselves from it. PartyLine draws every word as pixel type and its art through an ordered dither, and the lines, my apps that only need a code or a link, kept both. The day after Deskline's first commit, Sightline started:
 
 | Line | First commit | What it is |
 | --- | --- | --- |
@@ -56,11 +56,11 @@ On the home screen the 13 groups go in three lines of five, five and three, so a
 code
 ```
 
-Pasting it is the whole introduction. The connection is QUIC with TLS keyed to that key, so you reach the computer whose code you pasted, and nothing in between can read or change the session, the relays included. Those are n0's public relays: they help two computers find each other, and carry the encrypted traffic when there's no direct path.
+Whoever needs help copies their code and sends it to you. You paste it, and Deskline keeps it under Recent with a name you choose.
 
-You copy it, send it, the other person pastes it, and Deskline keeps it under Recent with a name you choose.
+The connection is QUIC with TLS keyed to that key, so you reach the computer whose code you pasted, and nothing in between can read or change the session, the relays included. Those are n0's public relays: they help two computers find each other, and carry the encrypted traffic when there's no direct path.
 
-## Nothing starts without a click
+## Who gets in
 
 A code alone gets you nothing. A session starts on a click on Accept, on the unattended-access password, or because the other person ticked Always allow you before. Let them control comes ticked, the way AnyDesk's accept window does; untick it and it's view only.
 
@@ -101,7 +101,7 @@ if blocked > Duration::from_millis(300) {
 }
 ```
 
-Deskline never tests the bandwidth. The acks are how it knows the link is full. They count frames, not bytes, and a comment above that line says when to change that: if 4K frames ever fill a link's buffers, count bytes instead, the bitrate times the round trip.
+Deskline never tests the bandwidth. The acks count frames, not bytes, and a comment above that line says when to change that: if 4K frames ever fill a link's buffers, count bytes instead, the bitrate times the round trip.
 
 ## Pictures that stay on the GPU
 

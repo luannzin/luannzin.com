@@ -13,11 +13,11 @@ Não foi a primeira coisa que eu fiz desse jeito. Cinco dias antes do primeiro c
 
 ## Onde começou
 
-O PartyLine é um game show de festa que roda no terminal. Uma pessoa cria a sala, os amigos entram pela rede local ou pela internet com um código de convite, e todo mundo joga uma rodada de minigames num porão renderizado no Blender e convertido pro terminal. Por que terminal? Por que não um terminal? Eu sou um creative developer.
+O PartyLine é um game show de festa que roda no terminal. Uma pessoa cria a sala, os amigos entram pela rede local ou pela internet com um código de convite, e todo mundo joga uma rodada de minigames num porão renderizado no Blender e convertido pro terminal.
 
 Entrar numa sala precisava da mesma coisa que o Deskline precisou depois: dois computadores que se acham pela internet, sem servidor meu e sem abrir porta no roteador. O PartyLine faz isso com o [iroh](https://github.com/n0-computer/iroh): conexões QUIC discadas pela chave pública, hole punching, um relay quando não existe caminho direto, e mDNS na rede local. O README dele chama isso de LAN virtual embutida.
 
-O Deskline monta o endpoint com as mesmas linhas. Ele só acrescenta uma:
+O Deskline monta o endpoint do mesmo jeito, com uma linha a mais:
 
 ```rust title="src/net.rs" {2}
 let ep = Endpoint::builder(presets::N0)
@@ -31,7 +31,7 @@ ep.address_lookup()?.add(mdns);
 
 O PartyLine cria uma chave nova toda vez que abre, então um código de convite dura enquanto o jogo tá aberto. O Deskline grava a chave num arquivo na primeira vez e lê de lá daí em diante, então o código de um computador nunca muda.
 
-O resto veio junto. Subir a versão no `Cargo.toml` e dar push builda todas as plataformas no GitHub Actions e publica o release, e as cópias instaladas se atualizam sozinhas a partir dele. O PartyLine desenha cada palavra como fonte de pixel e a arte com um dither ordenado, e as lines ficaram com os dois. No dia seguinte ao primeiro commit do Deskline, começou o Sightline:
+O resto veio junto. Subir a versão no `Cargo.toml` e dar push builda todas as plataformas no GitHub Actions e publica o release, e as cópias instaladas se atualizam sozinhas a partir dele. O PartyLine desenha cada palavra como fonte de pixel e a arte com um dither ordenado, e as lines, meus apps que só precisam de um código ou de um link, ficaram com os dois. No dia seguinte ao primeiro commit do Deskline, começou o Sightline:
 
 | Line | Primeiro commit | O que é |
 | --- | --- | --- |
@@ -56,11 +56,11 @@ Na tela inicial os 13 grupos vão em três linhas de cinco, cinco e três, pra n
 code
 ```
 
-Colar o código é a apresentação inteira. A conexão é QUIC com TLS amarrado a essa chave, então você chega no computador cujo código você colou, e nada no meio do caminho consegue ler ou mudar a sessão, nem os relays. Os relays são os públicos da n0: eles ajudam os dois computadores a se acharem, e carregam o tráfego criptografado quando não tem caminho direto.
+Quem precisa de ajuda copia o código e te manda. Você cola, e o Deskline guarda em Recentes com o nome que você escolher.
 
-Você copia, manda, a outra pessoa cola, e o Deskline guarda em Recentes com o nome que você escolher.
+A conexão é QUIC com TLS amarrado a essa chave, então você chega no computador cujo código você colou, e nada no meio do caminho consegue ler ou mudar a sessão, nem os relays. Os relays são os públicos da n0: eles ajudam os dois computadores a se acharem, e carregam o tráfego criptografado quando não tem caminho direto.
 
-## Nada começa sem um clique
+## Quem entra
 
 Só o código não te dá nada. Uma sessão começa com um clique em Aceitar, com a senha de acesso não supervisionado, ou porque a outra pessoa já marcou Sempre permitir pra você antes. Deixar controlar vem marcado, igual na janela de aceitar do AnyDesk; desmarca e fica só pra ver.
 
@@ -101,7 +101,7 @@ if blocked > Duration::from_millis(300) {
 }
 ```
 
-O Deskline nunca testa a banda. Os acks são como ele sabe que o link encheu. Eles contam frames, não bytes, e um comentário em cima daquela linha diz quando mudar isso: se frames em 4K um dia lotarem os buffers de um link, aí conta bytes, a taxa vezes a ida e volta.
+O Deskline nunca testa a banda. Os acks contam frames, não bytes, e um comentário em cima daquela linha diz quando mudar isso: se frames em 4K um dia lotarem os buffers de um link, aí conta bytes, a taxa vezes a ida e volta.
 
 ## Imagem que não sai da GPU
 
