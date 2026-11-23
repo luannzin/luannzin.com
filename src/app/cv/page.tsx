@@ -45,8 +45,38 @@ const roles = [
   { id: "intern", from: [2023, 3] as Month, to: [2023, 6] as Month },
 ] as const;
 const study = { from: [2022, 2] as Month, to: [2024, 12] as Month };
-const projects = ["comms", "church", "academic"] as const;
-const COMPANY = "Loopvet / Loopscape";
+const groups = ["tools", "product", "church"] as const;
+const projects = ["comms", "academic"] as const;
+// on paper each prints its address after its name
+const openSource = [
+  { id: "deskline", name: "Deskline", href: "https://deskline.luannzin.com" },
+  {
+    id: "sightline",
+    name: "Sightline",
+    href: "https://sightline.luannzin.com",
+  },
+  { id: "hostline", name: "Hostline", href: "https://hostline.luannzin.com" },
+  {
+    id: "partyline",
+    name: "PartyLine",
+    href: "https://github.com/luannzin/partyline",
+  },
+  { id: "echo", name: "echo", href: "https://useecho.dev" },
+  {
+    id: "betterIntl",
+    name: "better-intl",
+    href: "https://github.com/luannzin/better-intl",
+  },
+] as const;
+const skills = [
+  "languages",
+  "front",
+  "back",
+  "data",
+  "native",
+  "ai",
+  "other",
+] as const;
 
 // "Feb 2025" / "Fev 2025", as the CV has always written it.
 function month(locale: Locale, [year, m]: Month) {
@@ -154,11 +184,12 @@ export default async function CV() {
         <PrintButton label={cv.print} className={tool} />
       </div>
 
-      <p
-        className={`${enter} summary mt-8 text-pretty text-foreground/70 delay-500`}
+      <div
+        className={`${enter} summary mt-8 space-y-4 text-pretty text-foreground/70 delay-500`}
       >
-        {cv.summary}
-      </p>
+        <p>{cv.summary}</p>
+        <p>{cv.summaryMore}</p>
+      </div>
 
       <div className="relative mt-12">
         <div data-screen>
@@ -188,55 +219,68 @@ export default async function CV() {
               })),
             ]}
           />
-          {roles.map(({ id, from, to }) => (
-            <Entry
-              key={id}
-              id={id}
-              title={cv.roles[id].title}
-              where={COMPANY}
-              when={period(from, to)}
-              items={bullets(cv.roles[id])}
-            />
-          ))}
-
-          {heading("projects")}
-          {projects.map((id) => (
-            <Entry
-              key={id}
-              title={cv.projects[id].title}
-              items={bullets(cv.projects[id])}
-            />
-          ))}
+          {/* one employer: its roles, each a target of the timeline, then the
+              work across them by area */}
+          <div className="entry">
+            <h3>Loopscape</h3>
+            <p className="text-muted-foreground">{cv.products}</p>
+            <div className="mt-2 space-y-1">
+              {roles.map(({ id, from, to }) => (
+                <p
+                  key={id}
+                  id={id}
+                  className="flex scroll-mt-12 flex-wrap items-baseline justify-between gap-x-4"
+                >
+                  <span className="text-foreground">{cv.roles[id].title}</span>
+                  <span className="whitespace-nowrap text-muted-foreground tabular-nums">
+                    {period(from, to)}
+                  </span>
+                </p>
+              ))}
+            </div>
+            {groups.map((id) => (
+              <div key={id} className="mt-6">
+                <h4 className="font-medium text-foreground">
+                  {cv.groups[id].title}
+                </h4>
+                <ul className="mt-2">
+                  {bullets(cv.groups[id]).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
 
           {heading("openSource")}
           <ul>
-            <li>
-              <a
-                href="https://useecho.dev"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-paper-url="useecho.dev"
-              >
-                echo
-              </a>
-              : {home.echo}
-            </li>
-            <li>
-              <a
-                href="https://github.com/luannzin/better-intl"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-paper-url="github.com/luannzin/better-intl"
-              >
-                better-intl
-              </a>
-              : {home.betterIntl}
-            </li>
+            {openSource.map(({ id, name, href }) => (
+              <li key={id}>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-paper-url={href.replace("https://", "")}
+                >
+                  {name}
+                </a>
+                : {cv.open[id]}
+              </li>
+            ))}
+          </ul>
+
+          {heading("projects")}
+          <ul>
+            {projects.map((id) => (
+              <li key={id}>
+                <strong>{cv.projects[id].title}</strong>: {cv.projects[id].text}
+              </li>
+            ))}
           </ul>
 
           {heading("skills")}
           <dl className="space-y-2">
-            {(["front", "back", "architecture", "tools"] as const).map((id) => (
+            {skills.map((id) => (
               <div key={id}>
                 <dt className="inline font-medium text-foreground">
                   {cv.skills[id]}:{" "}
@@ -247,11 +291,15 @@ export default async function CV() {
           </dl>
 
           {heading("education")}
-          <Entry
-            title={cv.education.title}
-            where={cv.education.school}
-            when={period(study.from, study.to)}
-          />
+          <div className="entry">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+              <h3>{cv.education.title}</h3>
+              <p className="whitespace-nowrap text-muted-foreground tabular-nums">
+                {period(study.from, study.to)}
+              </p>
+            </div>
+            <p className="text-muted-foreground">{cv.education.school}</p>
+          </div>
 
           {heading("languages")}
           <p>{cv.languages}</p>
@@ -306,43 +354,6 @@ function Contact({
         </span>
       )}
     </a>
-  );
-}
-
-// A role, project or school: its title with the dates trailing it, where,
-// then what was done.
-function Entry({
-  id,
-  title,
-  where,
-  when,
-  items = [],
-}: {
-  id?: string;
-  title: string;
-  where?: string;
-  when?: string;
-  items?: string[];
-}) {
-  return (
-    <div className="entry">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-        <h3 id={id}>{title}</h3>
-        {when && (
-          <p className="whitespace-nowrap text-muted-foreground tabular-nums">
-            {when}
-          </p>
-        )}
-      </div>
-      {where && <p className="text-muted-foreground">{where}</p>}
-      {items.length > 0 && (
-        <ul className="mt-2">
-          {items.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      )}
-    </div>
   );
 }
 

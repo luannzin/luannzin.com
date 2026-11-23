@@ -1451,6 +1451,7 @@ html[data-reveal]::view-transition-new(root) {
     & .cv {
       max-width: none;
       padding: 0;
+      line-height: 1.4;
     }
     & .cv header {
       margin-top: 0;
@@ -1478,6 +1479,7 @@ html[data-reveal]::view-transition-new(root) {
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
+      break-after: avoid;
     }
     /* in flow, so a PDF's text keeps each heading above its section */
     & .cv .prose > h2 > a {
@@ -1496,8 +1498,9 @@ html[data-reveal]::view-transition-new(root) {
     & .cv .entry > div:first-child {
       break-after: avoid;
     }
-    & .cv .prose h3 {
+    & .cv .prose :is(h3, h4) {
       font-weight: 600;
+      break-after: avoid;
     }
     & .cv .prose,
     & .cv .summary {
@@ -1505,6 +1508,16 @@ html[data-reveal]::view-transition-new(root) {
     }
     & .cv li {
       break-inside: avoid;
+    }
+    & .cv .prose li + li {
+      margin-top: 0.3rem;
+    }
+    /* tighter than on screen, so the CV fits two sheets */
+    & .cv .entry > div:has(> h4) {
+      margin-top: 0.75rem;
+    }
+    & .cv dl > div {
+      margin-block: 0;
     }
     & .cv a,
     & .cv a * {

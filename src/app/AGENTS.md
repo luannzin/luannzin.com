@@ -13,7 +13,7 @@
 - `writing/[slug]/page.tsx`: post page (breadcrumb, header, cover, contents, article, author footer, share)
 - `lab/page.tsx`: the Lab's index: header, intro, one row per piece (`LabRows`, the home page's rows); `lab.md/route.ts` is its markdown twin
 - `lab/motion/page.tsx`: the motion, frame by frame, one section per piece of the site's motion (seeded scenes, die, hint arrow, text reveal), each a live specimen with a timing sheet from `@/components/lab`, then its write-up; `lab/motion.md/route.ts` is its twin, its piece list matching the page's
-- `cv/page.tsx`: the CV: header with contact, Download PDF and Print, summary, a timeline of roles and study as a timing sheet (bars per role, playhead on today), then experience, projects, open source, skills, education and languages; `[data-screen]` parts stay on screen, `[data-paper]` parts only print
+- `cv/page.tsx`: the CV: header with contact, Download PDF and Print, a two-paragraph summary, a timeline of roles and study as a timing sheet (bars per role, playhead on today), then experience (one Loopscape entry: the roles with their dates, each a timeline target, then the work across them in `h4` groups), open source (the lines, echo, better-intl), other projects, skills, education and languages; `[data-screen]` parts stay on screen, `[data-paper]` parts only print
 - `cv.md/route.ts`: the CV as plain markdown
 - `writing/[slug]/md/route.ts`: post as plain markdown, served at `/writing/<slug>.md`
 - `writing/[slug]/opengraph-image.tsx`: post share card; `opengraph-image.tsx`: home share card
@@ -23,7 +23,7 @@
 - Both are cached a minute at the CDN with a day of stale-while-revalidate. GitHub's image proxy follows their headers and gives up after about 4s, so they must answer well under that
 - `index.md/route.ts`: home as plain markdown, also served at `/llms.txt`
 - `robots.ts`, `sitemap.ts`, `icon.png`, `apple-icon.png`
-- `t.ts` (`t.app.meta`, `t.app.home` (the lines' copy too: `lines`, `linesLead`, `deskline`, `sightline`), `t.app.notFound`, `t.app.language`, the dock's `t.app.theme`, `t.app.dock`, `t.app.themes`), `writing/t.ts` (`t.app.writing`), `lab/t.ts` (`t.app.lab`: the index's copy at its root, each piece's page copy under its own key (`t.app.lab.motion`), the motion's pieces and timing sheet labels (`controls`, `tracks`, `seed`, `scenes`, `die`, `hint`, `reveal`) at the root, shared with posts; written to `IDENTITY.md`), `cv/t.ts` (`t.app.cv`, the CV's facts from April 2026 with the numbers left out), `projects/t.ts` (`t.app.projects.scenes`: Seeded scenes' page, home row and twin copy, its places taken from the post's table; written to `IDENTITY.md`)
+- `t.ts` (`t.app.meta`, `t.app.home` (the lines' copy too: `lines`, `linesLead`, `deskline`, `sightline`), `t.app.notFound`, `t.app.language`, the dock's `t.app.theme`, `t.app.dock`, `t.app.themes`), `writing/t.ts` (`t.app.writing`), `lab/t.ts` (`t.app.lab`: the index's copy at its root, each piece's page copy under its own key (`t.app.lab.motion`), the motion's pieces and timing sheet labels (`controls`, `tracks`, `seed`, `scenes`, `die`, `hint`, `reveal`) at the root, shared with posts; written to `IDENTITY.md`), `cv/t.ts` (`t.app.cv`, the facts of his November 2026 CV in `ats-cv-vault`, without its numbers, the phone or Stone and Domus by name; written in the CV register: implied first person, one action verb per bullet), `projects/t.ts` (`t.app.projects.scenes`: Seeded scenes' page, home row and twin copy, its places taken from the post's table; written to `IDENTITY.md`)
 - `globals.css`: Tailwind v4 entry, theme tokens (`.dark`, `.light`, `.dawn`), and every custom component style (the dock and the theme switch's circle reveal, prose, code box, flow diagram, scene blocks, text reveal, action swap, signature, dice hint, locale flag, lab sections, CV timeline bars, the CV's print styles)
 
 ## Local Contracts
@@ -37,7 +37,7 @@
 - `dangerouslySetInnerHTML` only for repo-authored markdown (`renderMarkdown`) and `JsonLd`
 - `globals.css` scans `src/` for classes but skips `components/ui/` and every `AGENTS.md`; each ui kit file the site uses needs its own `@source` line
 - Custom CSS sits in `@layer components` under a comment naming the component it styles, and respects `prefers-reduced-motion`; the exceptions are the theme blocks, unlayered after `.dark` (each names ground, ink, muted ink and focus and derives the rest from its ink), the circle reveal's view transition rules, and the CV's `@media print` block, unlayered so its paper tokens beat the themes
-- The CV prints as its PDF: what the page shows on paper is set only by the print block in `globals.css`, scoped to `:root:has(.cv)`; keep section heads in flow (no positioned anchors) so a PDF's text layer keeps each heading above its section
+- The CV prints as its PDF: what the page shows on paper is set only by the print block in `globals.css`, scoped to `:root:has(.cv)`; keep section heads in flow (no positioned anchors) so a PDF's text layer keeps each heading above its section. Each PDF fits two A4 sheets; the print block tightens leading and list spacing for that, so a longer CV needs its copy trimmed or the print block retuned, then `cv:pdf` and a page count
 
 ## Work Guidance
 

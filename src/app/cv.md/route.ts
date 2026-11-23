@@ -9,50 +9,48 @@ export function GET() {
       .filter(([key]) => /^b\d+$/.test(key))
       .map(([, text]) => `- ${text}`)
       .join("\n");
-  const company = "Loopvet / Loopscape";
+  const groups = (["tools", "product", "church"] as const)
+    .map((id) => `#### ${cv.groups[id].title}\n\n${list(cv.groups[id])}`)
+    .join("\n\n");
   const text = `# Luan Fabri
 
 > ${home.role}. ${cv.place}. ${email} · ${profiles.linkedin} · ${profiles.github}. PDF: ${site}${cvPdf.en}
 
 ${cv.summary}
 
+${cv.summaryMore}
+
 ## ${cv.sections.experience}
 
-### ${cv.roles.mid.title}
+### Loopscape
 
-${company} · Feb 2025 – ${cv.present}
+${cv.products}
 
-${list(cv.roles.mid)}
+- ${cv.roles.mid.title} · Feb 2025 – ${cv.present}
+- ${cv.roles.junior.title} · Jun 2023 – Feb 2025
+- ${cv.roles.intern.title} · Mar 2023 – Jun 2023
 
-### ${cv.roles.junior.title}
-
-${company} · Jun 2023 – Feb 2025
-
-${list(cv.roles.junior)}
-
-### ${cv.roles.intern.title}
-
-${company} · Mar 2023 – Jun 2023
-
-${list(cv.roles.intern)}
-
-## ${cv.sections.projects}
-
-${(["comms", "church", "academic"] as const)
-  .map((id) => `### ${cv.projects[id].title}\n\n${list(cv.projects[id])}`)
-  .join("\n\n")}
+${groups}
 
 ## ${cv.sections.openSource}
 
-- [echo](https://useecho.dev): ${home.echo}
-- [better-intl](https://github.com/luannzin/better-intl): ${home.betterIntl}
+- [Deskline](https://deskline.luannzin.com): ${cv.open.deskline}
+- [Sightline](https://sightline.luannzin.com): ${cv.open.sightline}
+- [Hostline](https://hostline.luannzin.com): ${cv.open.hostline}
+- [PartyLine](https://github.com/luannzin/partyline): ${cv.open.partyline}
+- [echo](https://useecho.dev): ${cv.open.echo}
+- [better-intl](https://github.com/luannzin/better-intl): ${cv.open.betterIntl}
+
+## ${cv.sections.projects}
+
+- ${cv.projects.comms.title}: ${cv.projects.comms.text}
+- ${cv.projects.academic.title}: ${cv.projects.academic.text}
 
 ## ${cv.sections.skills}
 
-- ${cv.skills.front}: ${cv.skills.frontList}
-- ${cv.skills.back}: ${cv.skills.backList}
-- ${cv.skills.architecture}: ${cv.skills.architectureList}
-- ${cv.skills.tools}: ${cv.skills.toolsList}
+${(["languages", "front", "back", "data", "native", "ai", "other"] as const)
+  .map((id) => `- ${cv.skills[id]}: ${cv.skills[`${id}List`]}`)
+  .join("\n")}
 
 ## ${cv.sections.education}
 
