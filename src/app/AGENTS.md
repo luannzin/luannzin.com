@@ -22,7 +22,7 @@
 - `random-scene.png/route.ts`: a still scene from a random seed (`sceneWide` from `@/lib/scene-image`, 1200x600); the README's fallback for reduced motion
 - Both are cached a minute at the CDN with a day of stale-while-revalidate. GitHub's image proxy follows their headers and gives up after about 4s, so they must answer well under that
 - `index.md/route.ts`: home as plain markdown, also served at `/llms.txt`
-- `robots.ts`, `sitemap.ts`, `icon.png`, `apple-icon.png`
+- `robots.ts`, `sitemap.ts` (each page in English and at `/pt`, each naming the other; a post with no translation in English only), `feed.xml/route.ts` (the posts as RSS, English), `icon.png`, `apple-icon.png`
 - `t.ts` (`t.app.meta`, `t.app.home` (the lines' copy too: `lines`, `linesLead`, `deskline`, `sightline`), `t.app.notFound`, `t.app.language`, the dock's `t.app.theme`, `t.app.dock`, `t.app.themes`), `writing/t.ts` (`t.app.writing`), `lab/t.ts` (`t.app.lab`: the index's copy at its root, each piece's page copy under its own key (`t.app.lab.motion`), the motion's pieces and timing sheet labels (`controls`, `tracks`, `seed`, `scenes`, `die`, `hint`, `reveal`) at the root, shared with posts; written to `IDENTITY.md`), `cv/t.ts` (`t.app.cv`, the facts of his November 2026 CV in `ats-cv-vault`, without its numbers, the phone or Stone and Domus by name; written in the CV register: implied first person, one action verb per bullet), `projects/t.ts` (`t.app.projects.scenes`: Seeded scenes' page, home row and twin copy, its places taken from the post's table; written to `IDENTITY.md`)
 - `globals.css`: Tailwind v4 entry, theme tokens (`.dark`, `.light`, `.dawn`), and every custom component style (the dock and the theme switch's circle reveal, prose, code box, flow diagram, scene blocks, text reveal, action swap, signature, dice hint, locale flag, lab sections, CV timeline bars, the CV's print styles)
 
@@ -30,7 +30,7 @@
 
 - Server code calls `await setLocale()` before reading `t` or `translations` from `@/i18n/generated`; inside `"use cache"` functions pass the locale in and use `translations[locale]`
 - `layout.tsx`, the post page and the CV export `instant = false`: rendering is per request, and the post page awaits `params` and the locale outside any Suspense boundary so the article ships visible in the HTML; the CV awaits `connection()` there before reading today's date for its timeline
-- Each page sets its own `alternates` (canonical plus the `text/markdown` twin) because a child's `alternates` replaces the layout's; the 404 page sets none
+- Each page sets its own `alternates` with `alternates(path, locale, types)` from `@/lib/site` (canonical in the language read, hreflang `en`, `pt` (`/pt...`) and `x-default`, plus the `text/markdown` twin; home and posts add the RSS feed) because a child's `alternates` replaces the layout's, and its `openGraph.url` with `localized(path, locale)`; the 404 page sets none
 - A page that sets `openGraph` spreads `openGraph` from `@/lib/site` back in and adds the locale's `ogLocale`
 - Markdown twins return `markdownTwin` from `@/lib/site`: `text/plain; charset=utf-8` (some agent fetchers refuse `text/markdown`) with a `Link: rel="canonical"` header to the page; the sitemap lists pages only
 - Post routes build `generateStaticParams` from `getPosts()`; share cards and twins are English, since crawlers send no locale cookie
@@ -48,7 +48,7 @@
 
 - `bun run lint`, `bun run build`
 - Class scanning (`@source` lines): the dev server's CSS is not a reliable probe; list the files Tailwind scans with `Scanner` from `@tailwindcss/oxide`, fed the sources `compile` from `@tailwindcss/node` reads out of `globals.css`
-- Preview server `dev`: `/`, `/writing/art-from-a-seed`, `/index.md`, `/llms.txt`, `/writing/art-from-a-seed.md`, `/writing/art-from-a-seed/tile.png`, `/opengraph-image`, `/projects/seeded-scenes` (type a seed, pick a place, change the dot size), `/projects/seeded-scenes.md`, `/projects/seeded-scenes/tile.png`, `/lab`, `/lab.md`, `/lab/motion`, `/lab/motion.md`, `/lab/bug-hunt` (redirects to `/lab`), `/cv`, `/cv.md`, plus a language and a theme switch with the dock, and each theme on `/`, a post, `/lab/motion` and `/cv`
+- Preview server `dev`: `/`, `/writing/art-from-a-seed`, `/index.md`, `/llms.txt`, `/writing/art-from-a-seed.md`, `/writing/art-from-a-seed/tile.png`, `/opengraph-image`, `/projects/seeded-scenes` (type a seed, pick a place, change the dot size), `/projects/seeded-scenes.md`, `/projects/seeded-scenes/tile.png`, `/lab`, `/lab.md`, `/lab/motion`, `/lab/motion.md`, `/lab/bug-hunt` (redirects to `/lab`), `/cv`, `/cv.md`, `/pt` and `/pt/writing/<slug>` (Portuguese, canonical to themselves; switching to English from there lands on the address without `/pt`), `/sitemap.xml`, `/feed.xml`, plus a language and a theme switch with the dock, and each theme on `/`, a post, `/lab/motion` and `/cv`
 - Print styles and fresh `globals.css` edits: check on a production server (`bun run build`, `bunx next start -p 3001`), then `bun run cv:pdf http://localhost:3001` and read the PDFs
 
 ## Child DOX Index

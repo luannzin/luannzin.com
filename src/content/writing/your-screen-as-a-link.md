@@ -5,11 +5,12 @@ date: 2026-11-20
 metaTitle: "Your screen as a link: screen sharing over WebRTC with no server of mine"
 metaDescription: How Sightline shares a screen from the browser as a link: a secret in the URL fragment, signalling through public Nostr relays with Trystero, WebRTC straight between browsers, and pixel critters drawn from a 32-bit seed.
 seed: 123
+about: https://sightline.luannzin.com
 ---
 
 Discord stopped letting me share my screen from the app, and everybody's way around it is opening a Google Meet. A whole meeting, with a lobby and a camera prompt, for "hey, look at this". So I made only the part I wanted. You share your screen and get a link, and whoever opens it watches, live, in the browser, with sound. There's no server of mine in the middle, because there's no server of mine at all: the site is a static page.
 
-[PartyLine and Deskline](/writing/no-server-to-run#where-it-started) already connect two computers with no server of mine, but they're apps you install, and they do it with iroh. A link has to work in whatever browser opens it, so Sightline does the same thing with what browsers already have: WebRTC.
+[PartyLine and Deskline](/writing/no-server-to-run#where-it-started) already connect two computers with no server of mine, but they're apps you install, and they do it with iroh. A link has to work in whatever browser opens it, so [Sightline](https://sightline.luannzin.com) does the same thing with what browsers already have: WebRTC.
 
 ## A link that carries its own secret
 

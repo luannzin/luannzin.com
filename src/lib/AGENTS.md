@@ -13,11 +13,11 @@
 - `dots.ts`: draws a frame on a canvas (WebGL, 2D fallback); client only
 - `melt.ts`: WebGL melt between two scenes for the cover die (a plain crossfade under reduced motion); `meltLayer` holds one at a given point for the Lab; client only
 - `markdown.ts`: `renderMarkdown(source, locale)` returns `{ html, toc }`; `plainMarkdown(source)` feeds the markdown twins
-- `writing.ts`: reads `src/content/writing`, parses frontmatter, falls back to English for a missing translation; `getPosts`, `getPost`, `formatDate`; reading time at 220 words a minute
+- `writing.ts`: reads `src/content/writing`, parses frontmatter, falls back to English for a missing translation; `getPosts`, `getPost`, `isTranslated`, `formatDate`; reading time at 220 words a minute
 - `og.tsx`: share images through `next/og` (`homeImage`, `postImage`); reads the Inter TTFs and `src/assets/avatar.jpg`
-- `json-ld.tsx`: schema.org graph (`home`, `article(post, locale)`) and `JsonLd`
-- `site.ts`: `site` origin (the www host), `profiles`, `email` (CV only), `cvPdf` (the CV PDF paths, kept in step with `scripts/cv-pdf.mjs`), shared `openGraph`, `markdownTwin` (the markdown twins' response)
-- `locale.ts`: `changeLocale` server action
+- `json-ld.tsx`: schema.org graph (`home(locale)`: the site, his profile page and Person, the lines as `SoftwareApplication`s by their sites' `<origin>/#app` @ids, echo and better-intl; `article(post, locale, translated)`: the post, `about` its line's app @id) and `JsonLd`. The Person's `@id` (`https://www.luannzin.com/#person`) is also the author on every line's site (`luannzin/lines`, Sightline's `index.html`); keep it stable
+- `site.ts`: `site` origin (the www host), `profiles`, `email` (CV only), `cvPdf` (the CV PDF paths, kept in step with `scripts/cv-pdf.mjs`), shared `openGraph`, `localized` (a path's `/pt` address) and `alternates` (a page's canonical and hreflang), `markdownTwin` (the markdown twins' response)
+- `locale.ts`: `changeLocale` server action; from a `/pt` address, leaving Portuguese redirects to the same page without `/pt` (read from the referer)
 - `theme.ts`: the themes in the dock's order and the `Theme` type; shared by the layout's `ThemeProvider`, the dock and the orb
 - `classes.ts`: shared class tokens `enter`, `bezel`, `press`, `underline` (named in `DESIGN.md`)
 - `utils.ts` (`cn` re-export), `segmented-control.ts` (ui kit only)

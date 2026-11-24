@@ -5,9 +5,10 @@ date: 2026-11-20
 metaTitle: "No server to run: a remote desktop in Rust over iroh"
 metaDescription: How Deskline, a remote desktop app in Rust, uses each computer's Ed25519 public key as its address, dials it over iroh QUIC with hole punching and a relay fallback, and keeps a round trip's worth of frames in flight.
 seed: 118
+about: https://deskline.luannzin.com
 ---
 
-I started Deskline as the smallest thing that could replace AnyDesk when I help family and friends: a remote desktop with no account and no server to run. AnyDesk gives each computer a 9-digit number from its own servers. Deskline has no server handing out numbers, so a computer's code is its public key, and you copy and paste it.
+I started [Deskline](https://deskline.luannzin.com) as the smallest thing that could replace AnyDesk when I help family and friends: a remote desktop with no account and no server to run. AnyDesk gives each computer a 9-digit number from its own servers. Deskline has no server handing out numbers, so a computer's code is its public key, and you copy and paste it.
 
 It wasn't the first thing I built that way. Five days before Deskline's first commit, I started PartyLine, and most of what Deskline stands on came from there.
 

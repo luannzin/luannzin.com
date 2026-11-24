@@ -5,11 +5,12 @@ date: 2026-11-20
 metaTitle: "Sua tela como um link: compartilhar a tela por WebRTC sem servidor meu"
 metaDescription: Como o Sightline compartilha a tela pelo navegador como um link: um segredo no fragmento da URL, sinalização pelos relays públicos do Nostr com o Trystero, WebRTC direto entre navegadores, e bichinhos em pixel art desenhados a partir de uma seed de 32 bits.
 seed: 123
+about: https://sightline.luannzin.com
 ---
 
 O Discord parou de me deixar compartilhar a tela pelo app, e o jeito que todo mundo usa pra contornar é abrir um Google Meet. Uma reunião inteira, com sala de espera e pedido de câmera, pra "olha isso aqui". Então eu fiz só a parte que eu queria. Você compartilha a tela e ganha um link, e quem abrir assiste ao vivo, no navegador, com som. Não tem servidor meu no meio, porque não tem servidor meu nenhum: o site é uma página estática.
 
-O [PartyLine e o Deskline](/writing/no-server-to-run#onde-comecou) já conectam dois computadores sem servidor meu, mas eles são apps que você instala, e fazem isso com o iroh. Um link tem que funcionar em qualquer navegador que abrir ele, então o Sightline faz a mesma coisa com o que os navegadores já têm: WebRTC.
+O [PartyLine e o Deskline](/writing/no-server-to-run#onde-comecou) já conectam dois computadores sem servidor meu, mas eles são apps que você instala, e fazem isso com o iroh. Um link tem que funcionar em qualquer navegador que abrir ele, então o [Sightline](https://sightline.luannzin.com) faz a mesma coisa com o que os navegadores já têm: WebRTC.
 
 ## Um link que carrega o próprio segredo
 

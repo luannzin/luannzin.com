@@ -11,8 +11,8 @@ import { type Locale, setLocale, translations } from "@/i18n/generated";
 import { enter } from "@/lib/classes";
 import { article, JsonLd } from "@/lib/json-ld";
 import { renderMarkdown } from "@/lib/markdown";
-import { openGraph, site } from "@/lib/site";
-import { formatDate, getPost, getPosts } from "@/lib/writing";
+import { alternates, localized, openGraph, site } from "@/lib/site";
+import { formatDate, getPost, getPosts, isTranslated } from "@/lib/writing";
 
 export function generateStaticParams() {
   return getPosts().map(({ slug }) => ({ slug }));
@@ -28,18 +28,24 @@ export async function generateMetadata({
   const url = `/writing/${post.slug}`;
   const title = post.metaTitle ?? post.title;
   const description = post.metaDescription ?? post.description;
+  const translated = isTranslated(post.slug, "pt");
   return {
     title,
     description,
-    alternates: {
-      canonical: url,
-      types: { "text/markdown": `${url}.md` },
-    },
+    alternates: alternates(
+      url,
+      locale,
+      {
+        "text/markdown": `${url}.md`,
+        "application/rss+xml": "/feed.xml",
+      },
+      translated,
+    ),
     openGraph: {
       ...openGraph,
       locale: translations[locale].app.meta.ogLocale,
       type: "article",
-      url,
+      url: localized(url, translated ? locale : "en"),
       title,
       description,
       publishedTime: post.date,
@@ -75,7 +81,7 @@ export default async function Page({ params }: PageProps<"/writing/[slug]">) {
 
   return (
     <main className="mx-auto w-full max-w-xl px-6 pt-6 pb-24 leading-relaxed sm:pt-10">
-      <JsonLd data={article(post, locale)} />
+      <JsonLd data={article(post, locale, isTranslated(slug, "pt"))} />
       <Breadcrumb
         label={writing.breadcrumb}
         href="/#writing"

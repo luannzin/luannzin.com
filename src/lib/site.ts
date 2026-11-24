@@ -24,6 +24,27 @@ export const cvPdf = {
 // the layout's whole object, so it spreads this back in (and adds the locale).
 export const openGraph = { siteName: "Luan Fabri" };
 
+// A page's address in a language: Portuguese pages also live under /pt
+// (src/proxy.ts), which is what search engines index for Portuguese.
+export const localized = (path: string, locale: string) =>
+  locale === "pt" ? `/pt${path === "/" ? "" : path}` : path;
+
+// A page's `alternates`: its canonical in the language it's read in, and
+// both languages for hreflang (the address without /pt is also the default).
+// A post with no translation passes `translated: false` and gets no pt.
+export const alternates = (
+  path: string,
+  locale: string,
+  types?: Record<string, string>,
+  translated = true,
+) => ({
+  canonical: localized(path, translated ? locale : "en"),
+  languages: translated
+    ? { en: path, pt: localized(path, "pt"), "x-default": path }
+    : undefined,
+  types,
+});
+
 // A markdown twin for agents: text/plain, since some fetchers (ChatGPT's)
 // refuse text/markdown, pointing at its page as the copy to index.
 export const markdownTwin = (text: string, page: string) =>

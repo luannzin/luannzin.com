@@ -5,9 +5,10 @@ date: 2026-11-20
 metaTitle: "Sem servidor pra rodar: acesso remoto em Rust sobre o iroh"
 metaDescription: Como o Deskline, um app de acesso remoto em Rust, usa a chave pública Ed25519 de cada computador como endereço, conecta por QUIC com o iroh, com hole punching e relay de reserva, e mantém uma ida e volta inteira de frames em trânsito.
 seed: 118
+about: https://deskline.luannzin.com
 ---
 
-Eu comecei o Deskline como a menor coisa que desse pra substituir o AnyDesk quando eu ajudo a família e os amigos: um acesso remoto sem conta e sem servidor pra rodar. O AnyDesk dá pra cada computador um número de 9 dígitos que sai dos servidores dele. O Deskline não tem servidor distribuindo número, então o código de um computador é a chave pública dele, e você copia e cola.
+Eu comecei o [Deskline](https://deskline.luannzin.com/pt) como a menor coisa que desse pra substituir o AnyDesk quando eu ajudo a família e os amigos: um acesso remoto sem conta e sem servidor pra rodar. O AnyDesk dá pra cada computador um número de 9 dígitos que sai dos servidores dele. O Deskline não tem servidor distribuindo número, então o código de um computador é a chave pública dele, e você copia e cola.
 
 Não foi a primeira coisa que eu fiz desse jeito. Cinco dias antes do primeiro commit do Deskline, eu comecei o PartyLine, e quase tudo que o Deskline usa veio de lá.
 

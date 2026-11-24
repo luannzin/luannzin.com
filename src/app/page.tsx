@@ -26,16 +26,20 @@ import { PostRow } from "@/components/post-row";
 import { setLocale, translations } from "@/i18n/generated";
 import { bezel, enter, underline } from "@/lib/classes";
 import { home, JsonLd } from "@/lib/json-ld";
-import { profiles, site } from "@/lib/site";
+import { alternates, profiles, site } from "@/lib/site";
 import { getPosts } from "@/lib/writing";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = translations[await setLocale()];
+  const locale = await setLocale();
+  const t = translations[locale];
   return {
     title: { absolute: t.app.meta.title },
-    alternates: { canonical: "/", types: { "text/markdown": "/index.md" } },
+    alternates: alternates("/", locale, {
+      "text/markdown": "/index.md",
+      "application/rss+xml": "/feed.xml",
+    }),
   };
 }
 
@@ -102,7 +106,7 @@ export default async function Home() {
   ];
   return (
     <main className="mx-auto w-full max-w-xl px-6 pt-20 pb-24 leading-relaxed sm:pt-28">
-      <JsonLd data={home} />
+      <JsonLd data={home(locale)} />
       <header className="flex items-center gap-3">
         <Image
           src={avatar}

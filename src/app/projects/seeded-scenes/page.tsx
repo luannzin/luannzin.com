@@ -10,7 +10,7 @@ import { Share } from "@/components/share";
 import { setLocale, translations } from "@/i18n/generated";
 import { enter } from "@/lib/classes";
 import { createScene } from "@/lib/scene";
-import { openGraph, site } from "@/lib/site";
+import { alternates, localized, openGraph, site } from "@/lib/site";
 import { getPost } from "@/lib/writing";
 import { seeds } from "./seeds";
 
@@ -21,15 +21,14 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: copy.title,
     description: copy.meta.description,
-    alternates: {
-      canonical: "/projects/seeded-scenes",
-      types: { "text/markdown": "/projects/seeded-scenes.md" },
-    },
+    alternates: alternates("/projects/seeded-scenes", locale, {
+      "text/markdown": "/projects/seeded-scenes.md",
+    }),
     openGraph: {
       ...openGraph,
       locale: t.app.meta.ogLocale,
       type: "website",
-      url: "/projects/seeded-scenes",
+      url: localized("/projects/seeded-scenes", locale),
       title: `${copy.title} · Luan Fabri`,
       description: copy.meta.description,
     },

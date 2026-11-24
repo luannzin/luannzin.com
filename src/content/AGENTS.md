@@ -13,7 +13,8 @@
 ## Local Contracts
 
 - Every `.md` file in `writing/` and `writing/pt/` is parsed as a post; keep docs (this file included) out of those folders
-- Frontmatter is flat `key: value`: `title` and `date` (`YYYY-MM-DD`) required; `description`, `updated`, `metaTitle`, `metaDescription`, `seed` optional; without `seed` the slug is hashed; a translation keeps the original's `date`, `updated` and `seed`
+- Frontmatter is flat `key: value`: `title` and `date` (`YYYY-MM-DD`) required; `description`, `updated`, `metaTitle`, `metaDescription`, `seed`, `about` optional; without `seed` the slug is hashed; `about` is the origin of the line the post is about (`https://deskline.luannzin.com`), for structured data; a translation keeps the original's `date`, `updated`, `seed` and `about`
+- A post about a line links the line's site at its first mention (the Portuguese post links its `/pt` page)
 - The seed is the post's art: the cover and the home tile both draw it
 - `##` and `###` headings become anchors and the contents list
 - Code fence: language, then optional title (`title="path"` or a bare name) and marked lines (`{1,4-6}`)

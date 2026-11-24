@@ -6,7 +6,7 @@ import { Breadcrumb } from "@/components/page-nav";
 import { Share } from "@/components/share";
 import { setLocale, translations } from "@/i18n/generated";
 import { enter } from "@/lib/classes";
-import { openGraph, site } from "@/lib/site";
+import { alternates, localized, openGraph, site } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await setLocale();
@@ -15,15 +15,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: lab.title,
     description: lab.meta.description,
-    alternates: {
-      canonical: "/lab",
-      types: { "text/markdown": "/lab.md" },
-    },
+    alternates: alternates("/lab", locale, { "text/markdown": "/lab.md" }),
     openGraph: {
       ...openGraph,
       locale: t.app.meta.ogLocale,
       type: "website",
-      url: "/lab",
+      url: localized("/lab", locale),
       title: `${lab.title} · Luan Fabri`,
       description: lab.meta.description,
     },

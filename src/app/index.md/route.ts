@@ -10,7 +10,7 @@ export function GET() {
   const home = translations.en.app.home;
   const text = `# Luan Fabri
 
-> Luan Fabri (luannzin), front-end engineer at Loopscape, and the author of the open source tools echo and better-intl.
+> Luan Fabri (luannzin), front-end engineer at Loopscape, the maker of Deskline and Sightline (apps that only need a code or a link), and the author of the open source tools echo and better-intl.
 
 I'm a front-end engineer at [Loopscape](https://loopscape.com.br), where since 2023 I've been building ERPs and multi-tenant platforms with React and Next.js. It's software people spend their whole workday in, so a button that doesn't look clickable isn't a small detail there. It's friction, all day.
 

@@ -15,6 +15,9 @@ export type Post = {
   updated?: string;
   metaTitle?: string;
   metaDescription?: string;
+  // the origin of the line the post is about (https://deskline.luannzin.com),
+  // for structured data
+  about?: string;
   seed: number;
   body: string;
   minutes: number;
@@ -46,6 +49,7 @@ function parse(slug: string, source: string): Post {
     updated: data.updated,
     metaTitle: data.metaTitle,
     metaDescription: data.metaDescription,
+    about: data.about,
     seed: seedFrom(data.seed ? Number(data.seed) || data.seed : slug),
     body,
     // reading time, at 220 words a minute
@@ -68,6 +72,10 @@ export function getPosts(locale = "en"): Post[] {
     })
     .sort((a, b) => b.date.localeCompare(a.date));
 }
+
+// Whether a post has its own translation (else that language reads English).
+export const isTranslated = (slug: string, locale: string) =>
+  existsSync(path.join(dir, locale, `${slug}.md`));
 
 export function getPost(slug: string, locale?: string): Post | undefined {
   return getPosts(locale).find((post) => post.slug === slug);

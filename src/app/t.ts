@@ -5,8 +5,8 @@ export default {
       pt: "Luan Fabri · Engenheiro front-end",
     },
     description: {
-      en: "Front-end engineer at Loopscape. Building ERPs and multi-tenant platforms with React and Next.js, plus open source tools like echo and better-intl.",
-      pt: "Engenheiro front-end na Loopscape. Construo ERPs e plataformas multi-tenant com React e Next.js, e também ferramentas open source como o echo e o better-intl.",
+      en: "Front-end engineer at Loopscape, building ERPs with React and Next.js. I also make Deskline and Sightline, apps that only need a code or a link.",
+      pt: "Engenheiro front-end na Loopscape, construindo ERPs com React e Next.js. Também faço o Deskline e o Sightline, apps que só precisam de um código ou de um link.",
     },
     ogLocale: { en: "en_US", pt: "pt_BR" },
   },

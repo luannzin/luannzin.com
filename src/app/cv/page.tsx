@@ -9,7 +9,15 @@ import { PrintButton } from "@/components/print-button";
 import { Share } from "@/components/share";
 import { type Locale, setLocale, translations } from "@/i18n/generated";
 import { enter, press, underline } from "@/lib/classes";
-import { cvPdf, email, openGraph, profiles, site } from "@/lib/site";
+import {
+  alternates,
+  cvPdf,
+  email,
+  localized,
+  openGraph,
+  profiles,
+  site,
+} from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await setLocale();
@@ -18,15 +26,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: cv.title,
     description: cv.meta.description,
-    alternates: {
-      canonical: "/cv",
-      types: { "text/markdown": "/cv.md", "application/pdf": cvPdf[locale] },
-    },
+    alternates: alternates("/cv", locale, {
+      "text/markdown": "/cv.md",
+      "application/pdf": cvPdf[locale],
+    }),
     openGraph: {
       ...openGraph,
       locale: t.app.meta.ogLocale,
       type: "profile",
-      url: "/cv",
+      url: localized("/cv", locale),
       title: `${cv.title} · Luan Fabri`,
       description: cv.meta.description,
     },

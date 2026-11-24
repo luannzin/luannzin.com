@@ -13,7 +13,7 @@ import { Breadcrumb, Contents } from "@/components/page-nav";
 import { Share } from "@/components/share";
 import { setLocale, translations } from "@/i18n/generated";
 import { enter } from "@/lib/classes";
-import { openGraph, site } from "@/lib/site";
+import { alternates, localized, openGraph, site } from "@/lib/site";
 import { getPost } from "@/lib/writing";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,15 +23,14 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: motion.title,
     description: motion.meta.description,
-    alternates: {
-      canonical: "/lab/motion",
-      types: { "text/markdown": "/lab/motion.md" },
-    },
+    alternates: alternates("/lab/motion", locale, {
+      "text/markdown": "/lab/motion.md",
+    }),
     openGraph: {
       ...openGraph,
       locale: t.app.meta.ogLocale,
       type: "website",
-      url: "/lab/motion",
+      url: localized("/lab/motion", locale),
       title: `${motion.title} · Luan Fabri`,
       description: motion.meta.description,
     },
