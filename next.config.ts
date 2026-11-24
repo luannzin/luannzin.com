@@ -1,5 +1,6 @@
 import { withInternationalization } from "better-intl/next";
 import type { NextConfig } from "next";
+import { cvPdf, localized, site } from "./src/lib/site";
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -27,6 +28,16 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // The CV's PDFs repeat its page, so they name it as the copy to index.
+      ...Object.entries(cvPdf).map(([locale, pdf]) => ({
+        source: pdf,
+        headers: [
+          {
+            key: "Link",
+            value: `<${site}${localized("/cv", locale)}>; rel="canonical"`,
+          },
+        ],
+      })),
     ];
   },
   // There is no writing or projects index yet; the home page's lists are
