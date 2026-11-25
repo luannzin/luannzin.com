@@ -2,13 +2,14 @@
 title: Sem servidor pra rodar
 description: O Deskline, o acesso remoto que eu fiz pra substituir o AnyDesk
 date: 2026-11-20
+updated: 2026-11-25
 metaTitle: "Sem servidor pra rodar: acesso remoto em Rust sobre o iroh"
-metaDescription: Como o Deskline, um app de acesso remoto em Rust, usa a chave pública Ed25519 de cada computador como endereço, conecta por QUIC com o iroh, com hole punching e relay de reserva, e mantém uma ida e volta inteira de frames em trânsito.
+metaDescription: Como o Deskline, um app de acesso remoto em Rust, usa a chave pública Ed25519 de cada computador como endereço e nove dígitos assinados num relay pkarr pra achar ela, conecta por QUIC com o iroh, com hole punching e relay de reserva, e mantém uma ida e volta inteira de frames em trânsito.
 seed: 118
 about: https://deskline.luannzin.com
 ---
 
-Eu comecei o [Deskline](https://deskline.luannzin.com/pt) como a menor coisa que desse pra substituir o AnyDesk quando eu ajudo a família e os amigos: um acesso remoto sem conta e sem servidor pra rodar. O AnyDesk dá pra cada computador um número de 9 dígitos que sai dos servidores dele. O Deskline não tem servidor distribuindo número, então o código de um computador é a chave pública dele, e você copia e cola.
+Eu comecei o [Deskline](https://deskline.luannzin.com/pt) como a menor coisa que desse pra substituir o AnyDesk quando eu ajudo a família e os amigos: um acesso remoto sem conta e sem servidor pra rodar. O AnyDesk dá pra cada computador um número de 9 dígitos que sai dos servidores dele. O Deskline não tem servidor distribuindo número, então o código de verdade de um computador é a chave pública dele, e os nove dígitos na tela inicial só levam até ela.
 
 Não foi a primeira coisa que eu fiz desse jeito. Cinco dias antes do primeiro commit do Deskline, eu comecei o PartyLine, e quase tudo que o Deskline usa veio de lá.
 
@@ -30,7 +31,7 @@ let mdns = MdnsAddressLookup::builder().build(ep.id())?;
 ep.address_lookup()?.add(mdns);
 ```
 
-O PartyLine cria uma chave nova toda vez que abre, então um código de convite dura enquanto o jogo tá aberto. O Deskline grava a chave num arquivo na primeira vez e lê de lá daí em diante, então o código de um computador nunca muda.
+O PartyLine cria uma chave nova toda vez que abre, então um código de convite dura enquanto o jogo tá aberto. O Deskline grava a chave num arquivo na primeira vez e lê de lá daí em diante, então a chave de um computador nunca muda. Os nove dígitos em cima dela são novos toda vez que ele abre, igual aos códigos de convite do PartyLine.
 
 O resto veio junto. Subir a versão no `Cargo.toml` e dar push builda todas as plataformas no GitHub Actions e publica o release, e as cópias instaladas se atualizam sozinhas a partir dele. O PartyLine desenha cada palavra como fonte de pixel e a arte com um dither ordenado, e as lines, meus apps que só precisam de um código ou de um link, ficaram com os dois. No dia seguinte ao primeiro commit do Deskline, começou o Sightline:
 
@@ -51,15 +52,29 @@ pub fn code(id: EndpointId) -> String {
 }
 ```
 
-Na tela inicial os 13 grupos vão em três linhas de cinco, cinco e três, pra nunca sobrar um grupo sozinho no final. Esse aqui seu navegador acabou de criar, uma chave Ed25519 de verdade escrita do jeito que o Deskline escreve:
+Na tela inicial os 13 grupos iam em três linhas de cinco, cinco e três, pra nunca sobrar um grupo sozinho no final. Desde a 0.10.0 o código longo só aparece lá quando os nove dígitos mais abaixo não conseguem, e nas Configurações, pro acesso não supervisionado. Esse aqui seu navegador acabou de criar, uma chave Ed25519 de verdade escrita do jeito que o Deskline escreve:
 
 ```line
 code
 ```
 
-Quem precisa de ajuda copia o código e te manda. Você cola, e o Deskline guarda em Recentes com o nome que você escolher.
+A conexão é QUIC com TLS amarrado a essa chave, então você chega no computador dono dela, e nada no meio do caminho consegue ler ou mudar a sessão, nem os relays. Os relays são os públicos da n0: eles ajudam os dois computadores a se acharem, e carregam o tráfego criptografado quando não tem caminho direto.
 
-A conexão é QUIC com TLS amarrado a essa chave, então você chega no computador cujo código você colou, e nada no meio do caminho consegue ler ou mudar a sessão, nem os relays. Os relays são os públicos da n0: eles ajudam os dois computadores a se acharem, e carregam o tráfego criptografado quando não tem caminho direto.
+## Nove dígitos
+
+Cinquenta e dois caracteres são fáceis de colar e muita coisa pra ler pelo telefone. Desde a 0.10.0 a tela inicial mostra nove dígitos no lugar, sorteados toda vez que o Deskline abre, e ninguém distribui esses também. Uma chave feita a partir dos dígitos assina um registro pequeno com o código de verdade do computador, e o Deskline coloca ele no relay pkarr da n0, onde o iroh já publica os endereços de todo endpoint:
+
+```rust title="src/short.rs" {3}
+fn key(digits: &str) -> SecretKey {
+    let mut seed = [0u8; 32];
+    argon2::Argon2::default().hash_password_into(digits.as_bytes(), b"deskline short code 1", &mut seed).expect("fixed sizes argon2 takes");
+    SecretKey::from_bytes(&seed)
+}
+```
+
+Quem digita os dígitos cria a mesma chave, busca o registro, confere a assinatura e se ele tem menos de dez minutos, e disca o código que tá dentro como se tivesse colado. O Argon2 tá ali pra cada chute custar trabalho de verdade. O registro só é renovado enquanto a janela tá aberta, então os dígitos param de levar a qualquer lugar em até dez minutos depois que ela fecha. Os Recentes guardam o computador com o nome que você escolher, então da próxima vez nem precisa de dígito.
+
+Os dígitos são o segredo inteiro, então quem ouvir eles pode assinar um registro também e apontar pra outro computador. Isso não faz ninguém entrar: a pessoa sendo ajudada continua respondendo Aceitar, e você vê de quem é a tela que chegou.
 
 ## Quem entra
 
@@ -138,6 +153,7 @@ Na mesma rede o medidor fica o mais cheio e quente possível. Por um relay, com 
 - **Arquivos e área de transferência.** Copia arquivos num computador e aperta Ctrl+V no outro, e eles vão e colam onde você tá.
 - **Voltando.** Um link morto é percebido em uns 12 segundos em vez de 30. Quem tava vendo reconecta sozinho e volta direto por 90 segundos.
 - **Versões diferentes.** Mensagens desconhecidas são ignoradas, então dois computadores em versões diferentes ainda conversam.
+- **Leitores de tela.** Desde a 0.10.0 o Narrador, o VoiceOver e o Orca leem a janela inteira, e uma pergunta que aparece põe o foco no não dela, então uma tecla que era pra outra janela não deixa ninguém entrar.
 - **Linux e macOS.** Eu escrevi essas partes sem uma máquina Linux ou Mac pra testar. Espera umas arestas por lá.
 
 O Deskline foi do primeiro commit até a 0.8.0 entre 17 e 19 de novembro. O Sightline, que começou no dia 18, faz a parte da tela sem instalar nada: [um link que você abre no navegador](/writing/your-screen-as-a-link).

@@ -2,13 +2,14 @@
 title: No server to run
 description: Deskline, the remote desktop I made to replace AnyDesk
 date: 2026-11-20
+updated: 2026-11-25
 metaTitle: "No server to run: a remote desktop in Rust over iroh"
-metaDescription: How Deskline, a remote desktop app in Rust, uses each computer's Ed25519 public key as its address, dials it over iroh QUIC with hole punching and a relay fallback, and keeps a round trip's worth of frames in flight.
+metaDescription: How Deskline, a remote desktop app in Rust, uses each computer's Ed25519 public key as its address and nine digits signed onto a pkarr relay to find it, dials it over iroh QUIC with hole punching and a relay fallback, and keeps a round trip's worth of frames in flight.
 seed: 118
 about: https://deskline.luannzin.com
 ---
 
-I started [Deskline](https://deskline.luannzin.com) as the smallest thing that could replace AnyDesk when I help family and friends: a remote desktop with no account and no server to run. AnyDesk gives each computer a 9-digit number from its own servers. Deskline has no server handing out numbers, so a computer's code is its public key, and you copy and paste it.
+I started [Deskline](https://deskline.luannzin.com) as the smallest thing that could replace AnyDesk when I help family and friends: a remote desktop with no account and no server to run. AnyDesk gives each computer a 9-digit number from its own servers. Deskline has no server handing out numbers, so a computer's real code is its public key, and the nine digits on its home screen only lead to it.
 
 It wasn't the first thing I built that way. Five days before Deskline's first commit, I started PartyLine, and most of what Deskline stands on came from there.
 
@@ -30,7 +31,7 @@ let mdns = MdnsAddressLookup::builder().build(ep.id())?;
 ep.address_lookup()?.add(mdns);
 ```
 
-PartyLine makes a new key every time it starts, so an invite code lasts as long as the game is open. Deskline writes its key to a file the first time and reads it back from then on, so a computer's code never changes.
+PartyLine makes a new key every time it starts, so an invite code lasts as long as the game is open. Deskline writes its key to a file the first time and reads it back from then on, so a computer's key never changes. The nine digits on top of it are new every time it opens, like PartyLine's invite codes.
 
 The rest came along too. Bumping the version in `Cargo.toml` and pushing builds every platform in GitHub Actions and publishes the release, and installed copies update themselves from it. PartyLine draws every word as pixel type and its art through an ordered dither, and the lines, my apps that only need a code or a link, kept both. The day after Deskline's first commit, Sightline started:
 
@@ -51,15 +52,29 @@ pub fn code(id: EndpointId) -> String {
 }
 ```
 
-On the home screen the 13 groups go in three lines of five, five and three, so a lone group never dangles at the end. Here's one made by your browser just now, a real Ed25519 key written the way Deskline writes them:
+On the home screen the 13 groups went in three lines of five, five and three, so a lone group never dangles at the end. Since 0.10.0 the long code only shows there when the nine digits below can't, and in Settings, for unattended access. Here's one made by your browser just now, a real Ed25519 key written the way Deskline writes them:
 
 ```line
 code
 ```
 
-Whoever needs help copies their code and sends it to you. You paste it, and Deskline keeps it under Recent with a name you choose.
+The connection is QUIC with TLS keyed to that key, so you reach the computer it belongs to, and nothing in between can read or change the session, the relays included. Those are n0's public relays: they help two computers find each other, and carry the encrypted traffic when there's no direct path.
 
-The connection is QUIC with TLS keyed to that key, so you reach the computer whose code you pasted, and nothing in between can read or change the session, the relays included. Those are n0's public relays: they help two computers find each other, and carry the encrypted traffic when there's no direct path.
+## Nine digits
+
+Fifty-two characters are easy to paste and a lot to read out over the phone. Since 0.10.0 the home screen shows nine digits instead, picked at random each time Deskline opens, and nobody hands those out either. A key made from the digits signs a small record of the computer's real code, and Deskline puts it on n0's pkarr relay, where iroh already publishes every endpoint's addresses:
+
+```rust title="src/short.rs" {3}
+fn key(digits: &str) -> SecretKey {
+    let mut seed = [0u8; 32];
+    argon2::Argon2::default().hash_password_into(digits.as_bytes(), b"deskline short code 1", &mut seed).expect("fixed sizes argon2 takes");
+    SecretKey::from_bytes(&seed)
+}
+```
+
+Whoever types the digits makes the same key, fetches the record, checks its signature and that it's less than ten minutes old, and dials the code inside it like a pasted one. Argon2 is there so every guess costs real work. The record is only renewed while the window is open, so the digits stop leading anywhere within ten minutes of it closing. Recent keeps the computer under a name you choose, so the next time needs no digits at all.
+
+The digits are the whole secret, so whoever overhears them could sign a record too and point them at another computer. That gets nobody in: the person being helped still answers Accept, and you see whose screen came up.
 
 ## Who gets in
 
@@ -138,6 +153,7 @@ On the same network the meter is as full and warm as it gets. Through a relay, w
 - **Files and the clipboard.** Copy files on one computer and press Ctrl+V on the other, and they go over and paste where you are.
 - **Coming back.** A dead link is noticed in about 12 seconds instead of 30. The viewer reconnects on its own and gets straight back in for 90 seconds.
 - **Versions that don't match.** Unknown messages are skipped, so two computers on different versions still talk.
+- **Screen readers.** Since 0.10.0 Narrator, VoiceOver and Orca read the whole window, and a prompt that pops up puts the focus on its no, so a key meant for another window can't let anyone in.
 - **Linux and macOS.** I wrote those backends without a Linux or Mac machine to try them on. Expect rough edges there.
 
 Deskline went from its first commit to 0.8.0 between November 17 and 19. Sightline, started on the 18th, does the screen part with no install at all: [a link you open in the browser](/writing/your-screen-as-a-link).
